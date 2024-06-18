@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactNode } from "react";
-import { UserProvider } from "@/contexts/project_context";
-// import { DatabaseProvider } from "@/contexts/db_context";
+import { UserProvider } from "@/contexts/project-context";
+// import { DatabaseProvider } from "@/contexts/db-context";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (

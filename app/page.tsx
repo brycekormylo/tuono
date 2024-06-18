@@ -2,6 +2,7 @@ import Background from "./(components)/background";
 import Intro from "./intro/page";
 import Routine from "./routine/page";
 import Notes from "./notes/page";
+import Account from "./account/page";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
           <Intro />
           <Routine />
           <Notes />
+          <Account />
         </div>
       </div>
     </main>
