@@ -1,6 +1,7 @@
 import Background from "./(components)/background";
 import Intro from "./intro/page";
 import Routine from "./routine/page";
+import Notes from "./notes/page";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
         <div className="flex flex-col gap-60">
           <Intro />
           <Routine />
+          <Notes />
         </div>
       </div>
     </main>
