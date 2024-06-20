@@ -1,8 +1,14 @@
-import { createClient } from "@/utils/supabase/server";
+"use client";
+
+import { useDatabaseContext } from "@/contexts/db-context";
 
 export default async function Notes() {
-  const supabase = createClient();
-  const { data: notes } = await supabase.from("notes").select();
+  const { database } = useDatabaseContext();
+  const { data: notes } = await database.from("notes").select();
 
-  return <pre>{JSON.stringify(notes, null, 2)}</pre>;
+  return (
+    <div>
+      <pre>{JSON.stringify(notes, null, 2)}</pre>
+    </div>
+  );
 }
