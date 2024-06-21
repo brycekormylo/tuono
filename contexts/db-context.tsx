@@ -4,8 +4,6 @@ import React, { createContext, useState, useContext, ReactNode } from "react";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 
-// import "react-native-url-polyfill/auto";
-
 interface DatabaseContextProps {
   isConnected: boolean;
   setIsConnected: (isConnected: boolean) => void;
@@ -20,7 +18,7 @@ interface DatabaseProviderProps {
   children: ReactNode;
 }
 
-const DatabaseProvider: React.FC<DatabaseProviderProps> = ({ children }) => {
+const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
   const database = createClient();
   const [isConnected, setIsConnected] = useState(false);
 
@@ -31,15 +29,13 @@ const DatabaseProvider: React.FC<DatabaseProviderProps> = ({ children }) => {
   );
 };
 
-const useDatabaseContext = () => {
+const useDatabase = () => {
   const context = useContext(DatabaseContext);
 
   if (!context) {
-    throw new Error(
-      "useDatabaseContext must be used within a DatabaseProvider",
-    );
+    throw new Error("useDatabase must be used within a DatabaseProvider");
   }
   return context;
 };
 
-export { DatabaseProvider, DatabaseContext, useDatabaseContext };
+export { DatabaseProvider, useDatabase };

@@ -3,26 +3,26 @@ import Dashboard from "./dashboard";
 
 export default function Intro() {
   return (
-    <div className="ms-32 me-[15rem] mt-20 flex flex-row h-[36rem]">
-      <div className="grow h-full flex flex-col justify-start items-start pt-20 px-20">
+    <div className="flex flex-row mt-20 ms-32 me-[15rem] h-[36rem]">
+      <div className="flex flex-col justify-start items-start px-20 pt-20 h-full grow">
         <h1 className="text-4xl">Welcome,</h1>
         <h2 className="text-3xl">[NAME]</h2>
         <div className="grow min-h-20" />
-        <div className="flex flex-col w-full items-end gap-4 transition-all ease-in-out ">
-          <div className="flex flex-row-reverse items-center gap-12 ps-12 bg-gray-100 rounded-full hover:scale-[1.02]">
-            <div className="h-24 w-24 rounded-full bg-gray-400 flex justify-center items-center">
+        <div className="flex flex-col gap-4 items-end w-full transition-all ease-in-out">
+          <div className="flex flex-row-reverse gap-12 items-center bg-gray-100 rounded-full ps-12 hover:scale-[1.02]">
+            <div className="flex justify-center items-center w-24 h-24 bg-gray-400 rounded-full">
               <LuPersonStanding size={48} />
             </div>
             <p className="text-xl">Clients</p>
           </div>
-          <div className="flex flex-row-reverse items-center gap-12 ps-12 bg-gray-100 rounded-full hover:scale-[1.02]">
-            <div className="h-24 w-24 rounded-full bg-gray-400 flex justify-center items-center">
+          <div className="flex flex-row-reverse gap-12 items-center bg-gray-100 rounded-full ps-12 hover:scale-[1.02]">
+            <div className="flex justify-center items-center w-24 h-24 bg-gray-400 rounded-full">
               <LuList size={48} />
             </div>
             <p className="text-xl">Actions</p>
           </div>
-          <div className="flex flex-row-reverse items-center gap-12 ps-12 bg-gray-100 rounded-full hover:scale-[1.02]">
-            <div className="h-24 w-24 rounded-full bg-gray-400 flex justify-center items-center">
+          <div className="flex flex-row-reverse gap-12 items-center bg-gray-100 rounded-full ps-12 hover:scale-[1.02]">
+            <div className="flex justify-center items-center w-24 h-24 bg-gray-400 rounded-full">
               <LuPlus size={48} />
             </div>
             <p className="text-xl">New Routine</p>

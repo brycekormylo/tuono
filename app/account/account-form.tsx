@@ -74,7 +74,7 @@ export default function AccountForm({ user }: { user: User | null }) {
   }
 
   return (
-    <div className="form-widget flex flex-col gap-6">
+    <div className="flex flex-col gap-6 form-widget">
       <div>
         <label htmlFor="email">Email</label>
         <input id="email" type="text" value={user?.email} disabled />
@@ -109,7 +109,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
       <div>
         <button
-          className="button primary block"
+          className="block button primary"
           onClick={() =>
             updateProfile({ fullname, username, website, avatar_url })
           }
@@ -121,7 +121,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
       <div>
         <form action="/auth/signout" method="post">
-          <button className="button block" type="submit">
+          <button className="block button" type="submit">
             Sign out
           </button>
         </form>

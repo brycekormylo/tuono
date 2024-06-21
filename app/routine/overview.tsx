@@ -3,7 +3,7 @@ export default function Overview() {
 
   return (
     <div className="flex flex-col gap-12 p-16 bg-gray-50 w-[52rem] rounded-tl-[6rem] rounded-br-[6rem]">
-      <div className="flex w-full justify-between">
+      <div className="flex justify-between w-full">
         <p className="text-lg">Sample Routine</p>
         <p className="text-md">Time to complete</p>
       </div>

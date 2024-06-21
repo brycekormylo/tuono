@@ -40,8 +40,8 @@ export default function NavBar() {
   };
 
   return (
-    <div className="col-start-1 col-end-1 row-start-1 row-end-1 top-0 right-0 flex flex-row items-start justify-end">
-      <div className="flex flex-col gap-4 z-10 w-32 items-center">
+    <div className="flex top-0 right-0 flex-row col-start-1 col-end-1 row-start-1 row-end-1 justify-end items-start">
+      <div className="flex z-10 flex-col gap-4 items-center w-32">
         <Link href={"/account"}>
           <AccountButton />
         </Link>
@@ -59,8 +59,8 @@ export default function NavBar() {
               href={`/${item.slug}`}
               scroll={false}
             >
-              <div className="text-md rounded-xl px-4 py-2">
-                <p className="truncate uppercase">{item.name}</p>
+              <div className="py-2 px-4 rounded-xl text-md">
+                <p className="uppercase truncate">{item.name}</p>
               </div>
             </Link>
           );

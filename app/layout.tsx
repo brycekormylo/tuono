@@ -21,10 +21,12 @@ export default function RootLayout({
     <html lang="en">
       <Providers>
         <body className={font.className}>
-          <main className="grid grid-cols-1 grid-rows-1 min-h-screen w-screen">
+          <main className="grid grid-cols-1 grid-rows-1 w-screen min-h-screen">
             <Background />
             <NavBar />
-            {children}
+            <div className="col-start-1 col-end-1 row-start-1 row-end-1">
+              {children}
+            </div>
           </main>
         </body>
       </Providers>
