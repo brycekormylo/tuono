@@ -4,6 +4,8 @@ import React, { createContext, useState, useContext, ReactNode } from "react";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 
+//Use useReducer to setup structure for specific queries
+
 interface DatabaseContextProps {
   isConnected: boolean;
   setIsConnected: (isConnected: boolean) => void;
