@@ -1,13 +1,11 @@
-import AccountForm from "./account-form";
-import Avatar from "./avatar";
-import { createClient } from "@/utils/supabase/server";
+"use client";
 
-export default async function Account() {
-  const supabase = createClient();
+import AccountForm from "./_components/account-form";
+import Avatar from "./_components/avatar";
+import { useAuth } from "@/contexts/auth";
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function Account() {
+  const { user } = useAuth();
 
   return (
     <div className="m-24">

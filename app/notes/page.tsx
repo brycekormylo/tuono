@@ -1,6 +1,6 @@
 "use client";
 
-import { useDatabase } from "@/contexts/db-context";
+import { useDatabase } from "@/contexts/database";
 
 export default async function Notes() {
   const { database } = useDatabase();

@@ -12,13 +12,13 @@ const NavbarItems = [
     icon: LuHome,
   },
   {
-    name: "Clients",
-    slug: "clients",
+    name: "Records",
+    slug: "record-editor",
     icon: LuUser2,
   },
   {
-    name: "Messages",
-    slug: "messages",
+    name: "Clients",
+    slug: "client-list",
     icon: LuSquareStack,
   },
 ];
