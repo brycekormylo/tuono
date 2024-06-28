@@ -1,10 +1,10 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import { type User } from "@supabase/supabase-js";
+import { useDatabase } from "@/contexts/database";
 
 export default function AccountForm({ user }: { user: User | null }) {
-  const supabase = createClient();
+  const { database } = useDatabase();
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -15,7 +15,7 @@ export default function AccountForm({ user }: { user: User | null }) {
     try {
       setLoading(true);
 
-      const { data, error, status } = await supabase
+      const { data, error, status } = await database
         .from("profiles")
         .select(`full_name, username, website, avatar_url`)
         .eq("id", user?.id)
@@ -33,11 +33,11 @@ export default function AccountForm({ user }: { user: User | null }) {
         setAvatarUrl(data.avatar_url);
       }
     } catch (error) {
-      alert("Error loading user data!");
+      //      alert("Error loading user data!");
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [user, database]);
 
   useEffect(() => {
     getProfile();
@@ -56,7 +56,7 @@ export default function AccountForm({ user }: { user: User | null }) {
     try {
       setLoading(true);
 
-      const { error } = await supabase.from("profiles").upsert({
+      const { error } = await database.from("profiles").upsert({
         id: user?.id as string,
         full_name: fullname,
         username,

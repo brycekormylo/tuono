@@ -1,10 +1,10 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { useDatabase } from "@/contexts/database";
 import { type User } from "@supabase/supabase-js";
 
 export default function AccountInfo({ user }: { user: User | null }) {
-  const supabase = createClient();
+  const { database } = useDatabase();
   const [loading, setLoading] = useState(true);
   const [fullname, setFullname] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
@@ -15,7 +15,7 @@ export default function AccountInfo({ user }: { user: User | null }) {
     try {
       setLoading(true);
 
-      const { data, error, status } = await supabase
+      const { data, error, status } = await database
         .from("profiles")
         .select(`full_name, username, website, avatar_url`)
         .eq("id", user?.id)
@@ -37,7 +37,7 @@ export default function AccountInfo({ user }: { user: User | null }) {
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [user, database]);
 
   useEffect(() => {
     getProfile();
