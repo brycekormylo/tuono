@@ -8,7 +8,7 @@ export default function Account() {
   const { user } = useAuth();
 
   return (
-    <div className="m-24">
+    <div className="m-16">
       <AccountForm user={user} />
     </div>
   );

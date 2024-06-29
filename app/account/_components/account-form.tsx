@@ -1,11 +1,10 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { type User } from "@supabase/supabase-js";
-import { useDatabase } from "@/contexts/database";
 import { useAuth } from "@/contexts/auth";
 
 type ProfileInfo = {
-  fullname: string;
+  full_name: string;
   username: string;
   website: string;
   avatar_url: string;
@@ -21,7 +20,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
   useEffect(() => {
     if (profileInfo != null) {
-      setFullname(profileInfo.fullname);
+      setFullname(profileInfo.full_name);
       setUsername(profileInfo.username);
       setWebsite(profileInfo.website);
       setAvatarUrl(profileInfo.avatar_url);
@@ -30,7 +29,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
   const updateProfile = () => {
     const updatedProfile: ProfileInfo = {
-      fullname: fullname,
+      full_name: fullname,
       username: username,
       website: website,
       avatar_url: avatar_url,
@@ -94,23 +93,27 @@ export default function AccountForm({ user }: { user: User | null }) {
           onChange={(e) => setWebsite(e.target.value)}
         />
       </div>
-
-      <div>
-        <button
-          className="block button primary"
-          onClick={() => updateProfile()}
-          disabled={loading}
-        >
-          {loading ? "Loading ..." : "Update"}
-        </button>
-      </div>
-
-      <div>
-        <form action="/auth/signout" method="post">
-          <button className="block button" type="submit">
-            Sign out
+      <div className="flex flex-row-reverse gap-12">
+        <div>
+          <button
+            className="py-2 px-4 bg-gray-200 rounded-full primary"
+            onClick={() => updateProfile()}
+            disabled={loading}
+          >
+            {loading ? "Loading ..." : "Update"}
           </button>
-        </form>
+        </div>
+
+        <div>
+          <form action="/auth/signout" method="post">
+            <button
+              className="py-2 px-4 bg-gray-200 rounded-full"
+              type="submit"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

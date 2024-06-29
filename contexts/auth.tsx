@@ -13,7 +13,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 type ProfileInfo = {
-  fullname: string;
+  full_name: string;
   username: string;
   website: string;
   avatar_url: string;
@@ -24,7 +24,7 @@ interface AuthContextProps {
   login: (formData: FormData) => void;
   signup: (formData: FormData) => void;
   profileInfo: ProfileInfo;
-  setProfileInfo: (info: ProfileInfo) => void;
+  setProfileInfo: (profileInfo: ProfileInfo) => void;
   isLoading: boolean;
 }
 
@@ -39,7 +39,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const router = useRouter();
 
   const emptyProfile: ProfileInfo = {
-    fullname: "",
+    full_name: "",
     username: "",
     website: "",
     avatar_url: "",
@@ -98,7 +98,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (data) {
         const newProfileInfo: ProfileInfo = {
-          fullname: data.full_name,
+          full_name: data.full_name,
           username: data.username,
           website: data.website,
           avatar_url: data.avatar_url,
@@ -119,12 +119,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [user, getProfileInfo]);
 
-  // useEffect(() => {
-  //   updateProfileInfo(profileInfo);
-  // }, [user, setProfileInfo]);
+  useEffect(() => {
+    updateProfileInfo(profileInfo);
+  }, [profileInfo]);
 
   const updateProfileInfo = async ({
-    fullname,
+    full_name,
     username,
     website,
     avatar_url,
@@ -134,10 +134,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const { error } = await database.from("profiles").upsert({
         id: user?.id as string,
-        full_name: fullname,
-        username,
-        website,
-        avatar_url,
+        full_name: full_name,
+        username: username,
+        website: website,
+        avatar_url: avatar_url,
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
