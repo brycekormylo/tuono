@@ -5,37 +5,27 @@ import React, {
   useState,
   useContext,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
-//Use useReducer to setup structure for specific queries
+type ProfileInfo = {
+  fullname: string;
+  username: string;
+  website: string;
+  avatar_url: string;
+};
 
-// const authReducer(tasks, action) {
-//   switch(action.type) {
-//     case 'login': {
-//
-//     }
-//     case 'signup': {
-//
-//     }
-//     case 'accountInfo': {
-//
-//     }
-//   }
-// }
-//type UserAccountInfo = {
-//   fullname: string;
-//   username: string;
-//   website: string;
-//   avatar_url: string;
-// };
 interface AuthContextProps {
   user: User | null;
   login: (formData: FormData) => void;
   signup: (formData: FormData) => void;
+  profileInfo: ProfileInfo;
+  setProfileInfo: (info: ProfileInfo) => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -45,17 +35,26 @@ interface AuthProviderProps {
 }
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const supabase = createClient();
+  const database = createClient();
   const router = useRouter();
 
+  const emptyProfile: ProfileInfo = {
+    fullname: "",
+    username: "",
+    website: "",
+    avatar_url: "",
+  };
+
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const [profileInfo, setProfileInfo] = useState<ProfileInfo>(emptyProfile);
 
   const login = async (formData: FormData) => {
     const data = {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
     };
-    const { error } = await supabase.auth.signInWithPassword(data);
+    const { error } = await database.auth.signInWithPassword(data);
     router.push("./account");
   };
 
@@ -64,7 +63,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
     };
-    const { error } = await supabase.auth.signUp(data);
+    const { error } = await database.auth.signUp(data);
     router.push("./account");
   };
 
@@ -73,7 +72,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         const {
           data: { user },
-        } = await supabase.auth.getUser();
+        } = await database.auth.getUser();
         setUser(user);
       } catch {
         setUser(null);
@@ -82,12 +81,78 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     return user;
   };
 
+  const getProfileInfo = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const { data, error, status } = await database
+        .from("profiles")
+        .select(`full_name, username, website, avatar_url`)
+        .eq("id", user?.id)
+        .single();
+
+      if (error && status !== 406) {
+        console.log(error);
+        throw error;
+      }
+
+      if (data) {
+        const newProfileInfo: ProfileInfo = {
+          fullname: data.full_name,
+          username: data.username,
+          website: data.website,
+          avatar_url: data.avatar_url,
+        };
+        setProfileInfo(newProfileInfo);
+      }
+    } catch (error) {
+      //      alert("Error loading user data!");
+    } finally {
+      setLoading(false);
+    }
+  }, [user, database]);
+
   useEffect(() => {
     getUser();
-  });
+    if (user != null) {
+      getProfileInfo();
+    }
+  }, [user, getProfileInfo]);
+
+  // useEffect(() => {
+  //   updateProfileInfo(profileInfo);
+  // }, [user, setProfileInfo]);
+
+  const updateProfileInfo = async ({
+    fullname,
+    username,
+    website,
+    avatar_url,
+  }: ProfileInfo) => {
+    try {
+      setLoading(true);
+
+      const { error } = await database.from("profiles").upsert({
+        id: user?.id as string,
+        full_name: fullname,
+        username,
+        website,
+        avatar_url,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) throw error;
+      alert("Profile Updated!");
+    } catch (error) {
+      alert("Error updating the data!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ login, signup, user }}>
+    <AuthContext.Provider
+      value={{ login, signup, user, profileInfo, setProfileInfo, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );
