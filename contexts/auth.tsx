@@ -11,6 +11,8 @@ import React, {
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { UUID } from "crypto";
+import { profile } from "console";
 
 type ProfileInfo = {
   full_name: string;
@@ -23,12 +25,13 @@ interface AuthContextProps {
   user: User | null;
   login: (formData: FormData) => void;
   signup: (formData: FormData) => void;
-  profileInfo: ProfileInfo;
+  logout: () => void;
+  profileInfo: ProfileInfo | null;
   setProfileInfo: (profileInfo: ProfileInfo) => void;
   isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+const AuthContext = createContext<AuthContextProps | null>(null);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -38,16 +41,9 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const database = createClient();
   const router = useRouter();
 
-  const emptyProfile: ProfileInfo = {
-    full_name: "",
-    username: "",
-    website: "",
-    avatar_url: "",
-  };
-
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [profileInfo, setProfileInfo] = useState<ProfileInfo>(emptyProfile);
+  const [profileInfo, setProfileInfo] = useState<ProfileInfo | null>(null);
 
   const login = async (formData: FormData) => {
     const data = {
@@ -55,7 +51,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       password: formData.get("password") as string,
     };
     const { error } = await database.auth.signInWithPassword(data);
-    router.push("./account");
+    if (!error) {
+      router.push("./account");
+      getUser();
+    } else {
+      alert("login failed");
+    }
   };
 
   const signup = async (formData: FormData) => {
@@ -64,20 +65,36 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       password: formData.get("password") as string,
     };
     const { error } = await database.auth.signUp(data);
-    router.push("./account");
+
+    if (!error) {
+      router.push("./account");
+      getUser();
+    } else {
+      alert("signup failed");
+    }
+  };
+
+  const logout = async () => {
+    if (user) {
+      await database.auth.signOut();
+      router.push("./login");
+    }
   };
 
   const getUser = async () => {
+    setLoading(true);
     if (user == null) {
       try {
         const {
           data: { user },
         } = await database.auth.getUser();
         setUser(user);
+        getProfileInfo();
       } catch {
         setUser(null);
       }
     }
+    setLoading(false);
     return user;
   };
 
@@ -113,15 +130,22 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [user, database]);
 
   useEffect(() => {
-    getUser();
-    if (user != null) {
+    if (user == null) {
+      getUser();
+    } else {
       getProfileInfo();
     }
-  }, [user, getProfileInfo]);
+  }, [user]);
 
   useEffect(() => {
-    updateProfileInfo(profileInfo);
+    if (profileInfo != null && !isLoading) {
+      updateProfileInfo(profileInfo);
+    }
   }, [profileInfo]);
+
+  useEffect(() => {
+    console.log(isLoading ? "Loading" : "Not Loading");
+  }, [isLoading]);
 
   const updateProfileInfo = async ({
     full_name,
@@ -129,11 +153,19 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     website,
     avatar_url,
   }: ProfileInfo) => {
+    if (
+      profileInfo == null ||
+      full_name != profileInfo.full_name ||
+      username != profileInfo.username ||
+      website != profileInfo.website ||
+      avatar_url != profileInfo.avatar_url
+    ) {
+      return;
+    }
+    setLoading(true);
     try {
-      setLoading(true);
-
       const { error } = await database.from("profiles").upsert({
-        id: user?.id as string,
+        id: user?.id as UUID,
         full_name: full_name,
         username: username,
         website: website,
@@ -144,14 +176,21 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       alert("Profile Updated!");
     } catch (error) {
       alert("Error updating the data!");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (
     <AuthContext.Provider
-      value={{ login, signup, user, profileInfo, setProfileInfo, isLoading }}
+      value={{
+        login,
+        signup,
+        logout,
+        user,
+        profileInfo,
+        setProfileInfo,
+        isLoading,
+      }}
     >
       {children}
     </AuthContext.Provider>

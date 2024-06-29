@@ -10,8 +10,8 @@ type ProfileInfo = {
   avatar_url: string;
 };
 
-export default function AccountForm({ user }: { user: User | null }) {
-  const { profileInfo, setProfileInfo } = useAuth();
+export default function AccountForm() {
+  const { user, logout, profileInfo, setProfileInfo } = useAuth();
   const [loading, setLoading] = useState(false);
   const [fullname, setFullname] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -105,14 +105,13 @@ export default function AccountForm({ user }: { user: User | null }) {
         </div>
 
         <div>
-          <form action="/auth/signout" method="post">
-            <button
-              className="py-2 px-4 bg-gray-200 rounded-full"
-              type="submit"
-            >
-              Sign out
-            </button>
-          </form>
+          <button
+            className="py-2 px-4 bg-gray-200 rounded-full"
+            type="submit"
+            onClick={() => logout()}
+          >
+            Sign out
+          </button>
         </div>
       </div>
     </div>
