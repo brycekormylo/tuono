@@ -12,7 +12,6 @@ import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { UUID } from "crypto";
-import { profile } from "console";
 
 type ProfileInfo = {
   full_name: string;
@@ -28,6 +27,12 @@ interface AuthContextProps {
   logout: () => void;
   profileInfo: ProfileInfo | null;
   setProfileInfo: (profileInfo: ProfileInfo) => void;
+  updateProfileInfo: ({
+    full_name,
+    username,
+    website,
+    avatar_url,
+  }: ProfileInfo) => void;
   isLoading: boolean;
 }
 
@@ -52,8 +57,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     };
     const { error } = await database.auth.signInWithPassword(data);
     if (!error) {
-      router.push("./account");
       getUser();
+      router.push("./account");
     } else {
       alert("login failed");
     }
@@ -67,8 +72,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     const { error } = await database.auth.signUp(data);
 
     if (!error) {
-      router.push("./account");
       getUser();
+      router.push("./account");
     } else {
       alert("signup failed");
     }
@@ -77,6 +82,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     if (user) {
       await database.auth.signOut();
+      setProfileInfo(null);
+      setUser(null);
       router.push("./login");
     }
   };
@@ -123,7 +130,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         setProfileInfo(newProfileInfo);
       }
     } catch (error) {
-      //      alert("Error loading user data!");
+      //alert("Error loading user data!");
     } finally {
       setLoading(false);
     }
@@ -137,31 +144,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (profileInfo != null && !isLoading) {
-      updateProfileInfo(profileInfo);
-    }
-  }, [profileInfo]);
-
-  useEffect(() => {
-    console.log(isLoading ? "Loading" : "Not Loading");
-  }, [isLoading]);
-
   const updateProfileInfo = async ({
     full_name,
     username,
     website,
     avatar_url,
   }: ProfileInfo) => {
-    if (
-      profileInfo == null ||
-      full_name != profileInfo.full_name ||
-      username != profileInfo.username ||
-      website != profileInfo.website ||
-      avatar_url != profileInfo.avatar_url
-    ) {
-      return;
-    }
     setLoading(true);
     try {
       const { error } = await database.from("profiles").upsert({
@@ -175,8 +163,9 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       if (error) throw error;
       alert("Profile Updated!");
     } catch (error) {
-      alert("Error updating the data!");
+      //alert("Error updating the data!");
     }
+    getProfileInfo();
     setLoading(false);
   };
 
@@ -189,6 +178,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         user,
         profileInfo,
         setProfileInfo,
+        updateProfileInfo,
         isLoading,
       }}
     >

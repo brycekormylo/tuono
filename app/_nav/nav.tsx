@@ -20,7 +20,7 @@ const NavbarItems = [
   },
   {
     name: "Clients",
-    slug: "client-list",
+    slug: "clients",
     icon: LuUsers,
   },
 ];

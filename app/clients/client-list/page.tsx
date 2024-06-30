@@ -1,7 +1,7 @@
 export default function ClientList() {
   return (
-    <div className="w-[48rem] h-[36rem]">
-      <div></div>
+    <div className="flex w-full">
+      <h2>My Clients</h2>
     </div>
   );
 }
