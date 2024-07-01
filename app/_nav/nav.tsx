@@ -19,8 +19,8 @@ const NavbarItems = [
     icon: LuDumbbell,
   },
   {
-    name: "Clients",
-    slug: "clients",
+    name: "Patients",
+    slug: "patients/patient-list",
     icon: LuUsers,
   },
 ];

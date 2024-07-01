@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 
 //Use useReducer to setup structure for specific queries
 
-interface ClientInfo {
+interface PatientInfo {
   firstName: string;
   lastName: string;
   email: string;
@@ -17,7 +17,7 @@ interface DatabaseContextProps {
   isConnected: boolean;
   setIsConnected: (isConnected: boolean) => void;
   database: SupabaseClient;
-  addNewClient: (client: ClientInfo) => void;
+  addNewPatient: (patient: PatientInfo) => void;
 }
 
 const DatabaseContext = createContext<DatabaseContextProps | undefined>(
@@ -32,13 +32,13 @@ const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
   const database = createClient();
   const [isConnected, setIsConnected] = useState(false);
 
-  const addNewClient = (client: ClientInfo) => {
+  const addNewPatient = (patient: PatientInfo) => {
     //Push to db
   };
 
   return (
     <DatabaseContext.Provider
-      value={{ isConnected, setIsConnected, database, addNewClient }}
+      value={{ isConnected, setIsConnected, database, addNewPatient }}
     >
       {children}
     </DatabaseContext.Provider>

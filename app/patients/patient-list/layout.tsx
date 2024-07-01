@@ -1,4 +1,4 @@
-export default function ClientListLayout({
+export default function PatientListLayout({
   children,
 }: {
   children: React.ReactNode;
