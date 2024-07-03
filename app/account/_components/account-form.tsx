@@ -1,30 +1,30 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { useAuth } from '@/contexts/auth'
+"use client";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth";
 
 type ProfileInfo = {
-  full_name: string
-  username: string
-  website: string
-  avatar_url: string
-}
+  full_name: string;
+  username: string;
+  website: string;
+  avatar_url: string;
+};
 
 export default function AccountForm() {
-  const { user, logout, profileInfo, updateProfileInfo } = useAuth()
-  const [loading, setLoading] = useState(false)
-  const [fullname, setFullname] = useState<string>('')
-  const [username, setUsername] = useState<string>('')
-  const [website, setWebsite] = useState<string>('')
-  const [avatar_url, setAvatarUrl] = useState<string>('')
+  const { user, logout, profileInfo, updateProfileInfo } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [fullname, setFullname] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [website, setWebsite] = useState<string>("");
+  const [avatar_url, setAvatarUrl] = useState<string>("");
 
   useEffect(() => {
     if (profileInfo != null) {
-      setFullname(profileInfo.full_name)
-      setUsername(profileInfo.username)
-      setWebsite(profileInfo.website)
-      setAvatarUrl(profileInfo.avatar_url)
+      setFullname(profileInfo.full_name);
+      setUsername(profileInfo.username);
+      setWebsite(profileInfo.website);
+      setAvatarUrl(profileInfo.avatar_url);
     }
-  }, [profileInfo])
+  }, [profileInfo]);
 
   const updateProfile = () => {
     const updatedProfile: ProfileInfo = {
@@ -32,9 +32,9 @@ export default function AccountForm() {
       username: username,
       website: website,
       avatar_url: avatar_url,
-    }
-    updateProfileInfo(updatedProfile)
-  }
+    };
+    updateProfileInfo(updatedProfile);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -61,7 +61,7 @@ export default function AccountForm() {
           className="bg-transparent"
           id="fullName"
           type="text"
-          value={fullname || ''}
+          value={fullname || ""}
           onChange={(e) => setFullname(e.target.value)}
         />
       </div>
@@ -76,7 +76,7 @@ export default function AccountForm() {
           className="bg-transparent"
           id="username"
           type="text"
-          value={username || ''}
+          value={username || ""}
           onChange={(e) => setUsername(e.target.value)}
         />
       </div>
@@ -88,7 +88,7 @@ export default function AccountForm() {
           className="bg-transparent"
           id="website"
           type="url"
-          value={website || ''}
+          value={website || ""}
           onChange={(e) => setWebsite(e.target.value)}
         />
       </div>
@@ -99,7 +99,7 @@ export default function AccountForm() {
             onClick={() => updateProfile()}
             disabled={loading}
           >
-            {loading ? 'Loading ...' : 'Update'}
+            {loading ? "Loading ..." : "Update"}
           </button>
         </div>
         <div>
@@ -113,5 +113,5 @@ export default function AccountForm() {
         </div>
       </div>
     </div>
-  )
+  );
 }

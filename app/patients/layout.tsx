@@ -9,15 +9,17 @@ export default function PatientsLayout({
   return (
     <section>
       <div className="flex justify-end items-start pt-36 w-full ps-40 pe-64">
-        <div className="flex flex-col gap-24 px-16 grow">
+        <div className="flex flex-col gap-24 px-16 h-full grow">
           <h1 className="self-start text-4xl">Patients</h1>
-          <div className="flex flex-col gap-6 self-end">
+          <div className="flex flex-col gap-6 self-end grow">
             <NewPatientButton />
             <AllPatientsButton />
           </div>
         </div>
-        <div className="flex flex-col bg-gray-300 rounded-3xl min-h-[32rem] min-w-[24rem]">
-          {children}
+        <div className="flex">
+          <div className="flex flex-col bg-gray-300 rounded-3xl min-h-[32rem] min-w-[24rem]">
+            {children}
+          </div>
         </div>
       </div>
     </section>

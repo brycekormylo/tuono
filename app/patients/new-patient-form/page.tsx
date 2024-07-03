@@ -1,11 +1,11 @@
 "use client";
 
 import { useInput } from "@/hooks/use-input";
-import { useDatabase } from "@/contexts/database";
 import { LuCheck } from "react-icons/lu";
+import { usePatientList, PatientInfo } from "@/hooks/use-patient-list";
 
 export default function NewPatientForm() {
-  const { addNewPatient } = useDatabase();
+  const { addPatient } = usePatientList();
 
   const { value: firstName, onChange: changeFirstName } = useInput("");
   const { value: lastName, onChange: changeLastName } = useInput("");
@@ -13,13 +13,13 @@ export default function NewPatientForm() {
   const { value: phone, onChange: changePhone } = useInput("");
 
   const handleSubmit = () => {
-    const newPatient = {
+    const newPatient: PatientInfo = {
       firstName: firstName,
       lastName: lastName,
       email: email,
       phone: phone,
     };
-    addNewPatient(newPatient);
+    addPatient(newPatient);
   };
   return (
     <div className="flex flex-col gap-8 justify-start items-end p-16 w-full">
