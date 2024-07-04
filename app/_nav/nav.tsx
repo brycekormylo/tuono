@@ -10,7 +10,7 @@ import AccountButton from "./account-button";
 const NavbarItems = [
   {
     name: "Dashboard",
-    slug: "/",
+    slug: "intro",
     icon: LuLayoutDashboard,
   },
   {

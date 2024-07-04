@@ -3,9 +3,11 @@
 import { useInput } from "@/hooks/use-input";
 import { LuCheck } from "react-icons/lu";
 import { usePatientList, PatientInfo } from "@/hooks/use-patient-list";
+import { useRouter } from "next/navigation";
 
 export default function NewPatientForm() {
   const { addPatient } = usePatientList();
+  const router = useRouter();
 
   const { value: firstName, onChange: changeFirstName } = useInput("");
   const { value: lastName, onChange: changeLastName } = useInput("");
@@ -20,9 +22,11 @@ export default function NewPatientForm() {
       phone: phone,
     };
     addPatient(newPatient);
+    router.push("/patients/patient-list");
   };
+
   return (
-    <div className="flex flex-col gap-8 justify-start items-end p-16 w-full">
+    <div className="flex flex-col gap-8 justify-start items-end p-16">
       <h2 className="text-2xl">Add new patient</h2>
       <form
         onSubmit={handleSubmit}

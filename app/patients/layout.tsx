@@ -1,5 +1,6 @@
-import NewPatientButton from "./_components/new-patient-button";
-import AllPatientsButton from "./_components/all-patients-button";
+import LabelIcon from "../_components/label-icon";
+import { LuPlus } from "react-icons/lu";
+import Link from "next/link";
 
 export default function PatientsLayout({
   children,
@@ -8,16 +9,15 @@ export default function PatientsLayout({
 }) {
   return (
     <section>
-      <div className="flex justify-end items-start pt-36 w-full ps-40 pe-64">
-        <div className="flex flex-col gap-24 px-16 h-full grow">
-          <h1 className="self-start text-4xl">Patients</h1>
-          <div className="flex flex-col gap-6 self-end grow">
-            <NewPatientButton />
-            <AllPatientsButton />
+      <div className="flex justify-end items-start pt-24 ps-40 me-44">
+        <div className="flex flex-col gap-12 px-16">
+          <div className="flex justify-between">
+            <h1 className="self-start text-4xl">Patients</h1>
+            <Link href={"./new-patient-form"}>
+              <LabelIcon icon={<LuPlus size={24} />} label="Add New" />
+            </Link>
           </div>
-        </div>
-        <div className="flex">
-          <div className="flex flex-col bg-gray-300 rounded-3xl min-h-[32rem] min-w-[24rem]">
+          <div className="flex bg-gray-300 rounded-3xl min-h-[32rem]">
             {children}
           </div>
         </div>
