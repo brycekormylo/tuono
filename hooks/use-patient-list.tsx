@@ -26,8 +26,24 @@ const usePatientList = () => {
 
   const addPatient = async (newPatient: PatientInfo) => {
     if (user) {
-      const patientsToUpload: PatientInfo[] = await getPatients();
-      patientsToUpload.push(newPatient);
+      const patients: PatientInfo[] = await getPatients();
+      if (patients) {
+        const patientsToUpload = [...patients, newPatient];
+        const { data, error } = await database
+          .from("patient")
+          .update({ patients: patientsToUpload })
+          .eq("id", user?.id)
+          .select();
+      }
+    }
+  };
+
+  const removePatient = async (patientToRemove: PatientInfo) => {
+    if (user) {
+      const patients: PatientInfo[] = await getPatients();
+      const patientsToUpload = [
+        ...patients.filter((patient) => patient.email != patientToRemove.email),
+      ];
       const { data, error } = await database
         .from("patient")
         .update({ patients: patientsToUpload })
@@ -36,7 +52,7 @@ const usePatientList = () => {
     }
   };
 
-  return { getPatients, addPatient };
+  return { getPatients, addPatient, removePatient };
 };
 
 export { usePatientList };

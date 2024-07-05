@@ -1,9 +1,10 @@
 "use client";
 
 import { useInput } from "@/hooks/use-input";
-import { LuCheck } from "react-icons/lu";
+import { LuCheck, LuX } from "react-icons/lu";
 import { usePatientList, PatientInfo } from "@/hooks/use-patient-list";
 import { useRouter } from "next/navigation";
+import LabelIcon from "@/app/_components/label-icon";
 
 export default function NewPatientForm() {
   const { addPatient } = usePatientList();
@@ -25,13 +26,14 @@ export default function NewPatientForm() {
     router.push("/patients/patient-list");
   };
 
+  const handleCancel = () => {
+    router.push("/patients/patient-list");
+  };
+
   return (
     <div className="flex flex-col gap-8 justify-start items-end p-16">
       <h2 className="text-2xl">Add new patient</h2>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-8 items-end w-full [&_*]:transition-all [&_*]:ease-in-out"
-      >
+      <form className="flex flex-col gap-8 items-end w-full [&_*]:transition-all [&_*]:ease-in-out">
         <div className="flex gap-2 justify-between items-center h-full">
           <label className="py-1 px-3 h-full bg-gray-200 rounded-full">
             First Name
@@ -76,15 +78,16 @@ export default function NewPatientForm() {
             onChange={changePhone}
           />
         </div>
-        <div className="flex justify-end items-center">
+        <div className="flex gap-6 justify-end items-center">
           <button
-            className="flex justify-end items-center bg-gray-100 rounded-full transition-all ease-in-out hover:scale-[1.02]"
-            type="submit"
+            type="button"
+            className="flex justify-center items-center w-12 h-12 bg-gray-400 rounded-full"
+            onClick={handleCancel}
           >
-            <p className="py-3 px-5 text-lg">Submit</p>
-            <div className="flex justify-center items-center bg-gray-400 rounded-full">
-              <LuCheck size={24} className="m-4" />
-            </div>
+            <LuX size={24} />
+          </button>
+          <button type="button" onClick={handleSubmit}>
+            <LabelIcon label="Submit" icon={<LuCheck size={24} />} />
           </button>
         </div>
       </form>
