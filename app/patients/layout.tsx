@@ -1,3 +1,5 @@
+import { Providers } from "./providers";
+
 export default function PatientsLayout({
   children,
 }: {
@@ -10,9 +12,11 @@ export default function PatientsLayout({
           <div className="flex gap-24 justify-end px-8">
             <h1 className="self-start text-4xl">Patients</h1>
           </div>
-          <div className="flex bg-gray-300 rounded-tl-3xl rounded-br-3xl min-h-[32rem]">
-            {children}
-          </div>
+          <Providers>
+            <div className="flex bg-gray-300 rounded-tl-3xl rounded-br-3xl min-h-[32rem]">
+              {children}
+            </div>
+          </Providers>
         </div>
       </div>
     </section>

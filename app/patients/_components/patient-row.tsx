@@ -1,18 +1,21 @@
-import { PatientInfo } from "@/hooks/use-patient-list";
-import { LuCheck, LuPencil, LuX, LuTrash } from "react-icons/lu";
+import {
+  LuCheck,
+  LuPencil,
+  LuX,
+  LuTrash,
+  LuMoreHorizontal,
+} from "react-icons/lu";
 import { useEffect, useState } from "react";
-import { usePatientList } from "@/hooks/use-patient-list";
 import { useInput } from "@/hooks/use-input";
+import { usePatientList, PatientInfo } from "@/contexts/patient-list";
 
 interface PatientRowProps {
   patient: PatientInfo;
-  index: number;
 }
 
-export default function PatientRow({ patient, index }: PatientRowProps) {
-  const { removePatient, addPatient } = usePatientList();
+export default function PatientRow({ patient }: PatientRowProps) {
+  const { removePatient, updatePatient } = usePatientList();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const { value: firstName, onChange: changeFirstName } = useInput(
     patient.firstName,
@@ -23,17 +26,15 @@ export default function PatientRow({ patient, index }: PatientRowProps) {
   const { value: email, onChange: changeEmail } = useInput(patient.email);
   const { value: phone, onChange: changePhone } = useInput(patient.phone);
 
-  const [newPatientInfo, setNewPatientInfo] = useState<PatientInfo>(patient);
-
   const handleSubmitChanges = () => {
-    setNewPatientInfo({
+    const newInfo: PatientInfo = {
       firstName: firstName,
       lastName: lastName,
       email: email,
       phone: phone,
-    });
-    removePatient(patient);
-    addPatient(newPatientInfo);
+    };
+
+    updatePatient(patient, newInfo);
     setIsExpanded(false);
   };
 
@@ -47,14 +48,7 @@ export default function PatientRow({ patient, index }: PatientRowProps) {
 
   const handleDelete = () => {
     removePatient(patient);
-  };
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
+    setIsExpanded(false);
   };
 
   const formattedPhoneNumber = (phone: string): String => {
@@ -74,62 +68,79 @@ export default function PatientRow({ patient, index }: PatientRowProps) {
 
   return (
     <div
-      key={index}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className="
-	grid grid-cols-[2fr,1fr,1fr] text-base font-normal 
-	[&_input]:border-b-gray-600 [&_input]:border-b-2 [&_input]:outline-none 
+      className={`
+	grid grid-cols-[2fr,1fr,1fr,3rem] text-base font-normal 
+	${isExpanded ? "h-24 bg-gray-400/10" : "h-14 bg-transparent"} 
+	overflow-clip hover:bg-gray-400/20 rounded-md 
+	[&_input]:border-b-gray-600/25 [&_input]:border-b-[2px] [&_input]:outline-none 
         [&_input]:bg-transparent [&_input]:focus:scale-[1.02]
-        [&_input]:py-1 [&_input]:px-1 
-      "
+        [&_input]:px-1 
+      `}
     >
-      <div
-        onClick={handleExpand}
-        className={`overflow-clip row-start-1 col-start-1 col-end-4 rounded-md ${isHovered || isExpanded ? "bg-gray-400/20" : "bg-transparent"} ${isExpanded ? "h-24" : "h-14"}`}
-      >
-        <div
-          className={`flex flex-row-reverse items-center gap-4 pe-4 mt-14 z-20`}
-        >
-          <button onClick={handleCancelEdit}>
-            <LuX size={20} />
-          </button>
-          <button onClick={handleSubmitChanges} className="">
-            <LuCheck size={20} />
-          </button>
-          <button onClick={handleDelete} className="">
-            <LuTrash size={20} />
-          </button>
-        </div>
+      <div className="flex col-start-4 row-start-1 justify-center items-start pt-5 text-gray-700/75 pe-4">
+        <button onClick={handleExpand}>
+          <LuMoreHorizontal size={18} />
+        </button>
+      </div>
+      <div className="flex z-20 flex-row-reverse col-start-1 col-end-4 row-start-1 gap-4 items-start mt-14 pe-6">
+        <button onClick={handleCancelEdit}>
+          <LuX size={20} />
+        </button>
+        <button onClick={handleSubmitChanges}>
+          <LuCheck size={20} />
+        </button>
+        <button onClick={handleDelete}>
+          <LuTrash size={18} />
+        </button>
       </div>
       <div className="col-start-1 row-start-1 justify-items-center justify-self-start ps-4">
         {isExpanded ? (
-          <div className="flex gap-2">
-            <input type="text" value={lastName} onChange={changeLastName} />
-            <input type="text" value={firstName} onChange={changeFirstName} />
+          <div className="flex gap-2 pt-4">
+            <input
+              className="w-48"
+              type="text"
+              value={lastName}
+              onChange={changeLastName}
+            />
+            <input
+              className="w-48"
+              type="text"
+              value={firstName}
+              onChange={changeFirstName}
+            />
           </div>
         ) : (
-          <p className="pt-4" onClick={handleExpand}>
+          <p className="pt-4">
             {patient.lastName}, {patient.firstName}
           </p>
         )}
       </div>
       <div className="col-start-2 row-start-1 justify-self-end">
         {isExpanded ? (
-          <input type="text" value={email} onChange={changeEmail} />
+          <div className="flex pt-4">
+            <input
+              className="text-right"
+              type="text"
+              value={email}
+              onChange={changeEmail}
+            />
+          </div>
         ) : (
-          <p className="pt-4" onClick={handleExpand}>
-            {patient.email}
-          </p>
+          <p className="pt-4">{patient.email}</p>
         )}
       </div>
-      <div className={`justify-self-end col-start-3 row-start-1 max-h-10`}>
+      <div className={`justify-self-end col-start-3 row-start-1 pe-4`}>
         {isExpanded ? (
-          <input type="text" value={phone} onChange={changeEmail} />
+          <div className="flex pt-4">
+            <input
+              className="w-32 text-right"
+              type="text"
+              value={phone}
+              onChange={changePhone}
+            />
+          </div>
         ) : (
-          <p className="pt-4 pe-4" onClick={handleExpand}>
-            {formattedPhoneNumber(patient.phone)}
-          </p>
+          <p className="pt-4">{formattedPhoneNumber(patient.phone)}</p>
         )}
       </div>
     </div>

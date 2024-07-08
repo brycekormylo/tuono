@@ -1,89 +1,66 @@
 "use client";
 
-import { usePatientList, PatientInfo } from "@/hooks/use-patient-list";
+import { usePatientList, PatientInfo } from "@/contexts/patient-list";
 import { useState, useEffect } from "react";
 import { useInput } from "@/hooks/use-input";
-import {
-  LuArrowUp,
-  LuSearch,
-  LuArrowDown,
-  LuMoreHorizontal,
-} from "react-icons/lu";
+import { LuArrowUp, LuSearch, LuArrowDown, LuPlus } from "react-icons/lu";
 import PatientRow from "../_components/patient-row";
 import Link from "next/link";
 import LabelIcon from "@/app/_components/label-icon";
-import { LuPlus } from "react-icons/lu";
 
 export default function PatientList() {
-  const { getPatients } = usePatientList();
-  const [patients, setPatients] = useState<PatientInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { patients } = usePatientList();
 
-  const [filteredPatients, setFilteredPatients] = useState<PatientInfo[]>([]);
+  const [filteredPatients, setFilteredPatients] = useState<
+    PatientInfo[] | null
+  >(null);
   const [sortIsAsc, setSortIsAsc] = useState(true);
   const { value: searchInput, onChange: changeSearchInput } = useInput("");
 
-  const refreshList = async () => {
-    await getPatientInfo();
-  };
-
-  const getPatientInfo = async () => {
-    setIsLoading(true);
-    const data = await getPatients();
-    setPatients(data);
-    setIsLoading(false);
-  };
+  useEffect(() => {
+    filterPatients(searchInput);
+    if (searchInput == "" && patients) {
+      setFilteredPatients(patients);
+      sortIsAsc ? sortAsc() : sortDesc();
+    } else {
+      filterPatients(searchInput);
+    }
+  }, [searchInput, patients]);
 
   const sortAsc = () => {
-    const sorted = [...patients].sort((a, b) =>
-      a.lastName < b.lastName ? -1 : 1,
-    );
-    const filteredSorted = [...filteredPatients].sort((a, b) =>
-      a.lastName < b.lastName ? -1 : 1,
-    );
-
-    setPatients(sorted);
-    setFilteredPatients(filteredSorted);
-    setSortIsAsc(true);
+    if (filteredPatients) {
+      const filteredSorted = [...filteredPatients].sort((a, b) =>
+        a.lastName < b.lastName ? -1 : 1,
+      );
+      setFilteredPatients(filteredSorted);
+      setSortIsAsc(true);
+    }
   };
 
   const sortDesc = () => {
-    const sorted = [...patients].sort((a, b) =>
-      a.lastName > b.lastName ? -1 : 1,
-    );
-    const filteredSorted = [...filteredPatients].sort((a, b) =>
-      a.lastName > b.lastName ? -1 : 1,
-    );
-    setPatients(sorted);
-    setFilteredPatients(filteredSorted);
-    setSortIsAsc(false);
+    if (filteredPatients) {
+      const filteredSorted = [...filteredPatients].sort((a, b) =>
+        a.lastName > b.lastName ? -1 : 1,
+      );
+      setFilteredPatients(filteredSorted);
+      setSortIsAsc(false);
+    }
   };
 
   const filterPatients = (searchInput: string) => {
-    if (searchInput == "") {
-      setFilteredPatients([...patients]);
+    if (patients) {
+      if (searchInput == "") {
+        setFilteredPatients([...patients]);
+      }
+      const filtered = [...patients].filter((patient) => {
+        return (
+          patient.lastName.toLowerCase().includes(searchInput.toLowerCase()) ||
+          patient.firstName.toLowerCase().includes(searchInput.toLowerCase())
+        );
+      });
+      setFilteredPatients(filtered);
     }
-    const filtered = [...patients].filter((patient) => {
-      if (patient.lastName.toLowerCase().includes(searchInput.toLowerCase())) {
-        return true;
-      }
-      if (patient.firstName.toLowerCase().includes(searchInput.toLowerCase())) {
-        return true;
-      }
-      return false;
-    });
-    setFilteredPatients(filtered);
   };
-
-  useEffect(() => {
-    if (!isLoading) {
-      getPatientInfo();
-    }
-  }, []);
-
-  useEffect(() => {
-    filterPatients(searchInput);
-  }, [searchInput]);
 
   return (
     <div className="flex flex-col gap-4 p-4 [&_*]:transition-all [&_*]:ease-out">
@@ -116,8 +93,11 @@ export default function PatientList() {
             </button>
           </div>
         </div>
+        {!patients && (
+          <div className="w-4 h-4 bg-black rounded-full animate-pulse"></div>
+        )}
         <div className="grow" />
-        {patients.length > 0 && (
+        {patients && (
           <p className="text-sm text-gray-600">
             {patients.length} active / 36 total
           </p>
@@ -127,7 +107,7 @@ export default function PatientList() {
         </Link>
       </div>
       <div className="flex flex-col p-4 bg-gray-50 rounded-tl-xl rounded-br-xl">
-        <div className="grid grid-cols-[2fr,1fr,1fr] text-lg font-semibold min-w-[64vw]">
+        <div className="grid grid-cols-[2fr,1fr,1fr,3rem] text-lg font-semibold min-w-[64vw]">
           <div className="col-start-1 h-10 text-lg font-semibold ps-4">
             <h1>Name</h1>
           </div>
@@ -138,11 +118,10 @@ export default function PatientList() {
             <h1>Phone</h1>
           </div>
         </div>
-        {(filteredPatients.length > 0 ? filteredPatients : patients).map(
-          (patient, index) => {
-            return <PatientRow key={index} patient={patient} index={index} />;
-          },
-        )}
+        {filteredPatients &&
+          filteredPatients.map((patient, index) => {
+            return <PatientRow key={index} patient={patient} />;
+          })}
       </div>
     </div>
   );

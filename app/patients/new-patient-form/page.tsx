@@ -2,7 +2,7 @@
 
 import { useInput } from "@/hooks/use-input";
 import { LuCheck, LuX } from "react-icons/lu";
-import { usePatientList, PatientInfo } from "@/hooks/use-patient-list";
+import { usePatientList, PatientInfo } from "@/contexts/patient-list";
 import { useRouter } from "next/navigation";
 import LabelIcon from "@/app/_components/label-icon";
 

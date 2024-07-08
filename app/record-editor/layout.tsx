@@ -1,4 +1,5 @@
 import ActionButtons from "./_components/action-buttons";
+import { usePatientList } from "@/contexts/patient-list";
 
 export default function RecordEditorLayout({
   children,
