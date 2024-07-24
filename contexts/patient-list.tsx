@@ -19,6 +19,8 @@ export interface PatientInfo {
 }
 
 interface PatientListContextProps {
+  sortAsc: boolean;
+  setSortAsc: (asc: boolean) => void;
   patients: PatientInfo[] | null;
   addPatient: (patient: PatientInfo) => void;
   removePatient: (patient: PatientInfo) => void;
@@ -36,6 +38,7 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
   const { user } = useAuth();
 
   const [patients, setPatients] = useState<PatientInfo[] | null>(null);
+  const [sortAsc, setSortAsc] = useState<boolean>(false);
 
   useEffect(() => {
     if (user) {
@@ -44,34 +47,59 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
   }, [user]);
 
   useEffect(() => {
-    const syncList = async () => {
-      if (patients) {
-        pushPatientChanges();
-      } else {
-        fetchPatients();
-      }
-    };
-    syncList();
+    if (!patients) {
+      fetchPatients();
+    }
   }, [patients]);
 
+  useEffect(() => {
+    sort();
+  }, [sortAsc]);
+
+  const sort = () => {
+    if (patients) {
+      const sorted = patients.sort((a, b) => {
+        if (sortAsc) {
+          return a.lastName > b.lastName ? -1 : 1;
+        } else {
+          return a.lastName < b.lastName ? -1 : 1;
+        }
+      });
+      setPatients([...sorted]);
+    }
+  };
+
   const fetchPatients = async () => {
-    const { data, error } = await database
+    setPatients(null);
+    const { data } = await database
       .from("patient")
       .select("patients")
       .eq("id", user?.id);
-    setPatients(data ? data[0].patients : null);
+    if (data) {
+      const patientList: PatientInfo[] = data[0].patients;
+      const sorted = patientList.sort((a, b) => {
+        if (sortAsc) {
+          return a.lastName > b.lastName ? -1 : 1;
+        } else {
+          return a.lastName < b.lastName ? -1 : 1;
+        }
+      });
+
+      setPatients(sorted);
+    }
   };
 
-  const pushPatientChanges = async () => {
+  const pushPatientChanges = async (newPatients: PatientInfo[]) => {
     const { data, error } = await database
       .from("patient")
-      .update({ patients: patients })
+      .update({ patients: newPatients })
       .eq("id", user?.id)
       .select();
+    await fetchPatients();
   };
 
   const addPatient = async (newPatient: PatientInfo) => {
-    setPatients(patients ? [...patients, newPatient] : [newPatient]);
+    pushPatientChanges(patients ? [...patients, newPatient] : [newPatient]);
   };
 
   const removePatient = async (patientToRemove: PatientInfo) => {
@@ -79,30 +107,27 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
       const filteredPatients = patients.filter(
         (patient) => patient.email != patientToRemove.email,
       );
-      setPatients([...filteredPatients]);
+      pushPatientChanges(filteredPatients);
     }
   };
 
-  const sortAsc = (asc: boolean) => {};
-
   const updatePatient = async (prevInfo: PatientInfo, newInfo: PatientInfo) => {
-    console.log(`${prevInfo}  ${newInfo}`);
     const modifiedPatients: PatientInfo[] = [];
     if (patients) {
       patients.map((patient) => {
-        if (patient.email == prevInfo.email) {
-          modifiedPatients.push(newInfo);
-        } else {
-          modifiedPatients.push(patient);
-        }
+        modifiedPatients.push(
+          patient.email == prevInfo.email ? newInfo : patient,
+        );
       });
-      setPatients([...modifiedPatients]);
+      pushPatientChanges(modifiedPatients);
     }
   };
 
   return (
     <PatientListContext.Provider
       value={{
+        sortAsc,
+        setSortAsc,
         patients,
         addPatient,
         removePatient,
