@@ -15,7 +15,7 @@ const NavbarItems = [
   },
   {
     name: "Exercises",
-    slug: "record-editor",
+    slug: "exercises",
     icon: LuDumbbell,
   },
   {

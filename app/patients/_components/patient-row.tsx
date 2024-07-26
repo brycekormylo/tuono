@@ -86,16 +86,16 @@ export default function PatientRow({ patient }: PatientRowProps) {
   return (
     <div
       className={`
-	transition-all ease-in-out grid h-14 ${isExpanded ? "grid-cols-[2fr,1fr,1fr,6rem]" : "grid-cols-[2fr,1fr,1fr,1rem]"} text-base font-normal 
+	grid h-14 ${isExpanded ? "grid-cols-[2fr,1fr,1fr,6rem]" : "grid-cols-[2fr,1fr,1fr,1rem]"}  
 	${isExpanded ? "bg-gray-400/10" : " bg-transparent"} 
-	overflow-clip hover:bg-gray-400/20 hover:scale-y-[1.02] rounded-md 
-	[&_input]:border-b-gray-600/25 [&_input]:border-b-[2px] [&_input]:outline-none 
+	overflow-clip hover:bg-gray-400/20 hover:scale-y-[1.06] hover:scale-x-[1.004] rounded-md 
+	[&_input]:border-b-gray-600/20 [&_input]:border-b-[1px] [&_input]:outline-none 
         [&_input]:bg-transparent [&_input]:focus:scale-[1.02]
         [&_input]:px-1 
       `}
     >
       <button
-        className="col-start-1 col-end-5 bg-transparent row-start-1 row-span-1"
+        className="col-start-1 col-end-5 row-span-1 row-start-1 bg-transparent"
         onClick={handleExpand}
       />
       {isExpanded && (
@@ -104,14 +104,11 @@ export default function PatientRow({ patient }: PatientRowProps) {
             <>
               <button
                 onClick={handleDelete}
-                className="flex items-center hover:scale-[1.02] text-red-700"
+                className="flex items-center text-red-700"
               >
                 <LuTrash size={18} />
               </button>
-              <button
-                onClick={handleEditMode}
-                className="flex items-center hover:scale-[1.02]"
-              >
+              <button onClick={handleEditMode} className="flex items-center">
                 <LuPencil size={20} />
               </button>
             </>
@@ -119,13 +116,13 @@ export default function PatientRow({ patient }: PatientRowProps) {
             <>
               <button
                 onClick={handleCancelEdit}
-                className="flex gap-2 items-center hover:scale-[1.02]"
+                className="flex gap-2 items-center"
               >
                 <LuX size={20} />
               </button>
               <button
                 onClick={handleSubmitChanges}
-                className="flex gap-2 items-center hover:scale-[1.02]"
+                className="flex gap-2 items-center"
               >
                 <LuCheck size={20} />
               </button>
@@ -161,32 +158,28 @@ export default function PatientRow({ patient }: PatientRowProps) {
       </div>
       <div className="col-start-2 row-start-1 justify-self-end">
         {editMode ? (
-          <div className="flex pt-4">
-            <input
-              className="text-right"
-              type="email"
-              value={form.email}
-              onChange={(e) => {
-                setForm({ ...form, email: e.target.value });
-              }}
-            />
-          </div>
+          <input
+            className="pt-4 text-right"
+            type="email"
+            value={form.email}
+            onChange={(e) => {
+              setForm({ ...form, email: e.target.value });
+            }}
+          />
         ) : (
           <p className="pt-4">{patient.email}</p>
         )}
       </div>
-      <div className={`justify-self-end col-start-3 row-start-1 pe-4`}>
+      <div className="col-start-3 row-start-1 justify-self-end pe-4">
         {editMode ? (
-          <div className="flex pt-4">
-            <input
-              className="w-32 text-right"
-              type="tel"
-              value={form.phone}
-              onChange={(e) => {
-                setForm({ ...form, phone: e.target.value });
-              }}
-            />
-          </div>
+          <input
+            className="pt-4 w-32 text-right"
+            type="tel"
+            value={form.phone}
+            onChange={(e) => {
+              setForm({ ...form, phone: e.target.value });
+            }}
+          />
         ) : (
           <p className="pt-4">{formattedPhoneNumber(patient.phone)}</p>
         )}

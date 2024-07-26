@@ -11,7 +11,7 @@ import React, {
 import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { UUID } from "crypto";
+// import { UUID } from "crypto";
 
 type ProfileInfo = {
   full_name: string;

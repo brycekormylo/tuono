@@ -26,24 +26,15 @@ a {
   text-decoration: none;
 }
 
-.stack {
-  display: grid;
-  width: 100vw;
-  overflow: hidden;
-  justify-content: center;
-  align-items: center;
-  grid-template-areas: "stack";
-}
-
-.stack > * {
-  grid-area: "stack";
-}
-
 .wave {
-  animation-name: wave-animation; /* Refers to the name of your @keyframes element below */
-  animation-duration: 2.5s; /* Change to speed up or slow down */
-  animation-iteration-count: infinite; /* Never stop waving :) */
-  transform-origin: 70% 70%; /* Pivot around the bottom-left palm */
+  animation-name: wave-animation;
+  /* Refers to the name of your @keyframes element below */
+  animation-duration: 2.5s;
+  /* Change to speed up or slow down */
+  animation-iteration-count: infinite;
+  /* Never stop waving :) */
+  transform-origin: 70% 70%;
+  /* Pivot around the bottom-left palm */
   display: inline-block;
 }
 
@@ -51,33 +42,47 @@ a {
   0% {
     transform: rotate(0deg);
   }
+
   10% {
     transform: rotate(14deg);
-  } /* The following five values can be played with to make the waving more or less extreme */
+  }
+
+  /* The following five values can be played with to make the waving more or less extreme */
   20% {
     transform: rotate(-8deg);
   }
+
   30% {
     transform: rotate(14deg);
   }
+
   40% {
     transform: rotate(-4deg);
   }
+
   50% {
     transform: rotate(10deg);
   }
+
   60% {
     transform: rotate(0deg);
-  } /* Reset for the last half to pause */
+  }
+
+  /* Reset for the last half to pause */
   100% {
     transform: rotate(0deg);
   }
 }
 
 @layer components {
+  .stack {
+    @apply grid [grid-template-areas:'stack'] justify-items-center items-center [&>*]:[grid-area:stack];
+  }
+
   .neo {
     @apply [&_*]:transition-all [&_*]:ease-linear hover:scale-[1.02] hover:shadow-neo hover:bg-gradient-to-br hover:from-[#d9d6cd4e] dark:hover:from-[] hover:to-[#fffff43c] dark:hover:to-[] active:shadow-neo active:scale-[1.02] dark:hover:shadow-neodark;
   }
+
   .divider {
     @apply h-[1px] w-[61vw] md:w-[40vw] bg-ash;
   }
