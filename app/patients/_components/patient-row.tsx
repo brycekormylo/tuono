@@ -1,4 +1,4 @@
-import { LuCheck, LuX, LuTrash, LuMoreHorizontal } from "react-icons/lu";
+import { LuCheck, LuX, LuTrash, LuPencil } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import { usePatientList, PatientInfo } from "@/contexts/patient-list";
 
@@ -7,8 +7,10 @@ interface PatientRowProps {
 }
 
 export default function PatientRow({ patient }: PatientRowProps) {
-  const { removePatient, updatePatient } = usePatientList();
+  const { removePatient, updatePatient, selectedPatient, setSelected } =
+    usePatientList();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [editMode, setEditMode] = useState(false);
 
   const [form, setForm] = useState<PatientInfo>({
     firstName: "",
@@ -27,17 +29,38 @@ export default function PatientRow({ patient }: PatientRowProps) {
     });
   }, []);
 
+  useEffect(() => {
+    if (selectedPatient) {
+      setIsExpanded(selectedPatient.email == patient.email);
+    } else {
+      setIsExpanded(false);
+    }
+  }, [selectedPatient]);
+
   const handleSubmitChanges = () => {
     updatePatient(patient, form);
+    setEditMode(false);
     setIsExpanded(false);
   };
 
   const handleExpand = () => {
-    setIsExpanded(true);
+    if (selectedPatient) {
+      if (selectedPatient.email == patient.email) {
+        setSelected(null);
+      } else {
+        setSelected(patient);
+      }
+    } else {
+      setSelected(patient);
+    }
+  };
+
+  const handleEditMode = () => {
+    setEditMode(true);
   };
 
   const handleCancelEdit = () => {
-    setIsExpanded(false);
+    setEditMode(false);
   };
 
   const handleDelete = () => {
@@ -63,47 +86,55 @@ export default function PatientRow({ patient }: PatientRowProps) {
   return (
     <div
       className={`
-	grid grid-cols-[2fr,1fr,1fr,3rem] text-base font-normal 
-	${isExpanded ? "h-28 bg-gray-400/10" : "h-14 bg-transparent"} 
+	transition-all ease-in-out grid h-14 ${isExpanded ? "grid-cols-[2fr,1fr,1fr,6rem]" : "grid-cols-[2fr,1fr,1fr,1rem]"} text-base font-normal 
+	${isExpanded ? "bg-gray-400/10" : " bg-transparent"} 
 	overflow-clip hover:bg-gray-400/20 hover:scale-y-[1.02] rounded-md 
 	[&_input]:border-b-gray-600/25 [&_input]:border-b-[2px] [&_input]:outline-none 
         [&_input]:bg-transparent [&_input]:focus:scale-[1.02]
         [&_input]:px-1 
       `}
     >
-      <div className="flex col-start-4 row-start-1 justify-center items-start pt-5 pb-4 text-gray-700/75 pe-4  ">
-        <button onClick={handleExpand}>
-          <LuMoreHorizontal size={18} />
-        </button>
-      </div>
-      <div
-        className={`grow ${isExpanded ? "bg-white" : "bg-gray-400/5"} flex z-20 flex-row-reverse justify-start col-start-1 col-end-5 px-6 row-start-2 gap-6 items-start py-4`}
-      >
-        <button
-          onClick={handleSubmitChanges}
-          className="flex gap-2 items-center hover:scale-[1.02]"
-        >
-          <label className="text-sm">Sumbit</label>
-          <LuCheck size={20} />
-        </button>
-        <button
-          onClick={handleCancelEdit}
-          className="flex gap-2 items-center hover:scale-[1.02]"
-        >
-          <label className="text-xs">Discard</label>
-          <LuX size={20} />
-        </button>
-        <div className="grow" />
-        <button
-          onClick={handleDelete}
-          className="flex gap-2 items-center hover:scale-[1.02] text-red-700"
-        >
-          <LuTrash size={18} />
-          <label className="text-sm">Delete</label>
-        </button>
-      </div>
+      <button
+        className="col-start-1 col-end-5 bg-transparent row-start-1 row-span-1"
+        onClick={handleExpand}
+      />
+      {isExpanded && (
+        <div className="flex z-20 col-start-4 row-start-1 justify-evenly">
+          {!editMode ? (
+            <>
+              <button
+                onClick={handleDelete}
+                className="flex items-center hover:scale-[1.02] text-red-700"
+              >
+                <LuTrash size={18} />
+              </button>
+              <button
+                onClick={handleEditMode}
+                className="flex items-center hover:scale-[1.02]"
+              >
+                <LuPencil size={20} />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleCancelEdit}
+                className="flex gap-2 items-center hover:scale-[1.02]"
+              >
+                <LuX size={20} />
+              </button>
+              <button
+                onClick={handleSubmitChanges}
+                className="flex gap-2 items-center hover:scale-[1.02]"
+              >
+                <LuCheck size={20} />
+              </button>
+            </>
+          )}
+        </div>
+      )}
       <div className="col-start-1 row-start-1 justify-items-center justify-self-start ps-4">
-        {isExpanded ? (
+        {editMode ? (
           <div className="flex gap-2 pt-4">
             <input
               className="w-48"
@@ -129,7 +160,7 @@ export default function PatientRow({ patient }: PatientRowProps) {
         )}
       </div>
       <div className="col-start-2 row-start-1 justify-self-end">
-        {isExpanded ? (
+        {editMode ? (
           <div className="flex pt-4">
             <input
               className="text-right"
@@ -145,7 +176,7 @@ export default function PatientRow({ patient }: PatientRowProps) {
         )}
       </div>
       <div className={`justify-self-end col-start-3 row-start-1 pe-4`}>
-        {isExpanded ? (
+        {editMode ? (
           <div className="flex pt-4">
             <input
               className="w-32 text-right"

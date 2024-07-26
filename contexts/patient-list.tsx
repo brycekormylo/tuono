@@ -21,6 +21,8 @@ export interface PatientInfo {
 interface PatientListContextProps {
   sortAsc: boolean;
   setSortAsc: (asc: boolean) => void;
+  selectedPatient: PatientInfo | null;
+  setSelected: (patient: PatientInfo | null) => void;
   patients: PatientInfo[] | null;
   addPatient: (patient: PatientInfo) => void;
   removePatient: (patient: PatientInfo) => void;
@@ -39,6 +41,9 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
 
   const [patients, setPatients] = useState<PatientInfo[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
+  const [selectedPatient, setSelectedPatient] = useState<PatientInfo | null>(
+    null,
+  );
 
   useEffect(() => {
     if (user) {
@@ -55,6 +60,10 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
   useEffect(() => {
     sort();
   }, [sortAsc]);
+
+  const setSelected = (patient: PatientInfo | null) => {
+    setSelectedPatient(patient);
+  };
 
   const sort = () => {
     if (patients) {
@@ -128,6 +137,8 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
       value={{
         sortAsc,
         setSortAsc,
+        selectedPatient,
+        setSelected,
         patients,
         addPatient,
         removePatient,
