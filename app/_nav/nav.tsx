@@ -1,5 +1,5 @@
 import {
-  LuUsers,
+  LuPersonStanding,
   LuDumbbell,
   LuSquareStack,
   LuLayoutDashboard,
@@ -15,13 +15,13 @@ const NavbarItems = [
   },
   {
     name: "Exercises",
-    slug: "exercises",
+    slug: "exercises/exercise-list",
     icon: LuDumbbell,
   },
   {
     name: "Patients",
     slug: "patients/patient-list",
-    icon: LuUsers,
+    icon: LuPersonStanding,
   },
 ];
 
@@ -34,12 +34,7 @@ export default function NavBar() {
         </Link>
         {NavbarItems.map((item, index) => {
           return (
-            <Link
-              key={index}
-              className={`${"border-transparent"}`}
-              href={`/${item.slug}`}
-              scroll={false}
-            >
+            <Link key={index} href={`/${item.slug}`} scroll={false}>
               <div className="flex flex-col gap-2 items-center py-2 px-4 rounded-xl text-md">
                 <item.icon className="text-3xl" />
                 <p className="uppercase truncate">{item.name}</p>

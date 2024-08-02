@@ -24,7 +24,7 @@ export default function RootLayout({
           <main className="grid grid-cols-1 grid-rows-1 w-screen min-h-screen">
             <Background />
             <NavBar />
-            <div className="col-start-1 col-end-1 row-start-1 row-end-1">
+            <div className="col-start-1 col-end-1 row-start-1 row-end-1 [&_*]:transition-all [&_*]">
               {children}
             </div>
           </main>

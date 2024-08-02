@@ -10,20 +10,47 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { UUID } from "crypto";
+
+export enum Difficulty {
+  EASY = "EASY",
+  MEDIUM = "MEDIUM",
+  HARD = "HARD",
+}
+
+export enum BodyPart {
+  HEAD = "HEAD",
+  NECK = "NECK",
+  SHOULDERS = "SHOULDERS",
+  UPPER_BACK = "UPPER_BACK",
+  LOWER_BACK = "LOWER_BACK",
+  CHEST = "CHEST",
+  ABDOMEN = "ABDOMEN",
+  HIPS = "HIPS",
+  GROIN = "GROIN",
+  THIGHS = "THIGHS",
+  KNEES = "KNEES",
+  CALVES = "CALVES",
+  ANKLES = "ANKLES",
+  FEET = "FEET",
+  ARMS = "ARMS",
+  ELBOWS = "ELBOWS",
+  WRISTS = "WRISTS",
+  HANDS = "HANDS",
+  GLUTES = "GLUTES",
+}
 
 export interface ExerciseInfo {
-  id: UUID;
-  name: string;
-  cptCode: string;
-  bodyParts: string[];
-  difficulty: string;
-  steps: string[];
-  pictureURLs: string[];
-  sets: number;
-  repetitions: number;
-  holdTimesInSeconds: number;
-  weight: number;
+  id: string;
+  title?: string;
+  cptCode?: string;
+  bodyParts?: BodyPart[];
+  difficulty?: Difficulty;
+  steps?: string[];
+  pictureURLs?: string[];
+  sets?: number;
+  repetitions?: number;
+  holdTimesInSeconds?: number;
+  weight?: number;
 }
 
 interface ExerciseListContextProps {
@@ -78,10 +105,14 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   const sort = () => {
     if (exercises) {
       const sorted = exercises.sort((a, b) => {
-        if (sortAsc) {
-          return a.name > b.name ? -1 : 1;
+        if (a.title && b.title) {
+          if (sortAsc) {
+            return a.title > b.title ? -1 : 1;
+          } else {
+            return a.title < b.title ? -1 : 1;
+          }
         } else {
-          return a.name < b.name ? -1 : 1;
+          return -1;
         }
       });
       setExercises([...sorted]);
@@ -97,10 +128,14 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     if (data && data[0]) {
       const exerciseList: ExerciseInfo[] = data[0].exercises;
       const sorted = exerciseList.sort((a, b) => {
-        if (sortAsc) {
-          return a.name > b.name ? -1 : 1;
+        if (a.title && b.title) {
+          if (sortAsc) {
+            return a.title > b.title ? -1 : 1;
+          } else {
+            return a.title < b.title ? -1 : 1;
+          }
         } else {
-          return a.name < b.name ? -1 : 1;
+          return -1;
         }
       });
       setExercises(sorted);
@@ -119,6 +154,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   };
 
   const addExercise = async (newExercise: ExerciseInfo) => {
+    console.log(newExercise);
     pushExerciseChanges(
       exercises ? [...exercises, newExercise] : [newExercise],
     );
