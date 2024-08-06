@@ -39,14 +39,14 @@ export default function PatientList() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 [&_*]:transition-all [&_*]:ease-out">
+    <div className="flex flex-col gap-4 p-4">
       <div className="flex gap-8 items-center px-4">
         <div className="flex gap-8 items-center">
           <div className="w-96 stack">
             <input
               type="text"
               value={searchInput}
-              className="z-0 w-full h-10 bg-gray-50 rounded-full transition-all ease-in-out focus:outline-none ps-14 focus:scale-y-[1.02]"
+              className="z-0 w-full h-10 bg-gray-50 rounded-full outline-none ps-14 focus:scale-y-[1.02]"
               onChange={changeSearchInput}
             />
             <div className="flex z-10 justify-center justify-self-start items-center w-12 h-12 bg-gray-400 rounded-full">

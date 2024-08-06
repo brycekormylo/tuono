@@ -3,7 +3,7 @@ import Dashboard from "./dashboard";
 
 export default function Intro() {
   return (
-    <div className="flex flex-row mt-20 ms-32 me-[15rem] h-[36rem]">
+    <div className="flex mt-20 ms-32 h-[36rem]">
       <div className="flex flex-col justify-start items-start px-20 pt-20 h-full grow">
         <h1 className="text-4xl">Welcome,</h1>
         <h2 className="text-3xl">[NAME]</h2>

@@ -46,7 +46,7 @@ export interface ExerciseInfo {
   bodyParts?: BodyPart[];
   difficulty?: Difficulty;
   steps?: string[];
-  pictureURLs?: string[];
+  imageUrls?: string[];
   sets?: number;
   repetitions?: number;
   holdTimesInSeconds?: number;
@@ -62,6 +62,16 @@ interface ExerciseListContextProps {
   addExercise: (exercise: ExerciseInfo) => void;
   removeExercise: (exercise: ExerciseInfo) => void;
   updateExercise: (prevInfo: ExerciseInfo, newInfo: ExerciseInfo) => void;
+  formatEnumValue: (value?: string) => string;
+}
+
+export function formatEnumValue(value?: string): string {
+  return value
+    ? value
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    : "";
 }
 
 const ExerciseListContext = createContext<ExerciseListContextProps | null>(
@@ -195,6 +205,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
         addExercise,
         removeExercise,
         updateExercise,
+        formatEnumValue,
       }}
     >
       {children}

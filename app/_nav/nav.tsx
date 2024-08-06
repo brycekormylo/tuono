@@ -15,28 +15,28 @@ const NavbarItems = [
   },
   {
     name: "Exercises",
-    slug: "exercises/exercise-list",
+    slug: "exercises",
     icon: LuDumbbell,
   },
   {
     name: "Patients",
-    slug: "patients/patient-list",
+    slug: "patients",
     icon: LuPersonStanding,
   },
 ];
 
 export default function NavBar() {
   return (
-    <div className="flex top-0 right-0 flex-row col-start-1 col-end-1 row-start-1 row-end-1 justify-end items-start">
-      <div className="flex z-10 flex-col gap-6 items-center pt-6 w-32">
+    <div className="absolute top-0 right-0 z-20">
+      <div className="flex flex-col gap-8 items-center pt-8 w-32">
         <Link href={"/account"}>
           <AccountButton />
         </Link>
         {NavbarItems.map((item, index) => {
           return (
             <Link key={index} href={`/${item.slug}`} scroll={false}>
-              <div className="flex flex-col gap-2 items-center py-2 px-4 rounded-xl text-md">
-                <item.icon className="text-3xl" />
+              <div className="flex flex-col gap-2 items-center py-2 px-4 rounded-xl hover:scale-[1.04]">
+                <item.icon size={32} />
                 <p className="uppercase truncate">{item.name}</p>
               </div>
             </Link>

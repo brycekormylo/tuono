@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { Providers } from "./providers";
 import Background from "./_components/background";
 import NavBar from "./_nav/nav";
 import "../public/globals.css";
 
-const font = Inter({ subsets: ["latin"] });
+const font = Manrope({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Tuono",
@@ -19,17 +19,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Providers>
-        <body className={font.className}>
-          <main className="grid grid-cols-1 grid-rows-1 w-screen min-h-screen">
+      <body className={font.className}>
+        <Providers>
+          <main className="stack">
             <Background />
             <NavBar />
-            <div className="col-start-1 col-end-1 row-start-1 row-end-1 [&_*]:transition-all [&_*]">
+            <div className="[&_*]:transition-all justify-self-end self-start me-48 mt-20">
               {children}
             </div>
           </main>
-        </body>
-      </Providers>
+        </Providers>
+      </body>
     </html>
   );
 }
