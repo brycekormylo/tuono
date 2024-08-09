@@ -12,16 +12,18 @@ import { useRouter } from "next/navigation";
 import LabelIcon from "@/app/_components/label-icon";
 import ImageInput from "../_components/image-input";
 import StepInput from "../_components/step-input";
+import AliasInput from "../_components/alias-input";
 import BodyPartInput from "../_components/body-part-selector";
 import { v4 } from "uuid";
 
 export default function ExerciseEditor() {
-  const { addExercise, selectedExercise, formatEnumValue } = useExerciseList();
+  const { addExercise, selectedExercise } = useExerciseList();
   const router = useRouter();
 
   const [selectedParts, setSelectedParts] = useState<BodyPart[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [steps, setNewSteps] = useState<string[]>([]);
+  const [aliases, setNewAliases] = useState<string[]>([]);
   const [exercise, setExercise] = useState<ExerciseInfo>({
     id: v4(),
     difficulty: Difficulty.EASY,
@@ -47,6 +49,10 @@ export default function ExerciseEditor() {
   useEffect(() => {
     setSteps(steps);
   }, [steps]);
+
+  useEffect(() => {
+    setAliases(aliases);
+  }, [aliases]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -83,6 +89,12 @@ export default function ExerciseEditor() {
       steps: newSteps,
     }));
   };
+  const setAliases = (newAliases: string[]) => {
+    setExercise((prevState: ExerciseInfo) => ({
+      ...prevState,
+      aliases: newAliases,
+    }));
+  };
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     addExercise(exercise);
@@ -90,7 +102,7 @@ export default function ExerciseEditor() {
   };
 
   const handleCancel = () => {
-    router.push("/exercises");
+    router.push("/exercices");
   };
 
   const properties = [
@@ -130,6 +142,7 @@ export default function ExerciseEditor() {
               Title
             </label>
           </div>
+          <AliasInput aliases={aliases} setAliases={setNewAliases} />
           <div className="flex flex-row-reverse gap-2 justify-between items-center h-full">
             <input
               className="px-2 w-36 h-12 bg-transparent border-b-2 border-gray-400 outline-none peer"
@@ -168,7 +181,10 @@ export default function ExerciseEditor() {
               );
             })}
           </div>
-          <BodyPartInput setSelectedParts={setSelectedParts} />
+          <BodyPartInput
+            selectedParts={selectedParts}
+            setSelectedParts={setSelectedParts}
+          />
           <div className="flex flex-row gap-2">
             {properties.map(({ key, label, value }) => (
               <div
@@ -194,7 +210,6 @@ export default function ExerciseEditor() {
             ))}
           </div>
           <StepInput steps={steps} setSteps={setNewSteps} />
-
           <div className="flex gap-6 justify-end items-center">
             <button
               type="button"

@@ -8,6 +8,7 @@ import React, {
   useState,
   useContext,
   useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 
@@ -42,7 +43,7 @@ export enum BodyPart {
 export interface ExerciseInfo {
   id: string;
   title?: string;
-  aka?: string[];
+  aliases?: string[];
   cptCode?: string;
   bodyParts?: BodyPart[];
   difficulty?: Difficulty;
@@ -93,34 +94,18 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     null,
   );
 
-  useEffect(() => {
-    if (user) {
-      fetchExercises();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (!exercises) {
-      fetchExercises();
-    }
-  }, [exercises]);
-
-  useEffect(() => {
-    sort();
-  }, [sortAsc]);
-
   const setSelected = (exercise: ExerciseInfo | null) => {
     setSelectedExercise(exercise);
   };
 
-  const sort = () => {
+  const sort = useCallback(() => {
     if (exercises) {
       const sorted = exercises.sort((a, b) => {
         if (a.title && b.title) {
           if (sortAsc) {
-            return a.title > b.title ? -1 : 1;
+            return a.title.toLowerCase() > b.title.toLowerCase() ? -1 : 1;
           } else {
-            return a.title < b.title ? -1 : 1;
+            return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1;
           }
         } else {
           return -1;
@@ -128,9 +113,9 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
       });
       setExercises([...sorted]);
     }
-  };
+  }, [exercises, sortAsc]);
 
-  const fetchExercises = async () => {
+  const fetchExercises = useCallback(async () => {
     setExercises(null);
     const { data } = await database
       .from("exercise")
@@ -153,7 +138,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     } else if (user) {
       const { data } = await database.from("exercise").insert([{}]).select();
     }
-  };
+  }, [database, sortAsc, user]);
 
   const pushExerciseChanges = async (newExercises: ExerciseInfo[]) => {
     const { data, error } = await database
@@ -192,6 +177,22 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
       pushExerciseChanges(modifiedExercises);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      fetchExercises();
+    }
+  }, [user, fetchExercises]);
+
+  useEffect(() => {
+    if (!exercises) {
+      fetchExercises();
+    }
+  }, [exercises, fetchExercises]);
+
+  useEffect(() => {
+    sort();
+  }, [sort, sortAsc]);
 
   return (
     <ExerciseListContext.Provider

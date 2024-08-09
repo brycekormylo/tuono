@@ -3,10 +3,12 @@ import Select from "react-select";
 import { formatEnumValue } from "@/contexts/exercise-list";
 
 interface BodyPartInputProps {
+  selectedParts: BodyPart[];
   setSelectedParts: (input: BodyPart[]) => void;
 }
 
 export default function BodyPartInput({
+  selectedParts,
   setSelectedParts,
 }: BodyPartInputProps) {
   const customStyles = {
@@ -44,7 +46,13 @@ export default function BodyPartInput({
         options={Object.keys(BodyPart).map((key: string) => {
           return {
             label: formatEnumValue(key.toLowerCase()),
-            value: formatEnumValue(key.toUpperCase()),
+            value: key.toUpperCase(),
+          };
+        })}
+        defaultValue={selectedParts.map((part) => {
+          return {
+            label: formatEnumValue(part.toLowerCase()),
+            value: part.toUpperCase(),
           };
         })}
         styles={customStyles}

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   useExerciseList,
   ExerciseInfo,
@@ -76,7 +78,7 @@ export default function ExerciseRow({ exercise }: ExerciseRowProps) {
         onMouseDown={handleClick}
       />
       {isExpanded && (
-        <div className="flex justify-evenly items-center h-full bg-gray-200 rounded-md">
+        <div className="flex z-20 justify-evenly items-center h-full bg-gray-200 rounded-md">
           {deleteMode ? (
             <>
               <button onClick={() => setDeleteMode(false)}>
@@ -97,10 +99,10 @@ export default function ExerciseRow({ exercise }: ExerciseRowProps) {
               >
                 <LuTrash2 size={24} />
               </button>
-              <Link href={"/exercises/exercise-editor"} className="">
+              <Link href={"./exercises/exercise-editor"} className="">
                 <LuPencil size={24} />
               </Link>
-              <Link href={"/exercises/exercise-preview"} className="">
+              <Link href={"./exercises/exercise-preview"} className="">
                 <LuEye size={24} />
               </Link>
             </>

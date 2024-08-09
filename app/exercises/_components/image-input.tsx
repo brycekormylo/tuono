@@ -1,3 +1,5 @@
+"use client";
+
 import { LuPlus } from "react-icons/lu";
 import React, { useState, useEffect } from "react";
 import { useImageUpload } from "@/contexts/image-upload";

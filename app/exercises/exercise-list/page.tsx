@@ -7,10 +7,11 @@ import { PulseLoader } from "react-spinners";
 import { useState, useEffect } from "react";
 import { useInput } from "@/hooks/use-input";
 import { LuEye, LuArrowUp, LuSearch, LuPlus } from "react-icons/lu";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ExerciseList() {
-  const { exercises, sortAsc, setSortAsc } = useExerciseList();
+  const { exercises, sortAsc, setSortAsc, setSelected } = useExerciseList();
+  const router = useRouter();
 
   const [filteredExercises, setFilteredExercises] = useState<
     ExerciseInfo[] | null
@@ -30,17 +31,22 @@ export default function ExerciseList() {
     }
   }, [exercises, searchInput]);
 
+  const createExercise = () => {
+    setSelected(null);
+    router.push("/exercises/exercise-editor");
+  };
+
   return (
     <div className="flex flex-col gap-8 p-4 grow">
       <div className="flex gap-8 justify-end items-center px-4">
         <h1 className="text-4xl ps-8">Exercises</h1>
-        <div className="grow" />
-        <Link href={"/exercises/new-exercise-form"}>
+        <button onClick={createExercise}>
           <div className="stack">
             <div className="w-14 h-14 bg-gray-400 rounded-full" />
             <LuPlus size={28} />
           </div>
-        </Link>
+        </button>
+        <div className="grow" />
         <div className="flex gap-2 items-center">
           <LuEye size={18} />
           <PulseLoader
@@ -88,7 +94,7 @@ export default function ExerciseList() {
           <div className="justify-self-end pe-4">
             <h1>Category</h1>
           </div>
-          <div className="justify-self-end pe-6">
+          <div className="justify-self-end pe-4">
             <h1>Difficulty</h1>
           </div>
         </div>
