@@ -98,7 +98,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     setSelectedExercise(exercise);
   };
 
-  const sort = useCallback(() => {
+  const sort = () => {
     if (exercises) {
       const sorted = exercises.sort((a, b) => {
         if (a.title && b.title) {
@@ -113,9 +113,9 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
       });
       setExercises([...sorted]);
     }
-  }, [exercises, sortAsc]);
+  };
 
-  const fetchExercises = useCallback(async () => {
+  const fetchExercises = async () => {
     setExercises(null);
     const { data } = await database
       .from("exercise")
@@ -138,7 +138,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     } else if (user) {
       const { data } = await database.from("exercise").insert([{}]).select();
     }
-  }, [database, sortAsc, user]);
+  };
 
   const pushExerciseChanges = async (newExercises: ExerciseInfo[]) => {
     const { data, error } = await database
@@ -182,17 +182,17 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     if (user) {
       fetchExercises();
     }
-  }, [user, fetchExercises]);
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!exercises) {
       fetchExercises();
     }
-  }, [exercises, fetchExercises]);
+  }, [exercises]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     sort();
-  }, [sort, sortAsc]);
+  }, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <ExerciseListContext.Provider

@@ -99,10 +99,10 @@ export default function ExerciseRow({ exercise }: ExerciseRowProps) {
               >
                 <LuTrash2 size={24} />
               </button>
-              <Link href={"./exercises/exercise-editor"} className="">
+              <Link href={"/exercises/exercise-editor"} className="">
                 <LuPencil size={24} />
               </Link>
-              <Link href={"./exercises/exercise-preview"} className="">
+              <Link href={"/exercises/exercise-preview"} className="">
                 <LuEye size={24} />
               </Link>
             </>

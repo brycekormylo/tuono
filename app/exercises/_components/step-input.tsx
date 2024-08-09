@@ -1,5 +1,3 @@
-"use client";
-
 import { LuPlus, LuX } from "react-icons/lu";
 import React, { useState, useEffect } from "react";
 

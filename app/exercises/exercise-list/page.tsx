@@ -2,7 +2,6 @@
 
 import { useExerciseList, ExerciseInfo } from "@/contexts/exercise-list";
 import ExerciseRow from "../_components/exercise-row";
-
 import { PulseLoader } from "react-spinners";
 import { useState, useEffect } from "react";
 import { useInput } from "@/hooks/use-input";
@@ -18,7 +17,11 @@ export default function ExerciseList() {
   >(null);
   const { value: searchInput, onChange: changeSearchInput } = useInput("");
 
-  useEffect(() => {
+  const resetExercises = () => {
+    exercises && setFilteredExercises(exercises);
+  };
+
+  const filterExercises = () => {
     if (exercises) {
       const filtered = exercises.filter((exercise) => {
         return exercise.title
@@ -27,9 +30,13 @@ export default function ExerciseList() {
       });
       setFilteredExercises(filtered);
     } else {
-      setFilteredExercises(exercises);
+      resetExercises();
     }
-  }, [exercises, searchInput]);
+  };
+
+  useEffect(() => {
+    filterExercises();
+  }, [exercises, searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const createExercise = () => {
     setSelected(null);
