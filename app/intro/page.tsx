@@ -8,7 +8,7 @@ export default function Intro() {
         <h1 className="text-4xl">Welcome,</h1>
         <h2 className="text-3xl">[NAME]</h2>
         <div className="grow min-h-20" />
-        <div className="flex flex-col gap-4 items-end w-full transition-all ease-in-out">
+        <div className="flex flex-col gap-4 items-end w-full">
           <div className="flex flex-row-reverse gap-12 items-center bg-gray-100 rounded-full ps-12 hover:scale-[1.02]">
             <div className="flex justify-center items-center w-24 h-24 bg-gray-400 rounded-full">
               <LuPersonStanding size={48} />

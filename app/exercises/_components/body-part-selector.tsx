@@ -1,5 +1,6 @@
 import { BodyPart } from "@/contexts/exercise-list";
 import Select from "react-select";
+import { formatEnumValue } from "@/contexts/exercise-list";
 
 interface BodyPartInputProps {
   setSelectedParts: (input: BodyPart[]) => void;
@@ -42,8 +43,8 @@ export default function BodyPartInput({
         isSearchable
         options={Object.keys(BodyPart).map((key: string) => {
           return {
-            label: key.toLowerCase(),
-            value: key.toUpperCase(),
+            label: formatEnumValue(key.toLowerCase()),
+            value: formatEnumValue(key.toUpperCase()),
           };
         })}
         styles={customStyles}

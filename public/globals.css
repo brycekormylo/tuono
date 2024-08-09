@@ -78,12 +78,4 @@ a {
   .stack {
     @apply grid [grid-template-areas:'stack'] justify-items-center items-center [&>*]:[grid-area:stack];
   }
-
-  .neo {
-    @apply [&_*]:transition-all [&_*]:ease-linear hover:scale-[1.02] hover:shadow-neo hover:bg-gradient-to-br hover:from-[#d9d6cd4e] dark:hover:from-[] hover:to-[#fffff43c] dark:hover:to-[] active:shadow-neo active:scale-[1.02] dark:hover:shadow-neodark;
-  }
-
-  .divider {
-    @apply h-[1px] w-[61vw] md:w-[40vw] bg-ash;
-  }
 }

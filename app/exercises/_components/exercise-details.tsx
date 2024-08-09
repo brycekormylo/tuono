@@ -6,11 +6,13 @@ import {
 } from "@/contexts/exercise-list";
 import Image from "next/image";
 
-interface ExerciseDetailProps {
+interface ExerciseDetailBodyProps {
   exercise: ExerciseInfo;
 }
 
-export default function ExerciseDetails({ exercise }: ExerciseDetailProps) {
+export default function ExerciseDetailBody({
+  exercise,
+}: ExerciseDetailBodyProps) {
   const properties = [
     { key: "sets", label: "Sets", value: exercise.sets },
     {

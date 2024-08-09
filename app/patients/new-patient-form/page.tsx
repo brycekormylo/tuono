@@ -33,7 +33,7 @@ export default function NewPatientForm() {
   return (
     <div className="flex flex-col gap-8 justify-start items-end p-16">
       <h2 className="text-2xl">Add new patient</h2>
-      <form className="flex flex-col gap-8 items-end w-full [&_*]:transition-all [&_*]:ease-in-out">
+      <form className="flex flex-col gap-8 items-end w-full">
         <div className="flex gap-2 justify-between items-center h-full">
           <label className="py-1 px-3 h-full bg-gray-200 rounded-full">
             First Name

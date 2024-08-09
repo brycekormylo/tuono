@@ -18,7 +18,7 @@ export default function PatientList() {
 
   useEffect(() => {
     filterPatients(searchInput);
-  }, [searchInput, patients]);
+  }, [searchInput, patients]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const resetPatients = () => {
     patients && setFilteredPatients(patients);
@@ -69,13 +69,13 @@ export default function PatientList() {
           <div className="w-4 h-4 bg-black rounded-full animate-pulse"></div>
         )}
         <div className="grow" />
-        <Link href={"./new-patient-form"}>
+        <Link href={"/patients/new-patient-form"}>
           <LabelIcon icon={<LuPlus size={24} />} label="New" />
         </Link>
       </div>
       <div className="flex flex-col gap-2 p-4 bg-gray-50 rounded-tl-xl rounded-br-xl">
-        <div className="grid grid-cols-[2fr,1fr,1fr,3rem] text-lg font-semibold min-w-[64vw]">
-          <div className="flex col-start-1 gap-4 items-center h-10 text-lg font-semibold ps-4">
+        <div className="grid grid-cols-[2fr,1fr,1fr,3rem] font-semibold min-w-[64vw]">
+          <div className="flex col-start-1 gap-4 items-center h-10 font-semibold ps-4">
             <h1>Name</h1>
             <button
               className={`stack hover:scale-[1.02] transform ${sortAsc ? "rotate-180" : "rotate-0"}`}

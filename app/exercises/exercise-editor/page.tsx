@@ -15,16 +15,28 @@ import StepInput from "../_components/step-input";
 import BodyPartInput from "../_components/body-part-selector";
 import { v4 } from "uuid";
 
-export default function NewExerciseForm() {
-  const { addExercise } = useExerciseList();
+export default function ExerciseEditor() {
+  const { addExercise, selectedExercise, formatEnumValue } = useExerciseList();
   const router = useRouter();
 
   const [selectedParts, setSelectedParts] = useState<BodyPart[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [steps, setNewSteps] = useState<string[]>([]);
+  const [exercise, setExercise] = useState<ExerciseInfo>({
+    id: v4(),
+    difficulty: Difficulty.EASY,
+  });
 
   useEffect(() => {
-    console.log(selectedParts);
+    if (selectedExercise) {
+      setExercise(selectedExercise);
+      setImageUrls(selectedExercise.imageUrls ?? []);
+      setNewSteps(selectedExercise.steps ?? []);
+      setSelectedParts(selectedExercise.bodyParts ?? []);
+    }
+  }, [selectedExercise]);
+
+  useEffect(() => {
     setBodyParts(selectedParts);
   }, [selectedParts]);
 
@@ -36,50 +48,44 @@ export default function NewExerciseForm() {
     setSteps(steps);
   }, [steps]);
 
-  const [newExercise, setNewExercise] = useState<ExerciseInfo>({
-    id: v4(),
-    difficulty: Difficulty.EASY,
-  });
-
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log(`${name}, ${value}`);
 
-    setNewExercise((prevState: ExerciseInfo) => ({
+    setExercise((prevState: ExerciseInfo) => ({
       ...prevState,
       [name]: value,
     }));
   };
 
   const handleDifficultyChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewExercise((prevState: ExerciseInfo) => ({
+    setExercise((prevState: ExerciseInfo) => ({
       ...prevState,
       difficulty: e.target.value as Difficulty,
     }));
   };
 
   const setBodyParts = (newParts: BodyPart[]) => {
-    setNewExercise((prevState: ExerciseInfo) => ({
+    setExercise((prevState: ExerciseInfo) => ({
       ...prevState,
       bodyParts: newParts,
     }));
   };
 
   const setImages = (newImages: string[]) => {
-    setNewExercise((prevState: ExerciseInfo) => ({
+    setExercise((prevState: ExerciseInfo) => ({
       ...prevState,
       imageUrls: newImages,
     }));
   };
   const setSteps = (newSteps: string[]) => {
-    setNewExercise((prevState: ExerciseInfo) => ({
+    setExercise((prevState: ExerciseInfo) => ({
       ...prevState,
       steps: newSteps,
     }));
   };
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    addExercise(newExercise);
+    addExercise(exercise);
     router.push("/exercises");
   };
 
@@ -88,39 +94,39 @@ export default function NewExerciseForm() {
   };
 
   const properties = [
-    { key: "sets", label: "Sets", value: newExercise.sets },
+    { key: "sets", label: "Sets", value: exercise.sets },
     {
       key: "repetitions",
       label: "Repetitions",
-      value: newExercise.repetitions,
+      value: exercise.repetitions,
     },
-    { key: "weight", label: "Weight", value: newExercise.weight },
+    { key: "weight", label: "Weight", value: exercise.weight },
     {
       key: "holdTimesInSeconds",
       label: "Hold Time",
-      value: newExercise.holdTimesInSeconds,
+      value: exercise.holdTimesInSeconds,
     },
   ];
 
   return (
     <div className="flex flex-col">
       <h2 className="self-end p-6 text-2xl">
-        {newExercise.title || "New Exercise"}
+        {exercise.title || "New Exercise"}
       </h2>
       <div className="grid grid-cols-2 gap-8 justify-start items-end p-16 bg-gray-50 rounded-tl-xl rounded-br-xl lg:min-w-[64rem]">
         <div className="flex flex-col gap-4 items-start self-start">
           <ImageInput imageUrls={imageUrls} setImageUrls={setImageUrls} />
         </div>
         <form className="flex flex-col col-start-2 row-start-1 gap-8 items-end w-full">
-          <div className="flex flex-row-reverse gap-2 justify-between items-end h-full">
+          <div className="flex flex-row-reverse gap-4 items-center">
             <input
               type="text"
               name="title"
-              value={newExercise.title}
-              className="px-4 pb-2 w-72 h-full bg-transparent border-b-2 border-gray-400 outline-none peer"
+              value={exercise.title}
+              className="py-4 px-6 w-72 h-full rounded-lg border-gray-300 outline-none focus:bg-gray-50 focus:border-gray-400 bg-gray-100/75 border-[1px] peer focus:scale-[1.02]"
               onChange={handleChange}
             />
-            <label className="py-1 px-3 text-2xl bg-transparent rounded-full peer-[:focus]:bg-gray-200">
+            <label className="px-4 text-2xl font-medium text-gray-600 bg-transparent ms-4 peer-[:focus]:text-gray-800">
               Title
             </label>
           </div>
@@ -129,10 +135,10 @@ export default function NewExerciseForm() {
               className="px-2 w-36 h-12 bg-transparent border-b-2 border-gray-400 outline-none peer"
               name="cptCode"
               type="text"
-              value={newExercise.cptCode}
+              value={exercise.cptCode}
               onChange={handleChange}
             />
-            <label className="py-1 px-3 text-lg bg-transparent rounded-full peer-[:focus]:bg-gray-200">
+            <label className="py-1 px-3 text-lg bg-transparent bg-gray-400 peer-[:focus]:bg-gray-200">
               CPT Code
             </label>
           </div>
@@ -151,7 +157,7 @@ export default function NewExerciseForm() {
                     name="difficulty"
                     value={key}
                     id={key}
-                    checked={newExercise.difficulty === dif}
+                    checked={exercise.difficulty === dif}
                     className="hidden peer"
                     onChange={handleDifficultyChange}
                   />

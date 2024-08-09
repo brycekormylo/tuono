@@ -42,6 +42,7 @@ export enum BodyPart {
 export interface ExerciseInfo {
   id: string;
   title?: string;
+  aka?: string[];
   cptCode?: string;
   bodyParts?: BodyPart[];
   difficulty?: Difficulty;
@@ -164,18 +165,18 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   };
 
   const addExercise = async (newExercise: ExerciseInfo) => {
-    console.log(newExercise);
-    pushExerciseChanges(
-      exercises ? [...exercises, newExercise] : [newExercise],
+    const filtered = exercises?.filter(
+      (exercise) => exercise.id != newExercise.id,
     );
+    pushExerciseChanges(filtered ? [...filtered, newExercise] : [newExercise]);
   };
 
   const removeExercise = async (exerciseToRemove: ExerciseInfo) => {
     if (exercises) {
-      // const filteredExercises = exercises.filter(
-      //   (exercise) => exercise.email != exerciseToRemove.email,
-      // );
-      // pushExerciseChanges(filteredExercises);
+      const filteredExercises = exercises.filter(
+        (exercise) => exercise.id != exerciseToRemove.id,
+      );
+      pushExerciseChanges(filteredExercises);
     }
   };
 
@@ -186,9 +187,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     const modifiedExercises: ExerciseInfo[] = [];
     if (exercises) {
       exercises.map((exercise) => {
-        // modifiedExercises.push(
-        //   exercise.email == prevInfo.email ? newInfo : exercise,
-        // );
+        modifiedExercises.push(exercise.id == prevInfo.id ? newInfo : exercise);
       });
       pushExerciseChanges(modifiedExercises);
     }
