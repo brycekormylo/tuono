@@ -102,7 +102,7 @@ export default function ExerciseEditor() {
   };
 
   const handleCancel = () => {
-    router.push("/exercices");
+    router.push("/exercises");
   };
 
   const properties = [

@@ -3,6 +3,7 @@
 import {
   LuPersonStanding,
   LuDumbbell,
+  LuCombine,
   LuLayoutDashboard,
 } from "react-icons/lu";
 import AccountButton from "./account-button";
@@ -13,6 +14,11 @@ const NavbarItems = [
     name: "Dashboard",
     slug: "intro",
     icon: LuLayoutDashboard,
+  },
+  {
+    name: "Routines",
+    slug: "routines",
+    icon: LuCombine,
   },
   {
     name: "Exercises",

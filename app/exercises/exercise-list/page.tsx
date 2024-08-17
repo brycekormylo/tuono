@@ -1,47 +1,20 @@
 "use client";
 
-import { useExerciseList, ExerciseInfo } from "@/contexts/exercise-list";
+import { useExerciseList } from "@/contexts/exercise-list";
 import ExerciseRow from "../_components/exercise-row";
 import { PulseLoader } from "react-spinners";
-import { useState, useEffect } from "react";
-import { useInput } from "@/hooks/use-input";
 import { LuEye, LuArrowUp, LuSearch, LuPlus } from "react-icons/lu";
-import { useRouter } from "next/navigation";
 
 export default function ExerciseList() {
-  const { exercises, sortAsc, setSortAsc, setSelected } = useExerciseList();
-  const router = useRouter();
-
-  const [filteredExercises, setFilteredExercises] = useState<
-    ExerciseInfo[] | null
-  >(null);
-  const { value: searchInput, onChange: changeSearchInput } = useInput("");
-
-  const resetExercises = () => {
-    exercises && setFilteredExercises(exercises);
-  };
-
-  const filterExercises = () => {
-    if (exercises) {
-      const filtered = exercises.filter((exercise) => {
-        return exercise.title
-          ?.toLowerCase()
-          .includes(searchInput.toLowerCase());
-      });
-      setFilteredExercises(filtered);
-    } else {
-      resetExercises();
-    }
-  };
-
-  useEffect(() => {
-    filterExercises();
-  }, [exercises, searchInput]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const createExercise = () => {
-    setSelected(null);
-    router.push("/exercises/exercise-editor");
-  };
+  const {
+    rawExercises,
+    exercises,
+    sortAsc,
+    setSortAsc,
+    searchInput,
+    changeSearchInput,
+    createExercise,
+  } = useExerciseList();
 
   return (
     <div className="flex flex-col gap-8 p-4 grow">
@@ -60,17 +33,17 @@ export default function ExerciseList() {
             color="#000000"
             size={12}
             speedMultiplier={1.6}
-            loading={!exercises}
+            loading={!rawExercises}
           />
-          {exercises && (
+          {rawExercises && (
             <div className="flex gap-1 items-center text-sm text-gray-600">
-              {filteredExercises?.length != exercises.length && (
+              {exercises?.length != rawExercises.length && (
                 <>
-                  <p>{filteredExercises?.length}</p>
+                  <p>{exercises?.length}</p>
                   <p className="px-1 text-lg">{"/"}</p>
                 </>
               )}
-              <p>{exercises.length}</p>
+              <p>{rawExercises.length}</p>
             </div>
           )}
         </div>
@@ -107,7 +80,7 @@ export default function ExerciseList() {
         </div>
         <div className="w-full bg-gray-300 h-[1px]" />
         <div className="flex flex-col gap-1 pt-2">
-          {filteredExercises?.map((exercise, index) => {
+          {exercises?.map((exercise, index) => {
             return <ExerciseRow key={index} exercise={exercise} />;
           })}
         </div>

@@ -2,14 +2,16 @@
 
 import { useDatabase } from "@/contexts/database";
 import { useAuth } from "@/contexts/auth";
+import { useInput } from "@/hooks/use-input";
+import { useRouter } from "next/navigation";
 
 import React, {
   createContext,
   useState,
   useContext,
   useEffect,
-  useCallback,
   ReactNode,
+  ChangeEvent,
 } from "react";
 
 export enum Difficulty {
@@ -60,8 +62,12 @@ interface ExerciseListContextProps {
   setSortAsc: (asc: boolean) => void;
   selectedExercise: ExerciseInfo | null;
   setSelected: (exercise: ExerciseInfo | null) => void;
+  rawExercises: ExerciseInfo[] | null;
   exercises: ExerciseInfo[] | null;
+  searchInput: string;
+  changeSearchInput: (input: ChangeEvent<HTMLInputElement>) => void;
   addExercise: (exercise: ExerciseInfo) => void;
+  createExercise: () => void;
   removeExercise: (exercise: ExerciseInfo) => void;
   updateExercise: (prevInfo: ExerciseInfo, newInfo: ExerciseInfo) => void;
   formatEnumValue: (value?: string) => string;
@@ -87,20 +93,37 @@ interface ExerciseListProviderProps {
 const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   const { database } = useDatabase();
   const { user } = useAuth();
+  const router = useRouter();
 
+  const [rawExercises, setRawExercises] = useState<ExerciseInfo[] | null>(null);
   const [exercises, setExercises] = useState<ExerciseInfo[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [selectedExercise, setSelectedExercise] = useState<ExerciseInfo | null>(
     null,
   );
 
-  const setSelected = (exercise: ExerciseInfo | null) => {
-    setSelectedExercise(exercise);
+  const { value: searchInput, onChange: changeSearchInput } = useInput("");
+
+  useEffect(() => {
+    if (searchInput == "") {
+      setExercises(rawExercises);
+    } else {
+      filterBy(searchInput);
+    }
+  }, [searchInput, rawExercises]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const filterBy = (input: string) => {
+    if (rawExercises) {
+      const filtered = rawExercises.filter((exercise) => {
+        return exercise.title?.toLowerCase().includes(input.toLowerCase());
+      });
+      setExercises(filtered);
+    }
   };
 
   const sort = () => {
-    if (exercises) {
-      const sorted = exercises.sort((a, b) => {
+    if (rawExercises) {
+      const sorted = rawExercises.sort((a, b) => {
         if (a.title && b.title) {
           if (sortAsc) {
             return a.title.toLowerCase() > b.title.toLowerCase() ? -1 : 1;
@@ -111,12 +134,16 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
           return -1;
         }
       });
-      setExercises([...sorted]);
+      setRawExercises([...sorted]);
     }
   };
 
+  const setSelected = (exercise: ExerciseInfo | null) => {
+    setSelectedExercise(exercise);
+  };
+
   const fetchExercises = async () => {
-    setExercises(null);
+    setRawExercises(null);
     const { data } = await database
       .from("exercise")
       .select("exercises")
@@ -134,7 +161,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
           return -1;
         }
       });
-      setExercises(sorted);
+      setRawExercises(sorted);
     } else if (user) {
       const { data } = await database.from("exercise").insert([{}]).select();
     }
@@ -149,16 +176,21 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     await fetchExercises();
   };
 
+  const createExercise = () => {
+    setSelected(null);
+    router.push("/exercises/exercise-editor");
+  };
+
   const addExercise = async (newExercise: ExerciseInfo) => {
-    const filtered = exercises?.filter(
+    const filtered = rawExercises?.filter(
       (exercise) => exercise.id != newExercise.id,
     );
     pushExerciseChanges(filtered ? [...filtered, newExercise] : [newExercise]);
   };
 
   const removeExercise = async (exerciseToRemove: ExerciseInfo) => {
-    if (exercises) {
-      const filteredExercises = exercises.filter(
+    if (rawExercises) {
+      const filteredExercises = rawExercises.filter(
         (exercise) => exercise.id != exerciseToRemove.id,
       );
       pushExerciseChanges(filteredExercises);
@@ -170,8 +202,8 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     newInfo: ExerciseInfo,
   ) => {
     const modifiedExercises: ExerciseInfo[] = [];
-    if (exercises) {
-      exercises.map((exercise) => {
+    if (rawExercises) {
+      rawExercises.map((exercise) => {
         modifiedExercises.push(exercise.id == prevInfo.id ? newInfo : exercise);
       });
       pushExerciseChanges(modifiedExercises);
@@ -185,10 +217,10 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!exercises) {
+    if (!rawExercises) {
       fetchExercises();
     }
-  }, [exercises]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [rawExercises]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     sort();
@@ -201,8 +233,12 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
         setSortAsc,
         selectedExercise,
         setSelected,
-        exercises,
+        rawExercises: rawExercises,
+        exercises: exercises,
+        searchInput,
+        changeSearchInput,
         addExercise,
+        createExercise,
         removeExercise,
         updateExercise,
         formatEnumValue,

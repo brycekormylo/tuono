@@ -51,7 +51,7 @@ export default function BodyPartInput({
         })}
         defaultValue={selectedParts.map((part) => {
           return {
-            label: formatEnumValue(part.toLowerCase()),
+            label: formatEnumValue(part),
             value: part.toUpperCase(),
           };
         })}
