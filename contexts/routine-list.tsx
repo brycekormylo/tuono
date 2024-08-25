@@ -25,9 +25,8 @@ export interface Routine {
 }
 
 export interface AnnotatedExercise {
-  id: string;
   exercise: ExerciseInfo;
-  notes?: string;
+  note?: string;
 }
 
 interface RoutineListContextProps {
