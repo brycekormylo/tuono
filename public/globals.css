@@ -78,4 +78,7 @@ a {
   .stack {
     @apply grid [grid-template-areas:'stack'] justify-items-center items-center [&>*]:[grid-area:stack];
   }
+  .rounded-input {
+    @apply px-4 h-12 focus:border-gray-400 outline-none text-end  border-[1px] border-gray-200 rounded-lg;
+  }
 }

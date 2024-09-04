@@ -7,13 +7,28 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { SupabaseClient } from "@supabase/supabase-js";
-import { createClient } from "@/utils/supabase/client";
+import { init, tx, id, InstantReactWeb } from "@instantdb/react";
 
-//Use useReducer to setup structure for specific queries
+const APP_ID = "bd7b55f0-2338-4b87-8b7a-44ed0df6ae13";
+
+export type Schema = {
+  admins: {
+    id: string;
+    createdAt: string;
+    email: string;
+    handle: string;
+  };
+  patients: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+};
 
 interface DatabaseContextProps {
-  database: SupabaseClient;
+  database: InstantReactWeb<Schema>;
 }
 
 const DatabaseContext = createContext<DatabaseContextProps | undefined>(
@@ -25,7 +40,7 @@ interface DatabaseProviderProps {
 }
 
 const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
-  const database = createClient();
+  const database = init<Schema>({ appId: APP_ID });
 
   return (
     <DatabaseContext.Provider

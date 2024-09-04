@@ -3,7 +3,7 @@
 import { useDatabase } from "@/contexts/database";
 import { useAuth } from "@/contexts/auth";
 import { useInput } from "@/hooks/use-input";
-import { useRouter } from "next/navigation";
+import { tx } from "@instantdb/react";
 
 import React, {
   createContext,
@@ -46,7 +46,6 @@ export interface ExerciseInfo {
   id: string;
   title?: string;
   aliases?: string[];
-  cptCode?: string;
   bodyParts?: BodyPart[];
   difficulty?: Difficulty;
   steps?: string[];
@@ -66,11 +65,11 @@ interface ExerciseListContextProps {
   exercises: ExerciseInfo[] | null;
   searchInput: string;
   changeSearchInput: (input: ChangeEvent<HTMLInputElement>) => void;
-  addExercise: (exercise: ExerciseInfo) => void;
-  createExercise: () => void;
   removeExercise: (exercise: ExerciseInfo) => void;
-  updateExercise: (prevInfo: ExerciseInfo, newInfo: ExerciseInfo) => void;
+  updateExercise: (exercise: ExerciseInfo) => void;
   formatEnumValue: (value?: string) => string;
+  editMode: boolean;
+  setEditMode: (mode: boolean) => void;
 }
 
 export function formatEnumValue(value?: string): string {
@@ -93,7 +92,6 @@ interface ExerciseListProviderProps {
 const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   const { database } = useDatabase();
   const { user } = useAuth();
-  const router = useRouter();
 
   const [rawExercises, setRawExercises] = useState<ExerciseInfo[] | null>(null);
   const [exercises, setExercises] = useState<ExerciseInfo[] | null>(null);
@@ -102,7 +100,29 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     null,
   );
 
+  const [editMode, setEditMode] = useState<boolean>(false);
   const { value: searchInput, onChange: changeSearchInput } = useInput("");
+
+  const query = {
+    exercises: {
+      $: {
+        where: {
+          adminId: user?.id,
+        },
+      },
+    },
+  };
+
+  const { isLoading, error, data } = database.useQuery(query);
+
+  useEffect(() => {
+    if (data) {
+      const rawExerciseData: ExerciseInfo[] = data.exercises as ExerciseInfo[];
+      setRawExercises(rawExerciseData);
+    } else {
+      setRawExercises(null);
+    }
+  }, [data]);
 
   useEffect(() => {
     if (searchInput == "") {
@@ -142,85 +162,15 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     setSelectedExercise(exercise);
   };
 
-  const fetchExercises = async () => {
-    setRawExercises(null);
-    const { data } = await database
-      .from("exercise")
-      .select("exercises")
-      .eq("id", user?.id);
-    if (data && data[0]) {
-      const exerciseList: ExerciseInfo[] = data[0].exercises;
-      const sorted = exerciseList.sort((a, b) => {
-        if (a.title && b.title) {
-          if (sortAsc) {
-            return a.title > b.title ? -1 : 1;
-          } else {
-            return a.title < b.title ? -1 : 1;
-          }
-        } else {
-          return -1;
-        }
-      });
-      setRawExercises(sorted);
-    } else if (user) {
-      const { data } = await database.from("exercise").insert([{}]).select();
-    }
+  const updateExercise = (exercise: ExerciseInfo) => {
+    database.transact(tx.exercises[exercise.id].update(exercise));
+    user &&
+      database.transact(tx.exercises[exercise.id].link({ adminId: user.id }));
   };
 
-  const pushExerciseChanges = async (newExercises: ExerciseInfo[]) => {
-    const { data, error } = await database
-      .from("exercise")
-      .update({ exercises: newExercises })
-      .eq("id", user?.id)
-      .select();
-    await fetchExercises();
+  const removeExercise = (exercise: ExerciseInfo) => {
+    database.transact(tx.exercises[exercise.id].delete());
   };
-
-  const createExercise = () => {
-    setSelected(null);
-    router.push("/exercises/exercise-editor");
-  };
-
-  const addExercise = async (newExercise: ExerciseInfo) => {
-    const filtered = rawExercises?.filter(
-      (exercise) => exercise.id != newExercise.id,
-    );
-    pushExerciseChanges(filtered ? [...filtered, newExercise] : [newExercise]);
-  };
-
-  const removeExercise = async (exerciseToRemove: ExerciseInfo) => {
-    if (rawExercises) {
-      const filteredExercises = rawExercises.filter(
-        (exercise) => exercise.id != exerciseToRemove.id,
-      );
-      pushExerciseChanges(filteredExercises);
-    }
-  };
-
-  const updateExercise = async (
-    prevInfo: ExerciseInfo,
-    newInfo: ExerciseInfo,
-  ) => {
-    const modifiedExercises: ExerciseInfo[] = [];
-    if (rawExercises) {
-      rawExercises.map((exercise) => {
-        modifiedExercises.push(exercise.id == prevInfo.id ? newInfo : exercise);
-      });
-      pushExerciseChanges(modifiedExercises);
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      fetchExercises();
-    }
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!rawExercises) {
-      fetchExercises();
-    }
-  }, [rawExercises]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     sort();
@@ -233,15 +183,15 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
         setSortAsc,
         selectedExercise,
         setSelected,
-        rawExercises: rawExercises,
-        exercises: exercises,
+        rawExercises,
+        exercises,
         searchInput,
         changeSearchInput,
-        addExercise,
-        createExercise,
         removeExercise,
         updateExercise,
         formatEnumValue,
+        editMode,
+        setEditMode,
       }}
     >
       {children}

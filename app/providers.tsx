@@ -5,10 +5,10 @@ import { AuthProvider } from "@/contexts/auth";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <AuthProvider>
-      <DatabaseProvider>
+    <DatabaseProvider>
+      <AuthProvider>
         <UserProvider>{children}</UserProvider>
-      </DatabaseProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </DatabaseProvider>
   );
 }

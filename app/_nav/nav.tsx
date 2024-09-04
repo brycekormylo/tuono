@@ -1,15 +1,20 @@
 "use client";
 
 import {
+  LuUser,
   LuPersonStanding,
   LuDumbbell,
   LuCombine,
   LuLayoutDashboard,
 } from "react-icons/lu";
-import AccountButton from "./account-button";
 import { usePathname, useRouter } from "next/navigation";
 
 const NavbarItems = [
+  {
+    name: "Account",
+    slug: "auth",
+    icon: LuUser,
+  },
   {
     name: "Dashboard",
     slug: "intro",
@@ -37,14 +42,8 @@ export default function NavBar() {
   const router = useRouter();
 
   return (
-    <div className="absolute top-0 right-0 z-20 [&_*]:select-none">
+    <div className="absolute pt-8 top-0 right-0 z-20 [&_*]:select-none">
       <div className="flex flex-col gap-8 items-center w-28">
-        <button
-          onMouseDown={() => router.push("/account")}
-          className="pt-8 pe-8"
-        >
-          <AccountButton />
-        </button>
         {NavbarItems.map((item, index) => {
           const isSelected = pathname.includes(`/${item.slug}`);
           return (

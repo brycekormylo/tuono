@@ -1,7 +1,10 @@
 "use client";
 
-import { useDatabase } from "@/contexts/database";
+import { useDatabase, Schema } from "@/contexts/database";
 import { useAuth } from "@/contexts/auth";
+import { init, tx, id, User, InstantReactWeb } from "@instantdb/react";
+import { ChangeEvent } from "react";
+import { useInput } from "@/hooks/use-input";
 
 import React, {
   createContext,
@@ -12,6 +15,7 @@ import React, {
 } from "react";
 
 export interface PatientInfo {
+  id: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -24,9 +28,13 @@ interface PatientListContextProps {
   selectedPatient: PatientInfo | null;
   setSelected: (patient: PatientInfo | null) => void;
   patients: PatientInfo[] | null;
-  addPatient: (patient: PatientInfo) => void;
+  rawPatients: PatientInfo[] | null;
+  searchInput: string;
+  changeSearchInput: (input: ChangeEvent<HTMLInputElement>) => void;
   removePatient: (patient: PatientInfo) => void;
-  updatePatient: (prevInfo: PatientInfo, newInfo: PatientInfo) => void;
+  updatePatient: (patient: PatientInfo) => void;
+  editMode: boolean;
+  setEditMode: (mode: boolean) => void;
 }
 
 const PatientListContext = createContext<PatientListContextProps | null>(null);
@@ -39,53 +47,30 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
   const { database } = useDatabase();
   const { user } = useAuth();
 
+  const [rawPatients, setRawPatients] = useState<PatientInfo[] | null>(null);
   const [patients, setPatients] = useState<PatientInfo[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [selectedPatient, setSelectedPatient] = useState<PatientInfo | null>(
     null,
   );
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const { value: searchInput, onChange: changeSearchInput } = useInput("");
 
-  useEffect(() => {
-    if (user) {
-      fetchPatients();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (!patients) {
-      fetchPatients();
-    }
-  }, [patients]);
-
-  useEffect(() => {
-    sort();
-  }, [sortAsc]);
-
-  const setSelected = (patient: PatientInfo | null) => {
-    setSelectedPatient(patient);
+  const query = {
+    patients: {
+      $: {
+        where: {
+          adminId: user?.id,
+        },
+      },
+    },
   };
 
-  const sort = () => {
-    if (patients) {
-      const sorted = patients.sort((a, b) => {
-        if (sortAsc) {
-          return a.lastName > b.lastName ? -1 : 1;
-        } else {
-          return a.lastName < b.lastName ? -1 : 1;
-        }
-      });
-      setPatients([...sorted]);
-    }
-  };
+  const { isLoading, error, data } = database.useQuery(query);
 
-  const fetchPatients = async () => {
-    setPatients(null);
-    const { data } = await database
-      .from("patient")
-      .select("patients")
-      .eq("id", user?.id);
+  useEffect(() => {
     if (data) {
-      const patientList: PatientInfo[] = data[0].patients;
+      const patientList: PatientInfo[] = data.patients as PatientInfo[];
       const sorted = patientList.sort((a, b) => {
         if (sortAsc) {
           return a.lastName > b.lastName ? -1 : 1;
@@ -94,42 +79,60 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
         }
       });
 
-      setPatients(sorted);
+      setRawPatients(sorted);
     }
-  };
+  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const pushPatientChanges = async (newPatients: PatientInfo[]) => {
-    const { data, error } = await database
-      .from("patient")
-      .update({ patients: newPatients })
-      .eq("id", user?.id)
-      .select();
-    await fetchPatients();
-  };
+  useEffect(() => {
+    sort();
+  }, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const addPatient = async (newPatient: PatientInfo) => {
-    pushPatientChanges(patients ? [...patients, newPatient] : [newPatient]);
-  };
-
-  const removePatient = async (patientToRemove: PatientInfo) => {
-    if (patients) {
-      const filteredPatients = patients.filter(
-        (patient) => patient.email != patientToRemove.email,
-      );
-      pushPatientChanges(filteredPatients);
+  useEffect(() => {
+    if (searchInput == "") {
+      setPatients(rawPatients);
+    } else {
+      filterBy(searchInput);
     }
-  };
+  }, [searchInput, rawPatients]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const updatePatient = async (prevInfo: PatientInfo, newInfo: PatientInfo) => {
-    const modifiedPatients: PatientInfo[] = [];
+  const filterBy = (input: string) => {
     if (patients) {
-      patients.map((patient) => {
-        modifiedPatients.push(
-          patient.email == prevInfo.email ? newInfo : patient,
+      const filtered = patients.filter((patient) => {
+        return (
+          patient.lastName.toLowerCase().includes(searchInput.toLowerCase()) ||
+          patient.firstName.toLowerCase().includes(searchInput.toLowerCase())
         );
       });
-      pushPatientChanges(modifiedPatients);
+      setPatients(filtered);
+    } else {
+      setPatients(rawPatients);
     }
+  };
+  const setSelected = (patient: PatientInfo | null) => {
+    setSelectedPatient(patient);
+  };
+
+  const sort = () => {
+    if (rawPatients) {
+      const sorted = rawPatients.sort((a, b) => {
+        if (sortAsc) {
+          return a.lastName > b.lastName ? -1 : 1;
+        } else {
+          return a.lastName < b.lastName ? -1 : 1;
+        }
+      });
+      setRawPatients([...sorted]);
+    }
+  };
+
+  const updatePatient = (newInfo: PatientInfo) => {
+    database.transact(tx.patients[newInfo.id].update(newInfo));
+    user &&
+      database.transact(tx.patients[newInfo.id].link({ adminId: user.id }));
+  };
+
+  const removePatient = (patientToRemove: PatientInfo) => {
+    database.transact(tx.patients[patientToRemove.id].delete());
   };
 
   return (
@@ -140,9 +143,13 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
         selectedPatient,
         setSelected,
         patients,
-        addPatient,
+        rawPatients,
+        searchInput,
+        changeSearchInput,
         removePatient,
         updatePatient,
+        editMode,
+        setEditMode,
       }}
     >
       {children}
