@@ -1,4 +1,4 @@
-import ExerciseList from "./exercise-list/page";
+import ExerciseList from "./list/page";
 
 export default function Exercises() {
   return <ExerciseList />;

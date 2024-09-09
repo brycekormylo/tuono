@@ -26,7 +26,7 @@ interface PatientListContextProps {
   sortAsc: boolean;
   setSortAsc: (asc: boolean) => void;
   selectedPatient: PatientInfo | null;
-  setSelected: (patient: PatientInfo | null) => void;
+  setSelectedPatient: (patient: PatientInfo | null) => void;
   patients: PatientInfo[] | null;
   rawPatients: PatientInfo[] | null;
   searchInput: string;
@@ -108,9 +108,6 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
       setPatients(rawPatients);
     }
   };
-  const setSelected = (patient: PatientInfo | null) => {
-    setSelectedPatient(patient);
-  };
 
   const sort = () => {
     if (rawPatients) {
@@ -141,7 +138,7 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
         sortAsc,
         setSortAsc,
         selectedPatient,
-        setSelected,
+        setSelectedPatient,
         patients,
         rawPatients,
         searchInput,

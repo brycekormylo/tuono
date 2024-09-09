@@ -7,7 +7,7 @@ export default function PatientsLayout({
 }) {
   return (
     <section>
-      <div className="flex flex-col items-start p-8 w-full">
+      <div className="flex justify-end w-full">
         <Providers>{children}</Providers>
       </div>
     </section>

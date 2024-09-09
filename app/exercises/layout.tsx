@@ -4,10 +4,8 @@ import { ReactNode } from "react";
 export default function ExercisesLayout({ children }: { children: ReactNode }) {
   return (
     <section>
-      <div className="flex flex-col gap-8 items-end">
-        <div className="flex justify-end w-full">
-          <Providers>{children}</Providers>
-        </div>
+      <div className="flex justify-end w-full">
+        <Providers>{children}</Providers>
       </div>
     </section>
   );

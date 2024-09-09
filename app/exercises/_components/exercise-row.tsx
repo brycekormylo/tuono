@@ -15,17 +15,19 @@ interface ExerciseRowProps {
 }
 
 export default function ExerciseRow({ exercise }: ExerciseRowProps) {
-  const { removeExercise, selectedExercise, setSelected } = useExerciseList();
+  const {
+    editMode,
+    setEditMode,
+    removeExercise,
+    selectedExercise,
+    setSelectedExercise,
+  } = useExerciseList();
   const [isExpanded, setIsExpanded] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
 
-  const ids = useMemo(() => {
-    return { selected: selectedExercise?.id, current: exercise.id };
-  }, [selectedExercise?.id, exercise.id]);
-
   useEffect(() => {
-    setIsExpanded(ids.current == ids.selected);
-  }, [selectedExercise, ids]);
+    selectedExercise && setIsExpanded(selectedExercise.id == exercise.id);
+  }, [selectedExercise]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setDeleteMode(false);
@@ -33,82 +35,100 @@ export default function ExerciseRow({ exercise }: ExerciseRowProps) {
 
   const handleClick = () => {
     if (selectedExercise?.id == exercise.id) {
-      setSelected(null);
+      setSelectedExercise(null);
     } else {
-      setSelected(exercise);
+      setSelectedExercise(exercise);
     }
   };
 
   const handleDelete = () => {
     const selected = selectedExercise;
-    setSelected(null);
+    setSelectedExercise(null);
     selected && removeExercise(selected);
   };
 
+  const handleEdit = () => {
+    setEditMode(true);
+    setSelectedExercise(exercise);
+    setIsExpanded(false);
+  };
+
   return (
-    <div
-      className={`
-	grid h-14 ${isExpanded ? "grid-cols-[1fr,1fr,20rem,10rem] bg-gray-400/10 scale-[1.004]" : "grid-cols-[1fr,1fr,30rem,0rem] bg-transparent"}  
-	overflow-clip hover:bg-gray-400/15 hover:scale-[1.004] rounded-md items-center 
-      `}
-    >
-      <div className="col-start-1 row-start-1 justify-items-center justify-self-start ps-4">
-        <h2 className="text-lg font-medium select-none">{exercise.title}</h2>
-      </div>
-      <div className="flex flex-wrap col-start-2 row-start-1 gap-2 justify-self-end items-center">
-        {exercise.bodyParts?.map((part, index) => (
+    <div className="w-full h-14 stack">
+      <div className="flex z-10 w-full">
+        <div className="grid group h-14 w-full rounded-md overflow-clip bg-transparent grid-cols-[1fr,2fr,1.5fr] items-center">
           <div
-            key={index}
-            className="flex justify-center items-center py-1 px-3 bg-gray-300 rounded-full"
+            className={`flex col-start-1 row-start-1 justify-self-start items-center w-full h-full group-hover:bg-gray-200 ps-4 ${isExpanded ? "bg-gray-100" : "bg-gray-50"}`}
           >
-            <p className="text-sm select-none">{formatEnumValue(part)}</p>
+            <h2 className="text-lg font-medium select-none">
+              {exercise.title}
+            </h2>
           </div>
-        ))}
-      </div>
-      <div className="flex col-start-3 row-start-1 gap-2 justify-self-end items-center pe-4">
-        <p className="text-sm select-none">
-          {formatEnumValue(exercise.difficulty)}
-        </p>
-        <div
-          className={`h-4 w-4 rounded-full ${exercise.difficulty == Difficulty.EASY ? "bg-green-500" : exercise.difficulty == Difficulty.MEDIUM ? "bg-yellow-500" : "bg-red-500"}`}
-        />
-      </div>
-      <button
-        className="col-start-1 col-end-4 row-start-1 w-full h-full bg-transparent"
-        onMouseDown={handleClick}
-      />
-      {isExpanded && (
-        <div className="flex z-20 justify-evenly items-center h-full bg-gray-200 rounded-md">
-          {deleteMode ? (
-            <>
-              <button onClick={() => setDeleteMode(false)}>
-                <LuUndo size={24} />
-              </button>
-              <div>
-                <label className="text-sm text-wrap">Delete?</label>
-              </div>
-              <button onClick={handleDelete} className="text-red-500">
-                <LuTrash2 size={24} />
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setDeleteMode(true)}
-                className="text-red-500"
+          <div
+            className={`flex flex-wrap col-start-2 row-start-1 gap-2 justify-end pe-2 items-center w-full h-full  group-hover:bg-gray-200 ${isExpanded ? "bg-gray-100" : "bg-gray-50"}`}
+          >
+            {exercise.bodyParts?.map((part, index) => (
+              <div
+                key={index}
+                className="flex justify-center items-center py-1 px-3 rounded-md ring-gray-300 ring-[1px]"
               >
-                <LuTrash2 size={24} />
-              </button>
-              <Link href={"/exercises/exercise-editor"} className="">
-                <LuPencil size={24} />
-              </Link>
-              <Link href={"/exercises/exercise-preview"} className="">
-                <LuEye size={24} />
-              </Link>
-            </>
-          )}
+                <p className="text-sm select-none">{formatEnumValue(part)}</p>
+              </div>
+            ))}
+          </div>
+          <div
+            className={`${isExpanded ? " pe-[10rem]" : ""} flex col-start-3 row-start-1 gap-2 justify-end  w-full h-full justify-items-end items-center min-w-40`}
+          >
+            <div
+              className={`flex gap-2 justify-end items-center w-full h-full group-hover:bg-gray-200 pe-4 ${isExpanded ? "bg-gray-100" : "bg-gray-50"}`}
+            >
+              <p className="text-sm select-none">
+                {formatEnumValue(exercise.difficulty)}
+              </p>
+              <div
+                className={`h-4 w-4 rounded-full ${exercise.difficulty == Difficulty.EASY ? "bg-green-500" : exercise.difficulty == Difficulty.MEDIUM ? "bg-yellow-500" : "bg-red-500"}`}
+              />
+            </div>
+          </div>
+          <button
+            className={`${isExpanded ? "me-[10rem]" : ""} col-start-1 col-end-4 row-start-1 h-full grow bg-transparent`}
+            onMouseDown={handleClick}
+          />
         </div>
-      )}
+      </div>
+
+      <div
+        className={`${isExpanded ? "z-10" : "z-0"} flex justify-evenly justify-self-end items-center h-full rounded-r-md bg-gray-300/75 min-w-[10rem]`}
+      >
+        {deleteMode ? (
+          <>
+            <button onClick={() => setDeleteMode(false)}>
+              <LuUndo size={24} />
+            </button>
+            <div>
+              <label className="text-sm text-wrap">Delete?</label>
+            </div>
+            <button onClick={handleDelete} className="text-red-500">
+              <LuTrash2 size={24} />
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => setDeleteMode(true)}
+              className="text-red-500"
+            >
+              <LuTrash2 size={24} />
+            </button>
+            <button onClick={handleEdit} className="">
+              <LuPencil size={24} />
+            </button>
+            <Link href={"/exercises"} className="">
+              <LuEye size={24} />
+            </Link>
+          </>
+        )}
+      </div>
     </div>
   );
 }

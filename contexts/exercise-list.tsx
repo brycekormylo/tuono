@@ -52,7 +52,7 @@ export interface ExerciseInfo {
   imageUrls?: string[];
   sets?: number;
   repetitions?: number;
-  holdTimesInSeconds?: number;
+  holdTimeInSeconds?: number;
   weight?: number;
 }
 
@@ -60,7 +60,7 @@ interface ExerciseListContextProps {
   sortAsc: boolean;
   setSortAsc: (asc: boolean) => void;
   selectedExercise: ExerciseInfo | null;
-  setSelected: (exercise: ExerciseInfo | null) => void;
+  setSelectedExercise: (exercise: ExerciseInfo | null) => void;
   rawExercises: ExerciseInfo[] | null;
   exercises: ExerciseInfo[] | null;
   searchInput: string;
@@ -158,10 +158,6 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     }
   };
 
-  const setSelected = (exercise: ExerciseInfo | null) => {
-    setSelectedExercise(exercise);
-  };
-
   const updateExercise = (exercise: ExerciseInfo) => {
     database.transact(tx.exercises[exercise.id].update(exercise));
     user &&
@@ -182,7 +178,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
         sortAsc,
         setSortAsc,
         selectedExercise,
-        setSelected,
+        setSelectedExercise,
         rawExercises,
         exercises,
         searchInput,
