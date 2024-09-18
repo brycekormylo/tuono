@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useInput } from "@/hooks/use-input";
 import { List, arrayMove } from "react-movable";
 import { LuPlus, LuX } from "react-icons/lu";
-import { v4 } from "uuid";
+import { id } from "@instantdb/react";
 import ExerciseSelector from "./_components/exercise-selector";
 import ExerciseAnnotator from "./_components/exercise-annotator";
 
@@ -18,9 +18,10 @@ export default function RoutineCanvas() {
   const { routines } = useRoutineList();
 
   const [newRoutine, setNewRoutine] = useState<Routine>({
-    id: v4(),
+    id: id(),
     name: "",
-    exercises: [],
+    steps: [],
+    creationDate: new Date().toString(),
   });
   const { value: nameInput, onChange: changeNameInput } = useInput("");
 
@@ -35,7 +36,7 @@ export default function RoutineCanvas() {
   };
 
   const removeExercise = (exerciseToRemove: ExerciseInfo) => {
-    const filtered = [...newRoutine.exercises].filter(
+    const filtered = [...newRoutine.steps].filter(
       (annotated: AnnotatedExercise) =>
         annotated.exercise.id != exerciseToRemove.id,
     );

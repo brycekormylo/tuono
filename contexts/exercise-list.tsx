@@ -107,7 +107,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     exercises: {
       $: {
         where: {
-          adminId: user?.id,
+          adminID: user?.id,
         },
       },
     },
@@ -159,9 +159,9 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   };
 
   const updateExercise = (exercise: ExerciseInfo) => {
-    database.transact(tx.exercises[exercise.id].update(exercise));
+    database.transact(tx.exercises[exercise.id].update(exercise as any));
     user &&
-      database.transact(tx.exercises[exercise.id].link({ adminId: user.id }));
+      database.transact(tx.exercises[exercise.id].link({ adminID: user.id }));
   };
 
   const removeExercise = (exercise: ExerciseInfo) => {

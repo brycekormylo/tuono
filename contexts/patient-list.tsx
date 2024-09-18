@@ -60,7 +60,7 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
     patients: {
       $: {
         where: {
-          adminId: user?.id,
+          adminID: user?.id,
         },
       },
     },
@@ -122,10 +122,10 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
     }
   };
 
-  const updatePatient = (newInfo: PatientInfo) => {
-    database.transact(tx.patients[newInfo.id].update(newInfo));
+  const updatePatient = (patient: PatientInfo) => {
+    database.transact(tx.patients[patient.id].update(patient as any));
     user &&
-      database.transact(tx.patients[newInfo.id].link({ adminId: user.id }));
+      database.transact(tx.patients[patient.id].link({ adminID: user.id }));
   };
 
   const removePatient = (patientToRemove: PatientInfo) => {

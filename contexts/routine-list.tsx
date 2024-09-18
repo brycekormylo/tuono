@@ -2,8 +2,10 @@
 
 import { useDatabase } from "@/contexts/database";
 import { useAuth } from "@/contexts/auth";
-import { UUID } from "crypto";
+import { tx } from "@instantdb/react";
 import { ExerciseInfo } from "./exercise-list";
+import { useInput } from "@/hooks/use-input";
+import { ChangeEvent } from "react";
 
 import React, {
   createContext,
@@ -14,14 +16,15 @@ import React, {
 } from "react";
 
 export interface RoutineListData {
-  id: UUID;
+  id: String;
   routines: Routine[];
 }
 
 export interface Routine {
   id: string;
   name: string;
-  exercises: AnnotatedExercise[];
+  steps: AnnotatedExercise[];
+  creationDate: string;
 }
 
 export interface AnnotatedExercise {
@@ -33,11 +36,12 @@ interface RoutineListContextProps {
   sortAsc: boolean;
   setSortAsc: (asc: boolean) => void;
   selectedRoutine: Routine | null;
-  setSelected: (routine: Routine | null) => void;
+  setSelectedRoutine: (routine: Routine | null) => void;
+  searchInput: string;
+  changeSearchInput: (input: ChangeEvent<HTMLInputElement>) => void;
   routines: Routine[] | null;
-  addRoutine: (routine: Routine) => void;
+  updateRoutine: (routine: Routine) => void;
   removeRoutine: (routine: Routine) => void;
-  updateRoutine: (prevInfo: Routine, newInfo: Routine) => void;
 }
 
 const RoutineListContext = createContext<RoutineListContextProps | null>(null);
@@ -50,33 +54,57 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
   const { database } = useDatabase();
   const { user } = useAuth();
 
+  const [rawRoutines, setRawRoutines] = useState<Routine[] | null>(null);
   const [routines, setRoutines] = useState<Routine[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchRoutines();
-    }
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  const query = {
+    routines: {
+      $: {
+        where: {
+          adminID: user?.id,
+        },
+      },
+    },
+  };
+
+  const { isLoading, error, data } = database.useQuery(query);
+  const { value: searchInput, onChange: changeSearchInput } = useInput("");
 
   useEffect(() => {
-    if (!routines) {
-      fetchRoutines();
+    if (data) {
+      const rawRoutineData: Routine[] = data.routines as Routine[];
+      setRawRoutines(rawRoutineData);
+    } else {
+      setRawRoutines(null);
     }
-  }, [routines]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [data]);
 
   useEffect(() => {
     sort();
   }, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const setSelected = (routine: Routine | null) => {
-    setSelectedRoutine(routine);
+  useEffect(() => {
+    if (searchInput == "") {
+      setRoutines(rawRoutines);
+    } else {
+      filterBy(searchInput);
+    }
+  }, [searchInput, rawRoutines]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const filterBy = (input: string) => {
+    if (rawRoutines) {
+      const filtered = rawRoutines.filter((routine) => {
+        return routine.name?.toLowerCase().includes(input.toLowerCase());
+      });
+      setRoutines(filtered);
+    }
   };
 
   const sort = () => {
-    if (routines) {
-      const sorted = routines.sort((a, b) => {
+    if (rawRoutines) {
+      const sorted = rawRoutines.sort((a, b) => {
         if (sortAsc) {
           return a.name > b.name ? -1 : 1;
         } else {
@@ -87,55 +115,14 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
     }
   };
 
-  const fetchRoutines = async () => {
-    setRoutines(null);
-    const { data } = await database
-      .from("routine")
-      .select("routines")
-      .eq("id", user?.id);
-    if (data) {
-      const routineList: Routine[] = data[0].routines;
-      const sorted = routineList.sort((a, b) => {
-        if (sortAsc) {
-          return a.name > b.name ? -1 : 1;
-        } else {
-          return a.name < b.name ? -1 : 1;
-        }
-      });
-      setRoutines(sorted);
-    }
+  const removeRoutine = (routine: Routine) => {
+    database.transact(tx.routines[routine.id].update(routine as any));
+    user &&
+      database.transact(tx.routines[routine.id].link({ adminID: user.id }));
   };
 
-  const pushRoutineChanges = async (newRoutines: Routine[]) => {
-    const { data, error } = await database
-      .from("routine")
-      .update({ routines: newRoutines })
-      .eq("id", user?.id)
-      .select();
-    await fetchRoutines();
-  };
-
-  const addRoutine = async (newRoutine: Routine) => {
-    pushRoutineChanges(routines ? [...routines, newRoutine] : [newRoutine]);
-  };
-
-  const removeRoutine = async (routineToRemove: Routine) => {
-    if (routines) {
-      const filteredRoutines = routines.filter(
-        (routine) => routine.id != routineToRemove.id,
-      );
-      pushRoutineChanges(filteredRoutines);
-    }
-  };
-
-  const updateRoutine = async (prevInfo: Routine, newInfo: Routine) => {
-    const modifiedRoutines: Routine[] = [];
-    if (routines) {
-      routines.map((routine) => {
-        modifiedRoutines.push(routine.id == prevInfo.id ? newInfo : routine);
-      });
-      pushRoutineChanges(modifiedRoutines);
-    }
+  const updateRoutine = (routine: Routine) => {
+    database.transact(tx.routines[routine.id].delete());
   };
 
   return (
@@ -143,12 +130,13 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
       value={{
         sortAsc,
         setSortAsc,
+        searchInput,
+        changeSearchInput,
         selectedRoutine,
-        setSelected,
+        setSelectedRoutine,
         routines,
-        addRoutine,
-        removeRoutine,
         updateRoutine,
+        removeRoutine,
       }}
     >
       {children}
