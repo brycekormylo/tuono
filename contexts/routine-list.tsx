@@ -37,11 +37,18 @@ interface RoutineListContextProps {
   setSortAsc: (asc: boolean) => void;
   selectedRoutine: Routine | null;
   setSelectedRoutine: (routine: Routine | null) => void;
+  step: ExerciseInfo | null;
+  setStep: (exercise: ExerciseInfo | null) => void;
+  note: string | null;
+  setNote: (note: string) => void;
   searchInput: string;
   changeSearchInput: (input: ChangeEvent<HTMLInputElement>) => void;
+  rawRoutines: Routine[] | null;
   routines: Routine[] | null;
   updateRoutine: (routine: Routine) => void;
   removeRoutine: (routine: Routine) => void;
+  editMode: boolean;
+  setEditMode: (mode: boolean) => void;
 }
 
 const RoutineListContext = createContext<RoutineListContextProps | null>(null);
@@ -58,6 +65,10 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
   const [routines, setRoutines] = useState<Routine[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
+  const [step, setStep] = useState<ExerciseInfo | null>(null);
+  const [note, setNote] = useState<string | null>(null);
+
+  const [editMode, setEditMode] = useState<boolean>(false);
 
   const query = {
     routines: {
@@ -115,13 +126,13 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
     }
   };
 
-  const removeRoutine = (routine: Routine) => {
+  const updateRoutine = (routine: Routine) => {
     database.transact(tx.routines[routine.id].update(routine as any));
     user &&
       database.transact(tx.routines[routine.id].link({ adminID: user.id }));
   };
 
-  const updateRoutine = (routine: Routine) => {
+  const removeRoutine = (routine: Routine) => {
     database.transact(tx.routines[routine.id].delete());
   };
 
@@ -132,11 +143,18 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
         setSortAsc,
         searchInput,
         changeSearchInput,
+        step,
+        setStep,
+        note,
+        setNote,
         selectedRoutine,
         setSelectedRoutine,
+        rawRoutines,
         routines,
         updateRoutine,
         removeRoutine,
+        editMode,
+        setEditMode,
       }}
     >
       {children}

@@ -1,5 +1,9 @@
-import RoutineCanvas from "./canvas/page";
+import Recents from "./recents/page";
 
 export default function Routine() {
-  return <RoutineCanvas />;
+  return (
+    <>
+      <Recents />
+    </>
+  );
 }
