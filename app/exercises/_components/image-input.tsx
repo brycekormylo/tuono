@@ -1,8 +1,6 @@
-"use client";
-
 import { LuPlus } from "react-icons/lu";
-import React, { useState, useEffect } from "react";
-import { useImageUpload } from "@/contexts/image-upload";
+import { useState, useEffect, ChangeEvent } from "react";
+import { useImageUpload } from "@/utils/image-upload";
 import Image from "next/image";
 import { MoonLoader } from "react-spinners";
 
@@ -23,7 +21,7 @@ export default function ImageInput({
     handleUpload();
   }, [image]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setImage(file);

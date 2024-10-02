@@ -1,89 +1,74 @@
 import {
   LuUndo,
   LuTrash2,
-  LuEye,
-  LuCheck,
-  LuX,
+  LuTornado,
+  LuHistory,
+  LuUserCog,
   LuTrash,
   LuPencil,
 } from "react-icons/lu";
 import { useEffect, useState } from "react";
-import { usePatientList, PatientInfo } from "@/contexts/patient-list";
+import {
+  usePatientList,
+  PatientInfo,
+  formattedPhoneNumber,
+} from "@/contexts/patient-list";
 
 interface PatientRowProps {
   patient: PatientInfo;
 }
 
 export default function PatientRow({ patient }: PatientRowProps) {
-  const {
-    removePatient,
-    selectedPatient,
-    setSelectedPatient,
-    editMode,
-    setEditMode,
-  } = usePatientList();
-
-  const formattedPhoneNumber = (phone: string): String => {
-    let phoneArr = Array.from(phone);
-
-    let formatted = [
-      "(",
-      ...phoneArr.slice(0, 3),
-      ") ",
-      ...phoneArr.slice(3, 6),
-      "-",
-      ...phoneArr.slice(6, 10),
-    ].join("");
-
-    return formatted;
-  };
+  const { remove, selected, setSelected, edit, setEdit } = usePatientList();
 
   const [isSelected, setIsSelected] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
 
   useEffect(() => {
-    setIsSelected(selectedPatient?.id == patient.id);
-  }, [selectedPatient]); // eslint-disable-line react-hooks/exhaustive-deps
+    setIsSelected(selected?.id == patient.id);
+  }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setDeleteMode(false);
   }, [isSelected]);
 
   const handleClick = () => {
-    if (selectedPatient?.id == patient.id) {
-      setEditMode(false);
+    if (selected?.id == patient.id) {
+      setEdit(false);
+      setSelected(null);
     } else {
-      setSelectedPatient(patient);
+      setEdit(false);
+      setSelected(patient);
     }
   };
 
   const handleDelete = () => {
-    const selected = selectedPatient;
-    setSelectedPatient(null);
-    selected && removePatient(selected);
+    setDeleteMode(false);
+    const toDelete = selected;
+    setSelected(null);
+    toDelete && remove(toDelete);
   };
 
   const handleEdit = () => {
-    setEditMode(true);
-    setSelectedPatient(patient);
-    setIsSelected(false);
+    setEdit(true);
+    setSelected(patient);
   };
 
   return (
     <div
-      className={`grid group h-14 w-full rounded-md overflow-clip bg-gray-300/75 ${editMode ? "grid-cols-[1fr,1fr,1fr,0]" : isSelected ? "grid-cols-[1fr,1fr,20rem,10rem]" : "grid-cols-[1fr,1fr,30rem,0]"}  items-center`}
+      className={`grid group h-14 w-full rounded-md overflow-clip bg-gray-300/75 ${edit ? "grid-cols-[1fr,1fr,1fr,0]" : isSelected ? "grid-cols-[1fr,1fr,20rem,10rem]" : "grid-cols-[1fr,1fr,30rem,0]"}  items-center`}
     >
       <div
         className={`flex col-start-1 row-start-1 justify-self-start items-center w-full h-full group-hover:bg-gray-200 ps-4 ${isSelected ? "bg-gray-100" : "bg-gray-50"}`}
       >
-        <h2 className="text-lg font-medium select-none">
+        <h2 className="text-lg select-none">
           {patient.lastName}, {patient.firstName}
         </h2>
       </div>
       <div
         className={`flex flex-wrap col-start-2 row-start-1 gap-2 justify-end items-center w-full h-full group-hover:bg-gray-200 ${isSelected ? "bg-gray-100 " : "bg-gray-50"}`}
       >
-        <h2 className="text-base font-medium select-none">{patient.email}</h2>
+        <h2 className="text-base select-none">{patient.email}</h2>
       </div>
       <div
         className={`flex z-10 col-start-3 row-start-1 gap-2 justify-end justify-items-end items-center w-full h-full rounded-r-md ${isSelected ? "bg-gray-100" : "bg-gray-50"} min-w-40`}
@@ -102,29 +87,29 @@ export default function PatientRow({ patient }: PatientRowProps) {
         {deleteMode ? (
           <>
             <button onClick={() => setDeleteMode(false)}>
-              <LuUndo size={24} />
+              <LuUndo size={20} />
             </button>
             <div>
               <label className="text-sm text-wrap">Delete?</label>
             </div>
-            <button onClick={handleDelete} className="text-red-500">
-              <LuTrash2 size={24} />
+            <button onClick={handleDelete} className="text-red-600">
+              <LuTrash2 size={20} />
             </button>
           </>
         ) : (
           <>
             <button
               onClick={() => setDeleteMode(true)}
-              className="text-red-500"
+              className="text-red-600"
             >
-              <LuTrash2 size={24} />
-            </button>
-            <button onClick={handleEdit} className="">
-              <LuPencil size={24} />
+              <LuTrash2 size={20} />
             </button>
             <a href={"/patients"} className="">
-              <LuEye size={24} />
+              <LuHistory size={20} />
             </a>
+            <button onClick={handleEdit} className="">
+              <LuUserCog size={20} />
+            </button>
           </>
         )}
       </div>

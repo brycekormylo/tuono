@@ -1,9 +1,9 @@
 "use client";
 
-import { useDatabase, Schema } from "@/contexts/database";
+import { useDatabase } from "@/contexts/database";
 import { useAuth } from "@/contexts/auth";
-import { init, tx, id, User, InstantReactWeb } from "@instantdb/react";
-import { ChangeEvent } from "react";
+import { tx } from "@instantdb/react";
+import { ListContextProps } from "./list-context-props";
 import { useInput } from "@/hooks/use-input";
 
 import React, {
@@ -14,6 +14,21 @@ import React, {
   ReactNode,
 } from "react";
 
+export const formattedPhoneNumber = (phone: string): String => {
+  let phoneArr = Array.from(phone);
+
+  let formatted = [
+    "(",
+    ...phoneArr.slice(0, 3),
+    ") ",
+    ...phoneArr.slice(3, 6),
+    "-",
+    ...phoneArr.slice(6, 10),
+  ].join("");
+
+  return formatted;
+};
+
 export interface PatientInfo {
   id: string;
   firstName: string;
@@ -22,20 +37,8 @@ export interface PatientInfo {
   phone: string;
 }
 
-interface PatientListContextProps {
-  sortAsc: boolean;
-  setSortAsc: (asc: boolean) => void;
-  selectedPatient: PatientInfo | null;
-  setSelectedPatient: (patient: PatientInfo | null) => void;
-  patients: PatientInfo[] | null;
-  rawPatients: PatientInfo[] | null;
-  searchInput: string;
-  changeSearchInput: (input: ChangeEvent<HTMLInputElement>) => void;
-  removePatient: (patient: PatientInfo) => void;
-  updatePatient: (patient: PatientInfo) => void;
-  editMode: boolean;
-  setEditMode: (mode: boolean) => void;
-}
+export interface PatientListContextProps
+  extends ListContextProps<PatientInfo> {}
 
 const PatientListContext = createContext<PatientListContextProps | null>(null);
 
@@ -47,14 +50,16 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
   const { database } = useDatabase();
   const { user } = useAuth();
 
-  const [rawPatients, setRawPatients] = useState<PatientInfo[] | null>(null);
-  const [patients, setPatients] = useState<PatientInfo[] | null>(null);
+  const [rawInfo, setRawInfo] = useState<PatientInfo[] | null>(null);
+  const [info, setInfo] = useState<PatientInfo[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
-  const [selectedPatient, setSelectedPatient] = useState<PatientInfo | null>(
-    null,
-  );
-  const [editMode, setEditMode] = useState<boolean>(false);
-  const { value: searchInput, onChange: changeSearchInput } = useInput("");
+  const [selected, setSelected] = useState<PatientInfo | null>(null);
+  const [edit, setEdit] = useState<boolean>(false);
+  const {
+    value: search,
+    onChange: changeSearch,
+    setValue: setSearch,
+  } = useInput("");
 
   const query = {
     patients: {
@@ -79,7 +84,7 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
         }
       });
 
-      setRawPatients(sorted);
+      setRawInfo(sorted);
     }
   }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -88,65 +93,88 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
   }, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (searchInput == "") {
-      setPatients(rawPatients);
+    if (search == "") {
+      setInfo(rawInfo);
     } else {
-      filterBy(searchInput);
+      filterBy(search);
     }
-  }, [searchInput, rawPatients]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, rawInfo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filterBy = (input: string) => {
-    if (patients) {
-      const filtered = patients.filter((patient) => {
+    if (info) {
+      const filtered = info.filter((patient) => {
         return (
-          patient.lastName.toLowerCase().includes(searchInput.toLowerCase()) ||
-          patient.firstName.toLowerCase().includes(searchInput.toLowerCase())
+          patient.lastName.toLowerCase().includes(search.toLowerCase()) ||
+          patient.firstName.toLowerCase().includes(search.toLowerCase())
         );
       });
-      setPatients(filtered);
+      setInfo(filtered);
     } else {
-      setPatients(rawPatients);
+      setInfo(rawInfo);
     }
   };
 
   const sort = () => {
-    if (rawPatients) {
-      const sorted = rawPatients.sort((a, b) => {
+    if (rawInfo) {
+      const sorted = rawInfo.sort((a, b) => {
         if (sortAsc) {
           return a.lastName > b.lastName ? -1 : 1;
         } else {
           return a.lastName < b.lastName ? -1 : 1;
         }
       });
-      setRawPatients([...sorted]);
+      setRawInfo([...sorted]);
     }
   };
 
-  const updatePatient = (patient: PatientInfo) => {
+  const toggleSort = () => {
+    setSortAsc(!sortAsc);
+  };
+
+  const toggleEdit = () => {
+    setEdit(!edit);
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+  };
+
+  const createNew = () => {
+    setSelected(null);
+    setEdit(true);
+  };
+
+  const update = (patient: PatientInfo) => {
     database.transact(tx.patients[patient.id].update(patient as any));
     user &&
       database.transact(tx.patients[patient.id].link({ adminID: user.id }));
   };
 
-  const removePatient = (patientToRemove: PatientInfo) => {
-    database.transact(tx.patients[patientToRemove.id].delete());
+  const remove = (patient: PatientInfo) => {
+    database.transact(tx.patients[patient.id].delete());
+    setSelected(null);
   };
 
   return (
     <PatientListContext.Provider
       value={{
-        sortAsc,
+        info,
+        rawInfo,
+        selected,
+        setSelected,
+        sortAsc: sortAsc,
         setSortAsc,
-        selectedPatient,
-        setSelectedPatient,
-        patients,
-        rawPatients,
-        searchInput,
-        changeSearchInput,
-        removePatient,
-        updatePatient,
-        editMode,
-        setEditMode,
+        toggleSort,
+        search,
+        setSearch,
+        changeSearch,
+        clearSearch,
+        edit,
+        setEdit,
+        toggleEdit,
+        createNew,
+        remove,
+        update,
       }}
     >
       {children}

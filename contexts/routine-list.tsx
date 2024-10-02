@@ -14,6 +14,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { ListContextProps } from "./list-context-props";
 
 export interface RoutineListData {
   id: String;
@@ -32,23 +33,11 @@ export interface AnnotatedExercise {
   note?: string;
 }
 
-interface RoutineListContextProps {
-  sortAsc: boolean;
-  setSortAsc: (asc: boolean) => void;
-  selectedRoutine: Routine | null;
-  setSelectedRoutine: (routine: Routine | null) => void;
+interface RoutineListContextProps extends ListContextProps<Routine> {
   step: ExerciseInfo | null;
   setStep: (exercise: ExerciseInfo | null) => void;
   note: string | null;
   setNote: (note: string) => void;
-  searchInput: string;
-  changeSearchInput: (input: ChangeEvent<HTMLInputElement>) => void;
-  rawRoutines: Routine[] | null;
-  routines: Routine[] | null;
-  updateRoutine: (routine: Routine) => void;
-  removeRoutine: (routine: Routine) => void;
-  editMode: boolean;
-  setEditMode: (mode: boolean) => void;
 }
 
 const RoutineListContext = createContext<RoutineListContextProps | null>(null);
@@ -61,14 +50,14 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
   const { database } = useDatabase();
   const { user } = useAuth();
 
-  const [rawRoutines, setRawRoutines] = useState<Routine[] | null>(null);
-  const [routines, setRoutines] = useState<Routine[] | null>(null);
+  const [rawInfo, setRawInfo] = useState<Routine[] | null>(null);
+  const [info, setInfo] = useState<Routine[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
-  const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
+  const [selected, setSelected] = useState<Routine | null>(null);
   const [step, setStep] = useState<ExerciseInfo | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
-  const [editMode, setEditMode] = useState<boolean>(false);
+  const [edit, setEdit] = useState<boolean>(false);
 
   const query = {
     routines: {
@@ -81,14 +70,18 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
   };
 
   const { isLoading, error, data } = database.useQuery(query);
-  const { value: searchInput, onChange: changeSearchInput } = useInput("");
+  const {
+    value: search,
+    onChange: changeSearch,
+    setValue: setSearch,
+  } = useInput("");
 
   useEffect(() => {
     if (data) {
       const rawRoutineData: Routine[] = data.routines as Routine[];
-      setRawRoutines(rawRoutineData);
+      setRawInfo(rawRoutineData);
     } else {
-      setRawRoutines(null);
+      setRawInfo(null);
     }
   }, [data]);
 
@@ -97,43 +90,61 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
   }, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (searchInput == "") {
-      setRoutines(rawRoutines);
+    if (search == "") {
+      setInfo(rawInfo);
     } else {
-      filterBy(searchInput);
+      filterBy(search);
     }
-  }, [searchInput, rawRoutines]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, rawInfo]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const clearSearch = () => {
+    setSearch("");
+  };
 
   const filterBy = (input: string) => {
-    if (rawRoutines) {
-      const filtered = rawRoutines.filter((routine) => {
+    if (rawInfo) {
+      const filtered = rawInfo.filter((routine) => {
         return routine.name?.toLowerCase().includes(input.toLowerCase());
       });
-      setRoutines(filtered);
+      setInfo(filtered);
     }
   };
 
   const sort = () => {
-    if (rawRoutines) {
-      const sorted = rawRoutines.sort((a, b) => {
+    if (rawInfo) {
+      const sorted = rawInfo.sort((a, b) => {
         if (sortAsc) {
           return a.name > b.name ? -1 : 1;
         } else {
           return a.name < b.name ? -1 : 1;
         }
       });
-      setRoutines([...sorted]);
+      setInfo([...sorted]);
     }
   };
 
-  const updateRoutine = (routine: Routine) => {
+  const update = (routine: Routine) => {
     database.transact(tx.routines[routine.id].update(routine as any));
     user &&
       database.transact(tx.routines[routine.id].link({ adminID: user.id }));
   };
 
-  const removeRoutine = (routine: Routine) => {
+  const remove = (routine: Routine) => {
     database.transact(tx.routines[routine.id].delete());
+    setSelected(null);
+  };
+
+  const toggleEdit = () => {
+    setEdit(!edit);
+  };
+
+  const toggleSort = () => {
+    setSortAsc(!sortAsc);
+  };
+
+  const createNew = () => {
+    setSelected(null);
+    setEdit(true);
   };
 
   return (
@@ -141,20 +152,25 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
       value={{
         sortAsc,
         setSortAsc,
-        searchInput,
-        changeSearchInput,
+        toggleSort,
+        search,
+        setSearch,
+        changeSearch,
+        clearSearch,
         step,
         setStep,
         note,
         setNote,
-        selectedRoutine,
-        setSelectedRoutine,
-        rawRoutines,
-        routines,
-        updateRoutine,
-        removeRoutine,
-        editMode,
-        setEditMode,
+        selected,
+        setSelected,
+        rawInfo,
+        info,
+        update,
+        remove,
+        edit,
+        setEdit,
+        toggleEdit,
+        createNew,
       }}
     >
       {children}

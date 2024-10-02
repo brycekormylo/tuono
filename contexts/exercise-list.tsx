@@ -13,6 +13,7 @@ import React, {
   ReactNode,
   ChangeEvent,
 } from "react";
+import { ListContextProps } from "./list-context-props";
 
 export enum Difficulty {
   EASY = "EASY",
@@ -45,31 +46,19 @@ export enum BodyPart {
 export interface ExerciseInfo {
   id: string;
   title?: string;
-  aliases?: string[];
-  bodyParts?: BodyPart[];
+  aliases: string[];
+  bodyParts: BodyPart[];
   difficulty?: Difficulty;
-  steps?: string[];
-  imageUrls?: string[];
+  steps: string[];
+  imageUrls: string[];
   sets?: number;
   repetitions?: number;
   holdTimeInSeconds?: number;
   weight?: number;
 }
 
-interface ExerciseListContextProps {
-  sortAsc: boolean;
-  setSortAsc: (asc: boolean) => void;
-  selectedExercise: ExerciseInfo | null;
-  setSelectedExercise: (exercise: ExerciseInfo | null) => void;
-  rawExercises: ExerciseInfo[] | null;
-  exercises: ExerciseInfo[] | null;
-  searchInput: string;
-  changeSearchInput: (input: ChangeEvent<HTMLInputElement>) => void;
-  removeExercise: (exercise: ExerciseInfo) => void;
-  updateExercise: (exercise: ExerciseInfo) => void;
+interface ExerciseListContextProps extends ListContextProps<ExerciseInfo> {
   formatEnumValue: (value?: string) => string;
-  editMode: boolean;
-  setEditMode: (mode: boolean) => void;
 }
 
 export function formatEnumValue(value?: string): string {
@@ -93,15 +82,17 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   const { database } = useDatabase();
   const { user } = useAuth();
 
-  const [rawExercises, setRawExercises] = useState<ExerciseInfo[] | null>(null);
-  const [exercises, setExercises] = useState<ExerciseInfo[] | null>(null);
+  const [rawInfo, setRawInfo] = useState<ExerciseInfo[] | null>(null);
+  const [info, setInfo] = useState<ExerciseInfo[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(false);
-  const [selectedExercise, setSelectedExercise] = useState<ExerciseInfo | null>(
-    null,
-  );
+  const [selected, setSelected] = useState<ExerciseInfo | null>(null);
 
-  const [editMode, setEditMode] = useState<boolean>(false);
-  const { value: searchInput, onChange: changeSearchInput } = useInput("");
+  const [edit, setEdit] = useState<boolean>(false);
+  const {
+    value: search,
+    onChange: changeSearch,
+    setValue: setSearch,
+  } = useInput("");
 
   const query = {
     exercises: {
@@ -118,32 +109,32 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   useEffect(() => {
     if (data) {
       const rawExerciseData: ExerciseInfo[] = data.exercises as ExerciseInfo[];
-      setRawExercises(rawExerciseData);
+      setRawInfo(rawExerciseData);
     } else {
-      setRawExercises(null);
+      setRawInfo(null);
     }
   }, [data]);
 
   useEffect(() => {
-    if (searchInput == "") {
-      setExercises(rawExercises);
+    if (search == "") {
+      setInfo(rawInfo);
     } else {
-      filterBy(searchInput);
+      filterBy(search);
     }
-  }, [searchInput, rawExercises]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [search, rawInfo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filterBy = (input: string) => {
-    if (rawExercises) {
-      const filtered = rawExercises.filter((exercise) => {
+    if (rawInfo) {
+      const filtered = rawInfo.filter((exercise) => {
         return exercise.title?.toLowerCase().includes(input.toLowerCase());
       });
-      setExercises(filtered);
+      setInfo(filtered);
     }
   };
 
   const sort = () => {
-    if (rawExercises) {
-      const sorted = rawExercises.sort((a, b) => {
+    if (rawInfo) {
+      const sorted = rawInfo.sort((a, b) => {
         if (a.title && b.title) {
           if (sortAsc) {
             return a.title.toLowerCase() > b.title.toLowerCase() ? -1 : 1;
@@ -154,18 +145,36 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
           return -1;
         }
       });
-      setRawExercises([...sorted]);
+      setRawInfo([...sorted]);
     }
   };
 
-  const updateExercise = (exercise: ExerciseInfo) => {
+  const toggleSort = () => {
+    setSortAsc(!sortAsc);
+  };
+
+  const toggleEdit = () => {
+    setEdit(!edit);
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+  };
+
+  const createNew = () => {
+    setSelected(null);
+    setEdit(true);
+  };
+
+  const update = (exercise: ExerciseInfo) => {
     database.transact(tx.exercises[exercise.id].update(exercise as any));
     user &&
       database.transact(tx.exercises[exercise.id].link({ adminID: user.id }));
   };
 
-  const removeExercise = (exercise: ExerciseInfo) => {
+  const remove = (exercise: ExerciseInfo) => {
     database.transact(tx.exercises[exercise.id].delete());
+    setSelected(null);
   };
 
   useEffect(() => {
@@ -175,19 +184,24 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   return (
     <ExerciseListContext.Provider
       value={{
+        info,
+        rawInfo,
+        selected,
+        setSelected,
         sortAsc,
         setSortAsc,
-        selectedExercise,
-        setSelectedExercise,
-        rawExercises,
-        exercises,
-        searchInput,
-        changeSearchInput,
-        removeExercise,
-        updateExercise,
+        toggleSort,
+        search,
+        setSearch,
+        changeSearch,
+        clearSearch,
+        edit,
+        setEdit,
+        toggleEdit,
+        createNew,
+        remove,
+        update,
         formatEnumValue,
-        editMode,
-        setEditMode,
       }}
     >
       {children}

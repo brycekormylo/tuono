@@ -6,8 +6,8 @@ import {
   Difficulty,
   formatEnumValue,
 } from "@/contexts/exercise-list";
-import { useEffect, useState, useMemo } from "react";
-import { LuTrash2, LuPencil, LuEye, LuCheck, LuUndo } from "react-icons/lu";
+import { useEffect, useState } from "react";
+import { LuTrash2, LuPencil, LuEye, LuUndo } from "react-icons/lu";
 import Link from "next/link";
 
 interface ExerciseRowProps {
@@ -15,41 +15,38 @@ interface ExerciseRowProps {
 }
 
 export default function ExerciseRow({ exercise }: ExerciseRowProps) {
-  const {
-    editMode,
-    setEditMode,
-    removeExercise,
-    selectedExercise,
-    setSelectedExercise,
-  } = useExerciseList();
+  const { edit, setEdit, remove, selected, setSelected } = useExerciseList();
   const [isExpanded, setIsExpanded] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
 
   useEffect(() => {
-    selectedExercise && setIsExpanded(selectedExercise.id == exercise.id);
-  }, [selectedExercise]); // eslint-disable-line react-hooks/exhaustive-deps
+    selected && setIsExpanded(selected.id == exercise.id);
+  }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setDeleteMode(false);
   }, [isExpanded]);
 
   const handleClick = () => {
-    if (selectedExercise?.id == exercise.id) {
-      setSelectedExercise(null);
+    if (selected?.id == exercise.id) {
+      setSelected(null);
+      setIsExpanded(false);
+      setEdit(false);
     } else {
-      setSelectedExercise(exercise);
+      setSelected(exercise);
     }
   };
 
   const handleDelete = () => {
-    const selected = selectedExercise;
-    setSelectedExercise(null);
-    selected && removeExercise(selected);
+    setDeleteMode(false);
+    const toDelete = selected;
+    setSelected(null);
+    toDelete && remove(toDelete);
   };
 
   const handleEdit = () => {
-    setEditMode(true);
-    setSelectedExercise(exercise);
+    setEdit(true);
+    setSelected(exercise);
     setIsExpanded(false);
   };
 
@@ -77,7 +74,7 @@ export default function ExerciseRow({ exercise }: ExerciseRowProps) {
             ))}
           </div>
           <div
-            className={`${isExpanded ? " pe-[10rem]" : ""} flex col-start-3 row-start-1 gap-2 justify-end  w-full h-full justify-items-end items-center min-w-40`}
+            className={`${isExpanded && !edit ? " pe-[10rem]" : ""} flex col-start-3 row-start-1 gap-2 justify-end  w-full h-full justify-items-end items-center min-w-40`}
           >
             <div
               className={`flex gap-2 justify-end items-center w-full h-full group-hover:bg-gray-200 pe-4 ${isExpanded ? "bg-gray-100" : "bg-gray-50"}`}
@@ -98,7 +95,7 @@ export default function ExerciseRow({ exercise }: ExerciseRowProps) {
       </div>
 
       <div
-        className={`${isExpanded ? "z-10" : "z-0"} flex justify-evenly justify-self-end items-center h-full rounded-r-md bg-gray-300/75 min-w-[10rem]`}
+        className={`${isExpanded && !edit ? "z-10" : "z-0"} flex justify-evenly justify-self-end items-center h-full rounded-r-md bg-gray-300/75 min-w-[10rem]`}
       >
         {deleteMode ? (
           <>

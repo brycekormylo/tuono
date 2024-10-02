@@ -13,11 +13,11 @@ import { LuPlus, LuX } from "react-icons/lu";
 import { id } from "@instantdb/react";
 import ExerciseSelector from "./_components/exercise-selector";
 import ExerciseAnnotator from "./_components/exercise-annotator";
+import ActionButtons from "@/app/_components/editor/action-buttons";
 import Recents from "../recents/page";
 
 export default function RoutineCanvas() {
-  const { step, setStep, updateRoutine, setSelectedRoutine, setEditMode } =
-    useRoutineList();
+  const { step, setStep, update, setSelected, setEdit } = useRoutineList();
 
   const {
     value: nameInput,
@@ -48,16 +48,21 @@ export default function RoutineCanvas() {
       steps: annotatedExerciseList,
       creationDate: new Date().toISOString(),
     };
-    updateRoutine(newRoutine);
+    update(newRoutine);
     setStep(null);
-    setSelectedRoutine(null);
-    setEditMode(false);
+    setSelected(null);
+    setEdit(false);
     setAnnotatedExerciseList([]);
     setNameInput("");
   };
 
+  const handleReturn = () => {
+    setEdit(false);
+    setSelected(null);
+  };
+
   return (
-    <div className="flex gap-2 justify-end w-full min-w-[60rem]">
+    <div className="flex gap-2 justify-end min-w-[64rem]">
       <div className="flex flex-col gap-8 items-center bg-gray-100">
         <div className="z-10 max-h-24">
           <ExerciseSelector />
@@ -70,9 +75,9 @@ export default function RoutineCanvas() {
       </div>
       <div className="flex flex-col gap-8 p-12 bg-gray-50">
         <div className="flex gap-2 items-center w-full stack">
-          <h2 className="justify-self-start w-48 text-lg text-nowrap">
+          <label className="justify-self-start w-48 text-lg text-nowrap">
             Routine Name
-          </h2>
+          </label>
           <input
             type="text"
             value={nameInput}
@@ -80,7 +85,7 @@ export default function RoutineCanvas() {
             onChange={changeNameInput}
           />
         </div>
-        <h2 className="self-end text-lg">Exercises</h2>
+        <h2 className="self-end text-lg">Steps</h2>
         <List
           values={annotatedExerciseList}
           onChange={({ oldIndex, newIndex }) =>
@@ -110,12 +115,10 @@ export default function RoutineCanvas() {
             </li>
           )}
         />
-        <button
-          className="self-end w-24 h-12 bg-gray-300 rounded-lg stack"
-          onClick={handleSubmit}
-        >
-          <LuPlus size={20} />
-        </button>
+        <ActionButtons
+          handleSubmit={handleSubmit}
+          handleReturn={handleReturn}
+        />
       </div>
     </div>
   );
