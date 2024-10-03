@@ -16,9 +16,9 @@ type Schema = {
 
 export type AdminAccount = {
   id: string;
-  fullName: string;
+  fullName?: string;
   email: string;
-  handle: string;
+  handle?: string;
 };
 
 interface AuthContextProps {

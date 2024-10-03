@@ -27,6 +27,10 @@ export type Schema = {
   };
 };
 
+export interface Identfiable {
+  id: string;
+}
+
 interface DatabaseContextProps {
   database: InstantReactWeb<Schema>;
 }

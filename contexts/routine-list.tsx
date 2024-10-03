@@ -1,12 +1,5 @@
 "use client";
 
-import { useDatabase } from "@/contexts/database";
-import { useAuth } from "@/contexts/auth";
-import { tx } from "@instantdb/react";
-import { ExerciseInfo } from "./exercise-list";
-import { useInput } from "@/hooks/use-input";
-import { ChangeEvent } from "react";
-
 import React, {
   createContext,
   useState,
@@ -14,15 +7,19 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { useDatabase } from "@/contexts/database";
+import { useAuth } from "@/contexts/auth";
+import { tx } from "@instantdb/react";
+import { ExerciseInfo } from "./exercise-list";
+import { useInput } from "@/hooks/use-input";
 import { ListContextProps } from "./list-context-props";
+import { Identfiable } from "@/contexts/database";
 
-export interface RoutineListData {
-  id: String;
+export interface RoutineListData extends Identfiable {
   routines: Routine[];
 }
 
-export interface Routine {
-  id: string;
+export interface Routine extends Identfiable {
   name: string;
   steps: AnnotatedExercise[];
   creationDate: string;

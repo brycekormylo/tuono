@@ -11,9 +11,9 @@ import React, {
   useContext,
   useEffect,
   ReactNode,
-  ChangeEvent,
 } from "react";
 import { ListContextProps } from "./list-context-props";
+import { Identfiable } from "@/contexts/database";
 
 export enum Difficulty {
   EASY = "EASY",
@@ -43,8 +43,7 @@ export enum BodyPart {
   GLUTES = "GLUTES",
 }
 
-export interface ExerciseInfo {
-  id: string;
+export interface ExerciseInfo extends Identfiable {
   title?: string;
   aliases: string[];
   bodyParts: BodyPart[];

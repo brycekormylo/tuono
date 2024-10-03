@@ -13,6 +13,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { Identfiable } from "@/contexts/database";
 
 export const formattedPhoneNumber = (phone: string): String => {
   let phoneArr = Array.from(phone);
@@ -29,8 +30,7 @@ export const formattedPhoneNumber = (phone: string): String => {
   return formatted;
 };
 
-export interface PatientInfo {
-  id: string;
+export interface PatientInfo extends Identfiable {
   firstName: string;
   lastName: string;
   email: string;

@@ -21,7 +21,7 @@ export default function RootLayout({
       <body className={`${font.className} overflow-x-clip`}>
         <Providers>
           <main className="stack [&_*]:transition-all [&_*]:ease-in [&_*]:transition-duration-75">
-            <div className="flex flex-col justify-self-start items-center self-start w-screen">
+            <div className="flex flex-col justify-self-start items-center self-start w-screen h-screen overflow-clip">
               <div className="flex justify-start w-full bg-gray-200">
                 <div className="pb-12 bg-gray-100 grow me-32 min-h-[52rem] rounded-br-[4rem]">
                   <div className="justify-self-end self-start mt-20 ms-44 me-12">
