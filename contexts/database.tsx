@@ -1,22 +1,23 @@
 "use client";
 
-import React, {
-  createContext,
-  useState,
-  useContext,
-  ReactNode,
-  useEffect,
-} from "react";
-import { init, tx, id, InstantReactWeb } from "@instantdb/react";
+import React, { createContext, useContext, ReactNode } from "react";
+import { init, InstantReactWeb } from "@instantdb/react";
+import { AnnotatedExercise } from "./routine-list";
+import { Difficulty } from "./exercise-list";
+import { Message } from "./conversations";
 
 const APP_ID = "bd7b55f0-2338-4b87-8b7a-44ed0df6ae13";
 
 export type Schema = {
   admins: {
     id: string;
-    createdAt: string;
     email: string;
     handle: string;
+  };
+  appointments: {
+    id: string;
+    time: string;
+    duration: string;
   };
   patients: {
     id: string;
@@ -25,9 +26,32 @@ export type Schema = {
     email: string;
     phone: string;
   };
+  routines: {
+    id: string;
+    created: Date;
+    name: string;
+    steps: AnnotatedExercise[];
+  };
+  exercises: {
+    id: string;
+    aliases: string[];
+    difficulty: Difficulty;
+    holdTimeInSeconds: number;
+    sets: number;
+    repetitions: number;
+    weight: number;
+    title: string;
+    steps: string[];
+  };
+  conversations: {
+    id: string;
+    messages: Message[];
+    created: Date;
+    lastUpdated: Date;
+  };
 };
 
-export interface Identfiable {
+export interface Identifiable {
   id: string;
 }
 

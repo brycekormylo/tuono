@@ -13,7 +13,7 @@ import React, {
   ReactNode,
 } from "react";
 import { ListContextProps } from "./list-context-props";
-import { Identfiable } from "@/contexts/database";
+import { Identifiable } from "@/contexts/database";
 
 export enum Difficulty {
   EASY = "EASY",
@@ -43,7 +43,7 @@ export enum BodyPart {
   GLUTES = "GLUTES",
 }
 
-export interface ExerciseInfo extends Identfiable {
+export interface ExerciseInfo extends Identifiable {
   title?: string;
   aliases: string[];
   bodyParts: BodyPart[];
@@ -78,6 +78,8 @@ interface ExerciseListProviderProps {
 }
 
 const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
+  const listName = "Exercises";
+
   const { database } = useDatabase();
   const { user } = useAuth();
 
@@ -97,7 +99,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
     exercises: {
       $: {
         where: {
-          adminID: user?.id,
+          admin: user?.id,
         },
       },
     },
@@ -183,6 +185,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   return (
     <ExerciseListContext.Provider
       value={{
+        listName,
         info,
         rawInfo,
         selected,

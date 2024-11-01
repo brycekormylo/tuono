@@ -6,6 +6,8 @@ import {
   LuDumbbell,
   LuCombine,
   LuLayoutDashboard,
+  LuCalendar,
+  LuMessageCircle,
 } from "react-icons/lu";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -19,6 +21,16 @@ const NavbarItems = [
     name: "Dashboard",
     slug: "intro",
     icon: LuLayoutDashboard,
+  },
+  {
+    name: "Messages",
+    slug: "messages",
+    icon: LuMessageCircle,
+  },
+  {
+    name: "Appointments",
+    slug: "appointments",
+    icon: LuCalendar,
   },
   {
     name: "Routines",
@@ -43,7 +55,7 @@ export default function NavBar() {
 
   return (
     <div className="absolute pt-8 top-0 right-0 z-20 [&_*]:select-none">
-      <div className="flex flex-col gap-8 items-center w-28">
+      <div className="flex flex-col gap-8 items-center w-32">
         {NavbarItems.map((item, index) => {
           const isSelected = pathname.includes(`/${item.slug}`);
           return (
@@ -52,21 +64,21 @@ export default function NavBar() {
               onMouseDown={() => router.push(`/${item.slug}`)}
               className="w-full h-full stack"
             >
-              <div className="flex flex-col w-full min-h-full me-8">
+              <div className="flex flex-col w-full min-h-full">
                 <div className={`stack ${isSelected ? "block" : "hidden"}`}>
                   <div className="-mt-8 w-full h-8 bg-gray-100 rounded-tl-xl"></div>
-                  <div className="-mt-8 w-full h-8 bg-gray-200 rounded-tl-xl rounded-bl-xl"></div>
+                  <div className="-mt-8 w-full h-8 bg-gray-200 rounded-bl-xl"></div>
                 </div>
                 <div
-                  className={`w-full grow transition-none rounded-r-xl ${isSelected ? "bg-gray-100" : "bg-transparent"}`}
+                  className={`w-full grow transition-none  ${isSelected ? "bg-gray-100" : "bg-transparent"}`}
                 />
                 <div className={`stack ${isSelected ? "block" : "hidden"}`}>
                   <div className="-mb-8 w-full h-8 bg-gray-100 rounded-bl-xl"></div>
                   <div className="-mb-8 w-full h-8 bg-gray-200 rounded-l-xl"></div>
                 </div>
               </div>
-              <div className="flex flex-col gap-2 items-center py-6 rounded-xl pe-8">
-                <item.icon size={32} />
+              <div className="flex flex-col gap-2 justify-center items-center h-24 rounded-xl">
+                <item.icon size={28} />
                 <p className="uppercase truncate">{item.name}</p>
               </div>
             </button>

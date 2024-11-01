@@ -13,7 +13,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import { Identfiable } from "@/contexts/database";
+import { Identifiable } from "@/contexts/database";
 
 export const formattedPhoneNumber = (phone: string): String => {
   let phoneArr = Array.from(phone);
@@ -30,7 +30,7 @@ export const formattedPhoneNumber = (phone: string): String => {
   return formatted;
 };
 
-export interface PatientInfo extends Identfiable {
+export interface PatientInfo extends Identifiable {
   firstName: string;
   lastName: string;
   email: string;
@@ -47,6 +47,8 @@ interface PatientListProviderProps {
 }
 
 const PatientListProvider = ({ children }: PatientListProviderProps) => {
+  const listName = "Patients";
+
   const { database } = useDatabase();
   const { user } = useAuth();
 
@@ -65,7 +67,7 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
     patients: {
       $: {
         where: {
-          adminID: user?.id,
+          admin: user?.id,
         },
       },
     },
@@ -158,11 +160,12 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
   return (
     <PatientListContext.Provider
       value={{
+        listName,
         info,
         rawInfo,
         selected,
         setSelected,
-        sortAsc: sortAsc,
+        sortAsc,
         setSortAsc,
         toggleSort,
         search,

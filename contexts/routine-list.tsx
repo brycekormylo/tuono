@@ -13,16 +13,16 @@ import { tx } from "@instantdb/react";
 import { ExerciseInfo } from "./exercise-list";
 import { useInput } from "@/hooks/use-input";
 import { ListContextProps } from "./list-context-props";
-import { Identfiable } from "@/contexts/database";
+import { Identifiable } from "@/contexts/database";
 
-export interface RoutineListData extends Identfiable {
+export interface RoutineListData extends Identifiable {
   routines: Routine[];
 }
 
-export interface Routine extends Identfiable {
+export interface Routine extends Identifiable {
   name: string;
   steps: AnnotatedExercise[];
-  creationDate: string;
+  created: Date;
 }
 
 export interface AnnotatedExercise {
@@ -44,6 +44,8 @@ interface RoutineListProviderProps {
 }
 
 const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
+  const listName = "Routines";
+
   const { database } = useDatabase();
   const { user } = useAuth();
 
@@ -60,7 +62,7 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
     routines: {
       $: {
         where: {
-          adminID: user?.id,
+          admin: user?.id,
         },
       },
     },
@@ -147,6 +149,7 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
   return (
     <RoutineListContext.Provider
       value={{
+        listName,
         sortAsc,
         setSortAsc,
         toggleSort,

@@ -6,18 +6,18 @@ import {
   AnnotatedExercise,
   Routine,
 } from "@/contexts/routine-list";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useInput } from "@/hooks/use-input";
 import { List, arrayMove } from "react-movable";
 import { LuX } from "react-icons/lu";
 import { id } from "@instantdb/react";
-import ExerciseSelector from "./_components/exercise-selector";
 import ExerciseAnnotator from "./_components/exercise-annotator";
 import ActionButtons from "@/app/_components/editor/action-buttons";
 import SearchButton from "@/app/_components/table/search-button";
 
 export default function RoutineCanvas() {
-  const { step, setStep, update, setSelected, setEdit } = useRoutineList();
+  const { step, setStep, update, selected, setSelected, setEdit } =
+    useRoutineList();
   const source = useExerciseList();
 
   const {
@@ -47,9 +47,17 @@ export default function RoutineCanvas() {
       id: id(),
       name: nameInput,
       steps: annotatedExerciseList,
-      creationDate: new Date().toISOString(),
+      created: new Date(),
     };
     update(newRoutine);
+    clearAll();
+  };
+
+  const handleReturn = () => {
+    setEdit(false);
+  };
+
+  const clearAll = () => {
     setStep(null);
     setSelected(null);
     setEdit(false);
@@ -57,10 +65,17 @@ export default function RoutineCanvas() {
     setNameInput("");
   };
 
-  const handleReturn = () => {
-    setEdit(false);
-    setSelected(null);
+  const selectionChanged = () => {
+    if (selected) {
+      setNameInput(selected.name);
+      setAnnotatedExerciseList(selected.steps);
+      setStep(null);
+    }
   };
+
+  useEffect(() => {
+    selectionChanged();
+  }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col min-w-[64rem]">
@@ -85,7 +100,10 @@ export default function RoutineCanvas() {
             />
           </div>
           <h2 className="self-end text-lg">Steps</h2>
-          <SearchButton source={source} />
+          <SearchButton
+            source={source}
+            itemAction={(exercise) => setStep(exercise as ExerciseInfo)}
+          />
           <List
             values={annotatedExerciseList}
             onChange={({ oldIndex, newIndex }) =>
