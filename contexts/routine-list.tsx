@@ -124,8 +124,7 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
 
   const update = (routine: Routine) => {
     database.transact(tx.routines[routine.id].update(routine as any));
-    user &&
-      database.transact(tx.routines[routine.id].link({ adminID: user.id }));
+    user && database.transact(tx.routines[routine.id].link({ admin: user.id }));
   };
 
   const remove = (routine: Routine) => {

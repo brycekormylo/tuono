@@ -18,7 +18,7 @@ export default function TableHeader({
   toggleSort,
 }: TableHeaderProps) {
   return (
-    <div className="grid grid-cols-[1fr,2fr,1.5fr] items-center text-xl font-semibold">
+    <div className="grid items-center text-xl font-semibold grid-cols-[1fr,1fr,1fr]">
       <div className="flex gap-4 items-center h-8 ps-6">
         <h1 className="h-full">{info.left}</h1>
         <button
@@ -29,10 +29,10 @@ export default function TableHeader({
           <LuArrowUp size={20} />
         </button>
       </div>
-      <div className="justify-self-end pe-4">
+      <div className="justify-self-end">
         <h1>{info.center}</h1>
       </div>
-      <div className="justify-self-end pe-6">
+      <div className="flex justify-end justify-self-end pe-6 min-w-40">
         <h1>{info.right}</h1>
       </div>
     </div>

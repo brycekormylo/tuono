@@ -12,7 +12,7 @@ export default function Recents() {
   const list: ListContextProps<Routine> = useRoutineList();
 
   const tableRows = list.info?.map((routine, index) => {
-    const date = new Date(routine.creationDate);
+    const date = new Date(routine.created);
     return (
       <TableRow
         key={index}
@@ -21,7 +21,7 @@ export default function Recents() {
         displayProperties={{
           left: routine.name,
           center: date.toLocaleDateString(),
-          right: "Patient",
+          right: routine.steps.length,
         }}
       />
     );
@@ -32,7 +32,11 @@ export default function Recents() {
       source={list}
       title="Routines"
       tableRows={tableRows as ReactNode[]}
-      headerColumns={{ left: "Name", center: "Date Sent", right: "Recipient" }}
+      headerColumns={{
+        left: "Name",
+        center: "Date Sent",
+        right: "Step Count",
+      }}
       drawerItem={<RoutineCanvas />}
     />
   );

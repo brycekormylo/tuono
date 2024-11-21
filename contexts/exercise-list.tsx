@@ -170,7 +170,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
   const update = (exercise: ExerciseInfo) => {
     database.transact(tx.exercises[exercise.id].update(exercise as any));
     user &&
-      database.transact(tx.exercises[exercise.id].link({ adminID: user.id }));
+      database.transact(tx.exercises[exercise.id].link({ admin: user.id }));
   };
 
   const remove = (exercise: ExerciseInfo) => {

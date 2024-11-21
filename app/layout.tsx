@@ -22,18 +22,18 @@ export default function RootLayout({
         <Providers>
           <main className="stack [&_*]:transition-all [&_*]:ease-in [&_*]:transition-duration-75">
             <div className="flex flex-col justify-self-start items-center self-start w-screen h-screen overflow-clip">
-              <div className="flex justify-start w-full bg-gray-200">
-                <div className="pb-12 bg-gray-100 grow me-32 min-h-[52rem] rounded-br-[4rem]">
+              <div className="flex w-full bg-gray-200">
+                <div className="pb-12 bg-gray-100 grow min-h-[52rem] rounded-br-[4rem]">
                   <div className="justify-self-end self-start mt-20 ms-44 me-12">
                     {children}
                   </div>
                 </div>
+                <NavBar />
               </div>
               <div className="flex justify-end w-full bg-gray-100">
                 <div className="bg-gray-200 min-h-36 grow ms-32 rounded-tl-[4rem]"></div>
               </div>
             </div>
-            <NavBar />
           </main>
         </Providers>
       </body>

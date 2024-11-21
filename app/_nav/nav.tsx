@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  LuUser,
-  LuPersonStanding,
+  LuUserCog,
+  LuUsers,
   LuDumbbell,
-  LuCombine,
+  LuIterationCw,
   LuLayoutDashboard,
   LuCalendar,
   LuMessageCircle,
@@ -15,7 +15,7 @@ const NavbarItems = [
   {
     name: "Account",
     slug: "auth",
-    icon: LuUser,
+    icon: LuUserCog,
   },
   {
     name: "Dashboard",
@@ -28,14 +28,14 @@ const NavbarItems = [
     icon: LuMessageCircle,
   },
   {
-    name: "Appointments",
+    name: "Schedule",
     slug: "appointments",
     icon: LuCalendar,
   },
   {
     name: "Routines",
     slug: "routines",
-    icon: LuCombine,
+    icon: LuIterationCw,
   },
   {
     name: "Exercises",
@@ -45,7 +45,7 @@ const NavbarItems = [
   {
     name: "Patients",
     slug: "patients",
-    icon: LuPersonStanding,
+    icon: LuUsers,
   },
 ];
 
@@ -54,32 +54,23 @@ export default function NavBar() {
   const router = useRouter();
 
   return (
-    <div className="absolute pt-8 top-0 right-0 z-20 [&_*]:select-none">
-      <div className="flex flex-col gap-8 items-center w-32">
+    <div className="z-20 flex-col">
+      <div className="flex flex-col items-end w-20 hover:w-48 group overflow-clip">
         {NavbarItems.map((item, index) => {
           const isSelected = pathname.includes(`/${item.slug}`);
           return (
             <button
               key={index}
               onMouseDown={() => router.push(`/${item.slug}`)}
-              className="w-full h-full stack"
+              className={`group/button stack  ${isSelected ? "bg-gray-100 text-black" : "text-gray-600 bg-gray-200 hover:bg-gray-100/80"} `}
             >
-              <div className="flex flex-col w-full min-h-full">
-                <div className={`stack ${isSelected ? "block" : "hidden"}`}>
-                  <div className="-mt-8 w-full h-8 bg-gray-100 rounded-tl-xl"></div>
-                  <div className="-mt-8 w-full h-8 bg-gray-200 rounded-bl-xl"></div>
+              <div className="justify-self-end self-start w-20 h-2 bg-gray-200 rounded-bl-lg group-hover:w-full" />
+              <div className="justify-self-end self-end w-20 h-2 bg-gray-200 rounded-tl-lg group-hover:w-full" />
+              <div className="flex justify-end items-center w-48 rounded-xl h-[5.5rem] overflow-clip group-hover/button:text-black">
+                <p className="text-base ms-8 grow">{item.name}</p>
+                <div className="w-20 h-20 stack">
+                  <item.icon size={28} />
                 </div>
-                <div
-                  className={`w-full grow transition-none  ${isSelected ? "bg-gray-100" : "bg-transparent"}`}
-                />
-                <div className={`stack ${isSelected ? "block" : "hidden"}`}>
-                  <div className="-mb-8 w-full h-8 bg-gray-100 rounded-bl-xl"></div>
-                  <div className="-mb-8 w-full h-8 bg-gray-200 rounded-l-xl"></div>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 justify-center items-center h-24 rounded-xl">
-                <item.icon size={28} />
-                <p className="uppercase truncate">{item.name}</p>
               </div>
             </button>
           );

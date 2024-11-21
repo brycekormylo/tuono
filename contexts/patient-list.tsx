@@ -147,9 +147,12 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
   };
 
   const update = (patient: PatientInfo) => {
-    database.transact(tx.patients[patient.id].update(patient as any));
-    user &&
-      database.transact(tx.patients[patient.id].link({ adminID: user.id }));
+    if (user) {
+      database.transact(
+        tx.patients[patient.id].update(patient as PatientInfo as any),
+      );
+      database.transact(tx.patients[patient.id].link({ admin: user.id }));
+    }
   };
 
   const remove = (patient: PatientInfo) => {

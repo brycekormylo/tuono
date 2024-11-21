@@ -16,7 +16,8 @@ export default function History() {
             className={`${conversation.id == selected?.id ? "bg-gray-50" : "bg-gray-200"} flex justify-between items-center px-4 w-full h-16 border-b-2 border-b-black`}
           >
             <label className="justify-self-end">
-              {conversation.patient.lastName}, {conversation.patient.firstName}
+              {conversation.patient?.lastName},{" "}
+              {conversation.patient?.firstName}
             </label>
             <p className="justify-self-end text-sm">
               {lastUpdate.getDate()}/{lastUpdate.getMonth()}

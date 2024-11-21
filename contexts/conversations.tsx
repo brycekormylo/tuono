@@ -14,6 +14,7 @@ import {
 import { ListContextProps } from "./list-context-props";
 import { useInput } from "@/hooks/use-input";
 import { id, tx } from "@instantdb/react";
+import { useTextArea } from "@/hooks/use-text-area";
 
 export interface Message {
   fromAdmin: boolean;
@@ -31,10 +32,10 @@ export interface Conversation extends Identifiable {
 
 interface ConversationContextProps extends ListContextProps<Conversation> {
   newMessage: string;
-  changeNewMessage: (input: ChangeEvent<HTMLInputElement>) => void;
+  changeNewMessage: (input: ChangeEvent<HTMLTextAreaElement>) => void;
   setNewMessage: (newMessage: string) => void;
   recipient: PatientInfo | null;
-  setRecipient: (recipeint: PatientInfo) => void;
+  setRecipient: (recipient: PatientInfo) => void;
 }
 
 const ConversationContext = createContext<ConversationContextProps | null>(
@@ -53,13 +54,13 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 
   const [rawInfo, setRawInfo] = useState<Conversation[] | null>(null);
   const [info, setInfo] = useState<Conversation[] | null>(null);
-  const [sortAsc, setSortAsc] = useState<boolean>(false);
+  const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [selected, setSelected] = useState<Conversation | null>(null);
   const {
     value: newMessage,
     setValue: setNewMessage,
     onChange: changeNewMessage,
-  } = useInput("");
+  } = useTextArea("");
   const [recipient, setRecipient] = useState<PatientInfo | null>(null);
   const [edit, setEdit] = useState<boolean>(false);
   const {
@@ -161,25 +162,20 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
   };
 
   const createNew = () => {
-    if (recipient && admin) {
-      const msg: Message = {
-        fromAdmin: true,
-        body: newMessage ? newMessage : "",
-        timestamp: new Date(),
+    const msg: Message = {
+      fromAdmin: true,
+      body: newMessage,
+      timestamp: new Date(),
+    };
+    setNewMessage("");
+    if (selected) {
+      const updatedConversation: Conversation = {
+        ...selected,
+        messages: [...selected.messages, msg],
       };
-
-      if (info) {
-        const previousConversation: Conversation[] = info.filter((value) => {
-          return value.patient.id == recipient.id;
-        });
-
-        const updatedConversation: Conversation = {
-          ...previousConversation[0],
-          messages: [...previousConversation[0].messages, msg],
-        };
-        update(updatedConversation);
-        setSelected(updatedConversation);
-      } else {
+      update(updatedConversation);
+    } else {
+      if (admin && recipient) {
         const newDraft: Conversation = {
           messages: [msg],
           created: new Date(),
@@ -189,6 +185,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
           id: id(),
         };
         update(newDraft);
+        setSelected(newDraft);
       }
     }
   };
@@ -215,16 +212,13 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
           patient: conversation.patient.id,
         }),
       );
+    setSelected(conversation);
   };
 
   const remove = (conversation: Conversation) => {
     database.transact(tx.conversations[conversation.id].delete());
     setSelected(null);
   };
-
-  useEffect(() => {
-    newMessage && createNew();
-  }, [newMessage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <ConversationContext.Provider
