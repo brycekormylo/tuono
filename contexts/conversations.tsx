@@ -55,6 +55,9 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
   const [rawInfo, setRawInfo] = useState<Conversation[] | null>(null);
   const [info, setInfo] = useState<Conversation[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
+  // NEEDS TO BE PATIENTINFO NOT CONVERSATION
+  // Build off the selected patient, create conversations if they arent already
+  // there
   const [selected, setSelected] = useState<Conversation | null>(null);
   const {
     value: newMessage,
@@ -177,7 +180,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
     } else {
       if (admin && recipient) {
         const newDraft: Conversation = {
-          messages: [msg],
+          messages: [],
           created: new Date(),
           lastUpdated: new Date(),
           admin: admin,
