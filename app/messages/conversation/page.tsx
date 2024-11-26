@@ -41,7 +41,7 @@ export default function ConversationDisplay() {
   }, [newMessage]);
 
   return (
-    <div className="py-4 px-8 w-full h-full min-h-[44rem] stack">
+    <div className="py-4 px-8 w-full h-full bg-gray-50 rounded-xl min-h-[44rem] stack">
       {selected ? (
         <>
           <div className="flex gap-4 justify-self-start items-center self-start">

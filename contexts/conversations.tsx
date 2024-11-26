@@ -30,6 +30,7 @@ export interface Conversation extends Identifiable {
   patient: PatientInfo;
 }
 
+// Might just want to use patient list
 interface ConversationContextProps extends ListContextProps<Conversation> {
   newMessage: string;
   changeNewMessage: (input: ChangeEvent<HTMLTextAreaElement>) => void;

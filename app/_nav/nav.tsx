@@ -54,7 +54,7 @@ export default function NavBar() {
   const router = useRouter();
 
   return (
-    <div className="z-20 flex-col justify-self-start self-start">
+    <div className="z-20 flex-col justify-self-start self-center">
       <div className="flex flex-col items-start w-20 hover:w-48 group overflow-clip">
         {NavbarItems.map((item, index) => {
           const isSelected = pathname.includes(`/${item.slug}`);
