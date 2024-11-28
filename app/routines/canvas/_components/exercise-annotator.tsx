@@ -13,17 +13,25 @@ interface ExerciseAnnotatorProps {
   addAnnotatedExerciseToRoutine: (exercise: AnnotatedExercise) => void;
 }
 
+const emptyExercise: ExerciseInfo = {
+  id: id(),
+  aliases: [],
+  bodyParts: [],
+  steps: [],
+  imageUrls: [],
+};
+
 export default function ExerciseAnnotator({
   addAnnotatedExerciseToRoutine,
 }: ExerciseAnnotatorProps) {
   const { step, setStep } = useRoutineList();
 
-  const [rawExercise, setRawExercise] = useState<ExerciseInfo>({ id: id() });
+  const [rawExercise, setRawExercise] = useState<ExerciseInfo>(emptyExercise);
   const { value: exerciseNotes, onChange: changeExerciseNotes } =
     useTextArea("");
 
   useEffect(() => {
-    step ? setRawExercise(step) : setRawExercise({ id: id() });
+    step ? setRawExercise(step) : setRawExercise(emptyExercise);
   }, [step]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

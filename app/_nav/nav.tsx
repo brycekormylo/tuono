@@ -49,20 +49,21 @@ const NavbarItems = [
   },
 ];
 
+// TODO Animate bg
 export default function NavBar() {
   const pathname = usePathname();
   const router = useRouter();
 
   return (
-    <div className="z-20 flex-col justify-self-start self-center">
-      <div className="flex flex-col items-start w-20 hover:w-48 group overflow-clip">
+    <div className="z-20 flex-col justify-self-start self-start">
+      <div className="flex flex-col items-start py-2 w-20 bg-gray-200 rounded-r-lg hover:w-48 group overflow-clip">
         {NavbarItems.map((item, index) => {
           const isSelected = pathname.includes(`/${item.slug}`);
           return (
             <button
               key={index}
               onMouseDown={() => router.push(`/${item.slug}`)}
-              className={`group/button stack  ${isSelected ? "bg-gray-100 text-black" : "text-gray-600 bg-gray-200 hover:bg-gray-100/80"} `}
+              className={`group/button stack  ${isSelected ? "bg-gray-100 text-black" : "text-gray-600 hover:bg-gray-100/80"} `}
             >
               <div className="justify-self-start self-start w-20 h-2 bg-gray-200 rounded-br-lg group-hover:w-full" />
               <div className="justify-self-start self-end w-20 h-2 bg-gray-200 rounded-tr-lg group-hover:w-full" />

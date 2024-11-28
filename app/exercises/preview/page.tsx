@@ -6,7 +6,7 @@ import Link from "next/link";
 import { LuArrowLeft } from "react-icons/lu";
 
 export default function ExercisePreview() {
-  const { selectedExercise } = useExerciseList();
+  const { selected } = useExerciseList();
 
   return (
     <div className="flex flex-col gap-20 p-20 bg-gray-50">
@@ -14,7 +14,7 @@ export default function ExercisePreview() {
         <div className="w-16 h-16 bg-gray-300 rounded-full" />
         <LuArrowLeft size={24} />
       </Link>
-      {selectedExercise && <ExerciseDetailBody exercise={selectedExercise} />}
+      {selected && <ExerciseDetailBody exercise={selected} />}
     </div>
   );
 }

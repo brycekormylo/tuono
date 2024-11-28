@@ -24,7 +24,7 @@ export default function ExerciseDetailBody({
     {
       key: "holdTimesInSeconds",
       label: "Time",
-      value: exercise.holdTimesInSeconds,
+      value: exercise.holdTimeInSeconds,
     },
   ];
 
@@ -77,10 +77,6 @@ export default function ExerciseDetailBody({
                 </div>
               );
             })}
-          </div>
-          <div className="flex gap-1 items-center p-2 pt-10">
-            <label className="text-sm text-gray-600">CPT Code -</label>
-            <p className="text-lg">{exercise.cptCode}</p>
           </div>
         </div>
         <div className="grow" />

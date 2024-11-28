@@ -30,13 +30,11 @@ export interface Conversation extends Identifiable {
   patient: PatientInfo;
 }
 
-// Might just want to use patient list
 interface ConversationContextProps extends ListContextProps<Conversation> {
   newMessage: string;
   changeNewMessage: (input: ChangeEvent<HTMLTextAreaElement>) => void;
   setNewMessage: (newMessage: string) => void;
-  recipient: PatientInfo | null;
-  setRecipient: (recipient: PatientInfo) => void;
+  setSelectedFromPatient: (patient: PatientInfo) => void;
 }
 
 const ConversationContext = createContext<ConversationContextProps | null>(
@@ -56,16 +54,12 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
   const [rawInfo, setRawInfo] = useState<Conversation[] | null>(null);
   const [info, setInfo] = useState<Conversation[] | null>(null);
   const [sortAsc, setSortAsc] = useState<boolean>(true);
-  // NEEDS TO BE PATIENTINFO NOT CONVERSATION
-  // Build off the selected patient, create conversations if they arent already
-  // there
   const [selected, setSelected] = useState<Conversation | null>(null);
   const {
     value: newMessage,
     setValue: setNewMessage,
     onChange: changeNewMessage,
   } = useTextArea("");
-  const [recipient, setRecipient] = useState<PatientInfo | null>(null);
   const [edit, setEdit] = useState<boolean>(false);
   const {
     value: search,
@@ -109,7 +103,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
       });
       setRawInfo(sorted);
     }
-  }, [data, recipient]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [data, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     sort();
@@ -165,6 +159,28 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
     setSearch("");
   };
 
+  const setSelectedFromPatient = (patient: PatientInfo) => {
+    const prevConversation = rawInfo
+      ?.filter((conversation) => conversation.patient.id == patient.id)
+      .at(0);
+
+    if (prevConversation) {
+      setSelected(prevConversation);
+    } else {
+      if (admin) {
+        const newDraft: Conversation = {
+          messages: [],
+          created: new Date(),
+          lastUpdated: new Date(),
+          admin: admin,
+          patient: patient,
+          id: id(),
+        };
+        update(newDraft);
+      }
+    }
+  };
+
   const createNew = () => {
     const msg: Message = {
       fromAdmin: true,
@@ -178,19 +194,6 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
         messages: [...selected.messages, msg],
       };
       update(updatedConversation);
-    } else {
-      if (admin && recipient) {
-        const newDraft: Conversation = {
-          messages: [],
-          created: new Date(),
-          lastUpdated: new Date(),
-          admin: admin,
-          patient: recipient,
-          id: id(),
-        };
-        update(newDraft);
-        setSelected(newDraft);
-      }
     }
   };
 
@@ -210,7 +213,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
           admin: user?.id,
         }),
       );
-    recipient &&
+    conversation.patient &&
       database.transact(
         tx.conversations[conversation.id].link({
           patient: conversation.patient.id,
@@ -232,6 +235,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
         rawInfo,
         selected,
         setSelected,
+        setSelectedFromPatient,
         sortAsc,
         setSortAsc,
         toggleSort,
@@ -248,8 +252,6 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
         newMessage,
         setNewMessage,
         changeNewMessage,
-        recipient,
-        setRecipient,
       }}
     >
       {children}

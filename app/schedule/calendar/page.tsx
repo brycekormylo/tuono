@@ -6,7 +6,7 @@ import withDragAndDrop, {
 } from "react-big-calendar/lib/addons/dragAndDrop";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { useSchedules } from "@/contexts/appointments";
+import { useAppointments } from "@/contexts/appointments";
 
 import "./sass/styles.scss";
 import "./sass/drag-and-drop.scss";
@@ -22,7 +22,7 @@ import "./sass/time-grid.scss";
 export default function ScheduleCalendar() {
   const localizer = dayjsLocalizer(dayjs);
 
-  const { info } = useSchedules();
+  const { info } = useAppointments();
 
   useEffect(() => {
     if (info) {

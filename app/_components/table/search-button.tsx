@@ -1,21 +1,23 @@
 import { LuSearch } from "react-icons/lu";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import SearchOverlay from "./search-overlay";
 import { ListContextProps } from "@/contexts/list-context-props";
 import { Identifiable } from "@/contexts/database";
 
+//Should take children react node instead of hard setting style
 interface SearchButtonProps<
   T extends Identifiable,
   V extends ListContextProps<any>,
 > {
   source: V;
   itemAction: (element?: T) => void;
+  children?: ReactNode;
 }
 
 export default function SearchButton<
   T extends Identifiable,
   V extends ListContextProps<any>,
->({ source, itemAction }: SearchButtonProps<T, V>) {
+>({ source, itemAction, children }: SearchButtonProps<T, V>) {
   const [showOverlay, setShowOverlay] = useState<boolean>(false);
 
   const toggleOverlay = () => {
@@ -24,11 +26,12 @@ export default function SearchButton<
 
   return (
     <div className="stack">
-      <button
-        onClick={toggleOverlay}
-        className="z-10 w-12 h-12 bg-gray-400 rounded-full stack"
-      >
-        <LuSearch size={24} />
+      <button onClick={toggleOverlay} className="z-10 stack">
+        {children || (
+          <div className="h-12 bg-gray-400 rounded-full">
+            <LuSearch size={24} />
+          </div>
+        )}
       </button>
       {showOverlay && (
         <SearchOverlay
