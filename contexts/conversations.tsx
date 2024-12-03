@@ -1,271 +1,282 @@
 "use client";
 
-import { AdminAccount, useAuth } from "./auth";
-import { PatientInfo } from "./patient-list";
-import { Identifiable, useDatabase } from "./database";
-import {
-  ChangeEvent,
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { ListContextProps } from "./list-context-props";
+import { usePatientList, type PatientInfo } from "./patient-list";
+import type { ChangeEvent, ReactNode } from "react";
+import type { ListContextProps } from "./list-context-props";
+import { useDatabase, type Identifiable } from "./database";
+import { useAuth, type AdminAccount } from "./auth";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useInput } from "@/hooks/use-input";
 import { id, tx } from "@instantdb/react";
 import { useTextArea } from "@/hooks/use-text-area";
 
 export interface Message {
-  fromAdmin: boolean;
-  body: string;
-  timestamp: Date;
+	fromAdmin: boolean;
+	body: string;
+	timestamp: Date;
 }
 
 export interface Conversation extends Identifiable {
-  messages: Message[];
-  created: Date;
-  lastUpdated: Date;
-  admin: AdminAccount;
-  patient: PatientInfo;
+	messages: Message[];
+	created: Date;
+	lastUpdated: Date;
+	admin: AdminAccount;
+	patient: PatientInfo;
 }
 
 interface ConversationContextProps extends ListContextProps<Conversation> {
-  newMessage: string;
-  changeNewMessage: (input: ChangeEvent<HTMLTextAreaElement>) => void;
-  setNewMessage: (newMessage: string) => void;
-  setSelectedFromPatient: (patient: PatientInfo) => void;
+	newMessage: string;
+	changeNewMessage: (input: ChangeEvent<HTMLTextAreaElement>) => void;
+	setNewMessage: (newMessage: string) => void;
+	setSelectedFromPatient: (patient: PatientInfo) => void;
+	select: (conversation?: Conversation, patient?: PatientInfo) => void;
+	showOptions: boolean;
+	setShowOptions: (value: boolean) => void;
 }
 
 const ConversationContext = createContext<ConversationContextProps | null>(
-  null,
+	null,
 );
 
 interface ConversationProviderProps {
-  children: ReactNode;
+	children: ReactNode;
 }
 
 const ConversationProvider = ({ children }: ConversationProviderProps) => {
-  const listName = "Messages";
+	const listName = "Messages";
 
-  const { database } = useDatabase();
-  const { user, admin } = useAuth();
+	const { database } = useDatabase();
+	const { user, admin } = useAuth();
+	const { setSelected: setSelectedPatient } = usePatientList();
 
-  const [rawInfo, setRawInfo] = useState<Conversation[] | null>(null);
-  const [info, setInfo] = useState<Conversation[] | null>(null);
-  const [sortAsc, setSortAsc] = useState<boolean>(true);
-  const [selected, setSelected] = useState<Conversation | null>(null);
-  const {
-    value: newMessage,
-    setValue: setNewMessage,
-    onChange: changeNewMessage,
-  } = useTextArea("");
-  const [edit, setEdit] = useState<boolean>(false);
-  const {
-    value: search,
-    onChange: changeSearch,
-    setValue: setSearch,
-  } = useInput("");
+	const [rawInfo, setRawInfo] = useState<Conversation[] | null>(null);
+	const [info, setInfo] = useState<Conversation[] | null>(null);
+	const [sortAsc, setSortAsc] = useState<boolean>(true);
+	const [selected, setSelected] = useState<Conversation | null>(null);
+	const [showOptions, setShowOptions] = useState<boolean>(false);
 
-  const query = {
-    conversations: {
-      $: {
-        where: {
-          admin: user?.id,
-        },
-      },
-      patient: {},
-      admin: {},
-    },
-  };
+	const {
+		value: newMessage,
+		setValue: setNewMessage,
+		onChange: changeNewMessage,
+	} = useTextArea("");
+	const [edit, setEdit] = useState<boolean>(false);
+	const {
+		value: search,
+		onChange: changeSearch,
+		setValue: setSearch,
+	} = useInput("");
 
-  const { isLoading, error, data } = database.useQuery(query);
+	const query = {
+		conversations: {
+			$: {
+				where: {
+					admin: user?.id,
+				},
+			},
+			patient: {},
+			admin: {},
+		},
+	};
 
-  useEffect(() => {
-    if (data) {
-      const conversations: Conversation[] = data.conversations.map(
-        (conversation) => {
-          const patient: PatientInfo = conversation.patient[0] as PatientInfo;
-          const admin: AdminAccount = conversation.admin[0] as AdminAccount;
-          return {
-            ...conversation,
-            patient: patient,
-            admin: admin,
-          };
-        },
-      );
-      const sorted = conversations.sort((a, b) => {
-        if (sortAsc) {
-          return a.created > b.created ? -1 : 1;
-        } else {
-          return a.created < b.created ? -1 : 1;
-        }
-      });
-      setRawInfo(sorted);
-    }
-  }, [data, selected]); // eslint-disable-line react-hooks/exhaustive-deps
+	const { isLoading, error, data } = database.useQuery(query);
 
-  useEffect(() => {
-    sort();
-  }, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
+	useEffect(() => {
+		if (data) {
+			const conversations: Conversation[] = data.conversations.map(
+				(conversation) => {
+					const patient: PatientInfo = conversation.patient[0] as PatientInfo;
+					const admin: AdminAccount = conversation.admin[0] as AdminAccount;
+					return {
+						...conversation,
+						patient: patient,
+						admin: admin,
+					};
+				},
+			);
+			const sorted = conversations.sort((a, b) => {
+				if (sortAsc) {
+					return a.created > b.created ? -1 : 1;
+				}
+				return a.created < b.created ? -1 : 1;
+			});
+			setRawInfo(sorted);
+		}
+	}, [data, sortAsc]);
 
-  useEffect(() => {
-    // if (search == "") {
-    //   setInfo(rawInfo);
-    // } else {
-    //   filterBy(search);
-    // }
-    setInfo(rawInfo);
-  }, [search, rawInfo]); // eslint-disable-line react-hooks/exhaustive-deps
+	useEffect(() => {
+		sort();
+	});
 
-  const filterBy = (input: string) => {
-    if (info) {
-      const filtered = info.filter((conversation) => {
-        conversation.patient.firstName
-          .toLowerCase()
-          .includes(input.toLowerCase()) ||
-          conversation.patient.lastName
-            .toLowerCase()
-            .includes(input.toLowerCase());
-      });
-      setInfo(filtered);
-    } else {
-      setInfo(rawInfo);
-    }
-  };
+	useEffect(() => {
+		// if (search == "") {
+		//   setInfo(rawInfo);
+		// } else {
+		//   filterBy(search);
+		// }
+		setInfo(rawInfo);
+	}, [rawInfo]);
 
-  const sort = () => {
-    if (rawInfo) {
-      const sorted = rawInfo.sort((a, b) => {
-        if (sortAsc) {
-          return a.created > b.created ? -1 : 1;
-        } else {
-          return a.created < b.created ? -1 : 1;
-        }
-      });
-      setRawInfo([...sorted]);
-    }
-  };
+	const filterBy = (input: string) => {
+		if (info) {
+			const filtered = info.filter((conversation) => {
+				conversation.patient.firstName
+					.toLowerCase()
+					.includes(input.toLowerCase()) ||
+					conversation.patient.lastName
+						.toLowerCase()
+						.includes(input.toLowerCase());
+			});
+			setInfo(filtered);
+		} else {
+			setInfo(rawInfo);
+		}
+	};
 
-  const toggleSort = () => {
-    setSortAsc(!sortAsc);
-  };
+	const sort = () => {
+		if (rawInfo) {
+			const sorted = rawInfo.sort((a, b) => {
+				if (sortAsc) {
+					return a.created > b.created ? -1 : 1;
+				}
+				return a.created < b.created ? -1 : 1;
+			});
+			setRawInfo([...sorted]);
+		}
+	};
 
-  const toggleEdit = () => {
-    setEdit(!edit);
-  };
+	const toggleSort = () => {
+		setSortAsc(!sortAsc);
+	};
 
-  const clearSearch = () => {
-    setSearch("");
-  };
+	const toggleEdit = () => {
+		setEdit(!edit);
+	};
 
-  const setSelectedFromPatient = (patient: PatientInfo) => {
-    const prevConversation = rawInfo
-      ?.filter((conversation) => conversation.patient.id == patient.id)
-      .at(0);
+	const clearSearch = () => {
+		setSearch("");
+	};
 
-    if (prevConversation) {
-      setSelected(prevConversation);
-    } else {
-      if (admin) {
-        const newDraft: Conversation = {
-          messages: [],
-          created: new Date(),
-          lastUpdated: new Date(),
-          admin: admin,
-          patient: patient,
-          id: id(),
-        };
-        update(newDraft);
-      }
-    }
-  };
+	const setSelectedFromPatient = (patient: PatientInfo) => {
+		const prevConversation = rawInfo
+			?.filter((conversation) => conversation.patient.id === patient.id)
+			.at(0);
 
-  const createNew = () => {
-    const msg: Message = {
-      fromAdmin: true,
-      body: newMessage,
-      timestamp: new Date(),
-    };
-    setNewMessage("");
-    if (selected) {
-      const updatedConversation: Conversation = {
-        ...selected,
-        messages: [...selected.messages, msg],
-      };
-      update(updatedConversation);
-    }
-  };
+		if (prevConversation) {
+			setSelected(prevConversation);
+		} else {
+			if (admin) {
+				const newDraft: Conversation = {
+					messages: [],
+					created: new Date(),
+					lastUpdated: new Date(),
+					admin: admin,
+					patient: patient,
+					id: id(),
+				};
+				update(newDraft);
+			}
+		}
+	};
 
-  const update = (conversation: Conversation) => {
-    const dataToInsert = {
-      id: conversation.id,
-      created: conversation.created,
-      lastUpdated: conversation.lastUpdated,
-      messages: conversation.messages,
-    };
-    database.transact(
-      tx.conversations[conversation.id].update(dataToInsert as any),
-    );
-    user &&
-      database.transact(
-        tx.conversations[conversation.id].link({
-          admin: user?.id,
-        }),
-      );
-    conversation.patient &&
-      database.transact(
-        tx.conversations[conversation.id].link({
-          patient: conversation.patient.id,
-        }),
-      );
-    setSelected(conversation);
-  };
+	const createNew = () => {
+		const msg: Message = {
+			fromAdmin: true,
+			body: newMessage,
+			timestamp: new Date(),
+		};
+		setNewMessage("");
+		if (selected) {
+			const updatedConversation: Conversation = {
+				...selected,
+				messages: [...selected.messages, msg],
+			};
+			update(updatedConversation);
+		}
+	};
 
-  const remove = (conversation: Conversation) => {
-    database.transact(tx.conversations[conversation.id].delete());
-    setSelected(null);
-  };
+	const select = (selection?: Conversation, patient?: PatientInfo) => {
+		setShowOptions(false);
+		if (selection) {
+			setSelected(selection);
+			setSelectedPatient(selection.patient);
+		}
+		if (patient) {
+			setSelectedFromPatient(patient);
+			setSelectedPatient(patient);
+		}
+	};
 
-  return (
-    <ConversationContext.Provider
-      value={{
-        listName,
-        info,
-        rawInfo,
-        selected,
-        setSelected,
-        setSelectedFromPatient,
-        sortAsc,
-        setSortAsc,
-        toggleSort,
-        search,
-        setSearch,
-        changeSearch,
-        clearSearch,
-        edit,
-        setEdit,
-        toggleEdit,
-        createNew,
-        remove,
-        update,
-        newMessage,
-        setNewMessage,
-        changeNewMessage,
-      }}
-    >
-      {children}
-    </ConversationContext.Provider>
-  );
+	const update = (conversation: Conversation) => {
+		const dataToInsert = {
+			id: conversation.id,
+			created: conversation.created,
+			lastUpdated: conversation.lastUpdated,
+			messages: conversation.messages,
+		};
+		database.transact(tx.conversations[conversation.id].update(dataToInsert));
+		user &&
+			database.transact(
+				tx.conversations[conversation.id].link({
+					admin: user?.id,
+				}),
+			);
+		conversation.patient &&
+			database.transact(
+				tx.conversations[conversation.id].link({
+					patient: conversation.patient.id,
+				}),
+			);
+		setSelected(conversation);
+	};
+
+	const remove = (conversation: Conversation) => {
+		database.transact(tx.conversations[conversation.id].delete());
+		setSelected(null);
+	};
+
+	return (
+		<ConversationContext.Provider
+			value={{
+				listName,
+				info,
+				rawInfo,
+				selected,
+				setSelected,
+				setSelectedFromPatient,
+				sortAsc,
+				setSortAsc,
+				toggleSort,
+				search,
+				setSearch,
+				changeSearch,
+				clearSearch,
+				edit,
+				setEdit,
+				toggleEdit,
+				createNew,
+				remove,
+				update,
+				newMessage,
+				setNewMessage,
+				changeNewMessage,
+				showOptions,
+				setShowOptions,
+				select,
+			}}
+		>
+			{children}
+		</ConversationContext.Provider>
+	);
 };
 
 const useConversations = () => {
-  const context = useContext(ConversationContext);
+	const context = useContext(ConversationContext);
 
-  if (!context) {
-    throw new Error("useMessage must be used within a MessageProvider");
-  }
-  return context;
+	if (!context) {
+		throw new Error("useMessage must be used within a MessageProvider");
+	}
+	return context;
 };
 
 export { ConversationProvider, useConversations };
