@@ -1,110 +1,109 @@
 "use client";
 
 import React, {
-  createContext,
-  useEffect,
-  useState,
-  useContext,
-  ReactNode,
+	createContext,
+	useEffect,
+	useState,
+	useContext,
+	type ReactNode,
 } from "react";
-import { init, tx, id, User, InstantReactWeb } from "@instantdb/react";
+import type { User } from "@instantdb/react";
 import { useDatabase } from "./database";
 
 export type AdminAccount = {
-  id: string;
-  fullName?: string;
-  email: string;
-  handle?: string;
+	id: string;
+	fullName?: string;
+	email: string;
+	handle?: string;
 };
 
 interface AuthContextProps {
-  sentEmail: string;
-  sendCodeTo: (email: string) => void;
-  signInWithCode: (code: string) => void;
-  signOut: () => void;
-  user: User | undefined;
-  admin: AdminAccount | null;
-  updateName: (updatedName: string) => void;
-  updateHandle: (updatedHandle: string) => void;
+	sentEmail: string;
+	sendCodeTo: (email: string) => void;
+	signInWithCode: (code: string) => void;
+	signOut: () => void;
+	user: User | undefined;
+	admin: AdminAccount | null;
+	updateName: (updatedName: string) => void;
+	updateHandle: (updatedHandle: string) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 interface AuthProviderProps {
-  children: ReactNode;
+	children: ReactNode;
 }
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const { database } = useDatabase();
-  const { isLoading, user, error } = database.useAuth();
-  const [admin, setAdmin] = useState<AdminAccount | null>(null);
+	const { db } = useDatabase();
+	const { isLoading, user, error } = db.useAuth();
+	const [admin, setAdmin] = useState<AdminAccount | null>(null);
 
-  const [sentEmail, setSentEmail] = useState("");
+	const [sentEmail, setSentEmail] = useState("");
 
-  const sendCodeTo = (email: string) => {
-    setSentEmail(email);
+	const sendCodeTo = (email: string) => {
+		setSentEmail(email);
 
-    database.auth.sendMagicCode({ email }).catch((err) => {
-      alert("Uh oh :" + err.body?.message);
-    });
-  };
+		db.auth.sendMagicCode({ email }).catch((err) => {
+			alert(`Uh oh : ${err.body?.message}`);
+		});
+	};
 
-  const signInWithCode = (code: string) => {
-    database.auth
-      .signInWithMagicCode({ email: sentEmail, code })
-      .catch((err) => {
-        alert("Uh oh :" + err.body?.message);
-        console.log(err);
-      });
-  };
+	const signInWithCode = (code: string) => {
+		db.auth.signInWithMagicCode({ email: sentEmail, code }).catch((err) => {
+			alert(`Uh oh :${err.body?.message}`);
+			console.log(err);
+		});
+	};
 
-  const signOut = () => {
-    database.auth.signOut();
-  };
+	const signOut = () => {
+		db.auth.signOut();
+	};
 
-  const updateHandle = (newHandle: string) => {
-    user &&
-      database.transact([tx.admins[user.id].update({ handle: newHandle })]);
-  };
+	const updateHandle = (newHandle: string) => {
+		user && db.transact([db.tx.admins[user.id].update({ handle: newHandle })]);
+	};
 
-  const updateName = (updatedName: string) => {
-    user &&
-      database.transact([tx.admins[user.id].update({ fullName: updatedName })]);
-  };
+	const updateName = (updatedName: string) => {
+		user &&
+			db.transact([db.tx.admins[user.id].update({ fullName: updatedName })]);
+	};
 
-  useEffect(() => {
-    if (user) {
-      const adminAccount: AdminAccount = { id: user.id, email: user.email };
-      setAdmin(adminAccount);
-      database.transact([tx.admins[user.id].update({ email: user.email })]);
-    }
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+	const setAdminAccount = (user: User) => {
+		const adminAccount: AdminAccount = { id: user.id, email: user.email };
+		setAdmin(adminAccount);
+		db.transact([db.tx.admins[user.id].update({ email: user.email })]);
+	};
 
-  return (
-    <AuthContext.Provider
-      value={{
-        sentEmail,
-        sendCodeTo,
-        signInWithCode,
-        signOut,
-        user,
-        admin,
-        updateName,
-        updateHandle,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+	useEffect(() => {
+		user && setAdminAccount(user);
+	}, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+	return (
+		<AuthContext.Provider
+			value={{
+				sentEmail,
+				sendCodeTo,
+				signInWithCode,
+				signOut,
+				user,
+				admin,
+				updateName,
+				updateHandle,
+			}}
+		>
+			{children}
+		</AuthContext.Provider>
+	);
 };
 
 const useAuth = () => {
-  const context = useContext(AuthContext);
+	const context = useContext(AuthContext);
 
-  if (!context) {
-    throw new Error("useAuth must be used within a AuthProvider");
-  }
-  return context;
+	if (!context) {
+		throw new Error("useAuth must be used within a AuthProvider");
+	}
+	return context;
 };
 
 export { AuthProvider, useAuth };

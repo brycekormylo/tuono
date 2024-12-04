@@ -7,7 +7,7 @@ import { useDatabase, type Identifiable } from "./database";
 import { useAuth, type AdminAccount } from "./auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useInput } from "@/hooks/use-input";
-import { id, tx } from "@instantdb/react";
+import { id } from "@instantdb/react";
 import { useTextArea } from "@/hooks/use-text-area";
 
 export interface Message {
@@ -29,7 +29,7 @@ interface ConversationContextProps extends ListContextProps<Conversation> {
 	changeNewMessage: (input: ChangeEvent<HTMLTextAreaElement>) => void;
 	setNewMessage: (newMessage: string) => void;
 	setSelectedFromPatient: (patient: PatientInfo) => void;
-	select: (conversation?: Conversation, patient?: PatientInfo) => void;
+	select: (conversation: Conversation) => void;
 	showOptions: boolean;
 	setShowOptions: (value: boolean) => void;
 }
@@ -45,7 +45,7 @@ interface ConversationProviderProps {
 const ConversationProvider = ({ children }: ConversationProviderProps) => {
 	const listName = "Messages";
 
-	const { database } = useDatabase();
+	const { db } = useDatabase();
 	const { user, admin } = useAuth();
 	const { setSelected: setSelectedPatient } = usePatientList();
 
@@ -79,14 +79,16 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 		},
 	};
 
-	const { isLoading, error, data } = database.useQuery(query);
+	const { isLoading, error, data } = db.useQuery(query);
 
 	useEffect(() => {
 		if (data) {
 			const conversations: Conversation[] = data.conversations.map(
 				(conversation) => {
-					const patient: PatientInfo = conversation.patient[0] as PatientInfo;
-					const admin: AdminAccount = conversation.admin[0] as AdminAccount;
+					const patient: PatientInfo =
+						conversation.patient as unknown as PatientInfo;
+					const admin: AdminAccount =
+						conversation.admin as unknown as AdminAccount;
 					return {
 						...conversation,
 						patient: patient,
@@ -177,6 +179,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 				update(newDraft);
 			}
 		}
+		setSelectedPatient(patient);
 	};
 
 	const createNew = () => {
@@ -195,16 +198,10 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 		}
 	};
 
-	const select = (selection?: Conversation, patient?: PatientInfo) => {
+	const select = (selection: Conversation) => {
 		setShowOptions(false);
-		if (selection) {
-			setSelected(selection);
-			setSelectedPatient(selection.patient);
-		}
-		if (patient) {
-			setSelectedFromPatient(patient);
-			setSelectedPatient(patient);
-		}
+		setSelected(selection);
+		setSelectedPatient(selection.patient);
 	};
 
 	const update = (conversation: Conversation) => {
@@ -214,16 +211,16 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 			lastUpdated: conversation.lastUpdated,
 			messages: conversation.messages,
 		};
-		database.transact(tx.conversations[conversation.id].update(dataToInsert));
+		db.transact(db.tx.conversations[conversation.id].update(dataToInsert));
 		user &&
-			database.transact(
-				tx.conversations[conversation.id].link({
+			db.transact(
+				db.tx.conversations[conversation.id].link({
 					admin: user?.id,
 				}),
 			);
 		conversation.patient &&
-			database.transact(
-				tx.conversations[conversation.id].link({
+			db.transact(
+				db.tx.conversations[conversation.id].link({
 					patient: conversation.patient.id,
 				}),
 			);
@@ -231,7 +228,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 	};
 
 	const remove = (conversation: Conversation) => {
-		database.transact(tx.conversations[conversation.id].delete());
+		db.transact(db.tx.conversations[conversation.id].delete());
 		setSelected(null);
 		setSelectedPatient(null);
 	};

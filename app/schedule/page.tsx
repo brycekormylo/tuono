@@ -2,10 +2,8 @@ import ScheduleCalendar from "./calendar/page";
 import ScheduleList from "./list/page";
 
 export default function Schedules() {
-	return (
-		<div className="flex justify-between w-full">
-			<ScheduleList />
-			<ScheduleCalendar />
-		</div>
-	);
+	return <div className="flex justify-between w-full">{"Pending"}</div>;
 }
+
+// <ScheduleList />
+// <ScheduleCalendar />

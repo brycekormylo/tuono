@@ -1,8 +1,7 @@
 "use client";
 
-import { useDatabase } from "@/contexts/database";
+import { useDatabase, type Identifiable } from "@/contexts/database";
 import { useAuth } from "@/contexts/auth";
-import { tx } from "@instantdb/react";
 import type { ListContextProps } from "./list-context-props";
 import { useInput } from "@/hooks/use-input";
 
@@ -13,7 +12,6 @@ import React, {
 	useEffect,
 	type ReactNode,
 } from "react";
-import type { Identifiable } from "@/contexts/database";
 
 export const formattedPhoneNumber = (phone: string): string => {
 	const phoneArr = Array.from(phone);
@@ -49,7 +47,7 @@ interface PatientListProviderProps {
 const PatientListProvider = ({ children }: PatientListProviderProps) => {
 	const listName = "Patients";
 
-	const { database } = useDatabase();
+	const { db } = useDatabase();
 	const { user } = useAuth();
 
 	const [rawInfo, setRawInfo] = useState<PatientInfo[] | null>(null);
@@ -73,26 +71,26 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
 		},
 	};
 
-	const { isLoading, error, data } = database.useQuery(query);
+	const { isLoading, error, data } = db.useQuery(query);
 
 	useEffect(() => {
 		if (data) {
 			const patientList: PatientInfo[] = data.patients as PatientInfo[];
-			const sorted = patientList.sort((a, b) => {
-				if (sortAsc) {
-					return a.lastName > b.lastName ? -1 : 1;
-				} else {
-					return a.lastName < b.lastName ? -1 : 1;
-				}
-			});
-
-			setRawInfo(sorted);
+			// const sorted = patientList.sort((a, b) => {
+			// 	if (sortAsc) {
+			// 		return a.lastName > b.lastName ? -1 : 1;
+			// 	}
+			// 	return a.lastName < b.lastName ? -1 : 1;
+			// });
+			//
+			setRawInfo(patientList);
+			sort();
 		}
 	}, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
-	useEffect(() => {
-		sort();
-	}, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
+	// useEffect(() => {
+	// 	sort();
+	// }, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	useEffect(() => {
 		if (search === "") {
@@ -147,15 +145,15 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
 
 	const update = (patient: PatientInfo) => {
 		if (user) {
-			database.transact(
-				tx.patients[patient.id].update(patient as PatientInfo as any),
+			db.transact(
+				db.tx.patients[patient.id].update(patient as PatientInfo as any),
 			);
-			database.transact(tx.patients[patient.id].link({ admin: user.id }));
+			db.transact(db.tx.patients[patient.id].link({ admin: user.id }));
 		}
 	};
 
 	const remove = (patient: PatientInfo) => {
-		database.transact(tx.patients[patient.id].delete());
+		db.transact(db.tx.patients[patient.id].delete());
 		setSelected(null);
 	};
 

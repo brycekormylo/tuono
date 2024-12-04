@@ -32,6 +32,9 @@ export default function History() {
 
 				{info?.map((conversation) => {
 					const lastUpdate = new Date(conversation.lastUpdated);
+					const lastMessage = conversation.messages?.at(
+						conversation.messages?.length - 1,
+					)?.body;
 					return (
 						<button
 							key={conversation.id}
@@ -48,16 +51,9 @@ export default function History() {
 									htmlFor="conversation"
 									className="justify-self-end text-lg"
 								>
-									{conversation.patient?.lastName}
-									{", "}
-									{conversation.patient?.firstName}
+									{`${conversation.patient?.lastName}, ${conversation.patient?.firstName}`}
 								</label>
-								<p className="text-xs text-gray-700">
-									{
-										conversation.messages?.at(conversation.messages?.length - 1)
-											?.body
-									}
-								</p>
+								<p className="text-xs text-gray-700">{lastMessage}</p>
 							</div>
 							<div className="grow" />
 							<p className="mx-6 text-sm text-gray-600">

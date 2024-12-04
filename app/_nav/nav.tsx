@@ -29,7 +29,7 @@ const NavbarItems = [
 	},
 	{
 		name: "Schedule",
-		slug: "appointments",
+		slug: "schedule",
 		icon: LuCalendar,
 	},
 	{
