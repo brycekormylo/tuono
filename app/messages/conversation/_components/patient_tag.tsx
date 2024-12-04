@@ -9,18 +9,16 @@ export default function PatientTag() {
 	return (
 		selected && (
 			<>
-				<div className="flex gap-4 justify-self-start items-center self-start p-4">
-					<button
-						className="z-20 w-10 h-10 text-gray-700 rounded-full hover:bg-gray-200 stack"
-						type="button"
-						onClick={() => setShowOptions(!showOptions)}
-					>
-						<LuMoreVertical size={24} />
-					</button>
-					<p className="text-xl">
+				<button
+					type="button"
+					onClick={() => setShowOptions(!showOptions)}
+					className="flex z-20 gap-2 justify-self-start items-center self-start p-4 rounded-xl hover:bg-gray-100"
+				>
+					<LuMoreVertical size={24} />
+					<p className="px-2 text-xl">
 						{selected.patient.lastName}, {selected.patient.firstName}
 					</p>
-				</div>
+				</button>
 
 				<ConversationOptions />
 			</>

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { LuInfo, LuPin, LuTrash } from "react-icons/lu";
 
 export default function ConversationOptions() {
-	const { selected, showOptions } = useConversations();
+	const { selected, showOptions, remove } = useConversations();
 
 	const [showPatientDetails, setShowPatientDetails] = useState(false);
 
@@ -41,6 +41,7 @@ export default function ConversationOptions() {
 					type="button"
 					id="delete"
 					className="flex gap-4 items-center p-4 w-full text-red-500 hover:bg-gray-100"
+					onClick={() => selected && remove(selected)}
 				>
 					<LuTrash size={18} />
 					<label htmlFor="delete" className="text-sm">

@@ -3,7 +3,7 @@
 import type { ChangeEvent } from "react";
 import type { PatientInfo } from "@/contexts/patient-list";
 import { usePatientList } from "@/contexts/patient-list";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ActionButtons from "@/app/_components/editor/action-buttons";
 import { id } from "@instantdb/react";
 
@@ -43,6 +43,10 @@ export default function PatientDetails(props: PatientDetailProps) {
 	const handleReturn = () => {
 		dismiss();
 	};
+
+	useEffect(() => {
+		selected && setPatient(selected);
+	}, [selected]);
 
 	return (
 		<div className="fixed top-0 left-0 z-20 w-screen h-screen stack">

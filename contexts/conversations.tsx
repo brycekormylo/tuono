@@ -104,9 +104,9 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 		}
 	}, [data, sortAsc]);
 
-	useEffect(() => {
-		sort();
-	});
+	// useEffect(() => {
+	// 	sort();
+	// });
 
 	useEffect(() => {
 		// if (search == "") {
@@ -233,6 +233,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 	const remove = (conversation: Conversation) => {
 		database.transact(tx.conversations[conversation.id].delete());
 		setSelected(null);
+		setSelectedPatient(null);
 	};
 
 	return (

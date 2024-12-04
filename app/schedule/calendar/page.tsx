@@ -79,7 +79,7 @@ export default function ScheduleCalendar() {
 	};
 
 	return (
-		<div className="p-4 w-full h-full stack">
+		<div className="w-full h-full stack">
 			<DnDCalendar
 				defaultView="week"
 				events={events}
