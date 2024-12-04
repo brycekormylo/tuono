@@ -1,7 +1,7 @@
 "use client";
 
-import { InstaQLEntity, type InstaQLParams } from "@instantdb/react";
-import { AppSchema, useDatabase, type Identifiable } from "@/contexts/database";
+import type { InstaQLEntity, InstaQLParams } from "@instantdb/react";
+import { type AppSchema, useDatabase } from "@/contexts/database";
 import { useAuth } from "@/contexts/auth";
 import type { ListContextProps } from "./list-context-props";
 import { useInput } from "@/hooks/use-input";
@@ -29,34 +29,26 @@ export const formattedPhoneNumber = (phone: string): string => {
 	return formatted;
 };
 
-export interface PatientInfo extends Identifiable {
-	firstName: string;
-	lastName: string;
-	email: string;
-	phone: string;
-}
-
 export type Patient = InstaQLEntity<AppSchema, "patients">;
 
-export interface PatientListContextProps
-	extends ListContextProps<PatientInfo> {}
+export interface PatientContextProps extends ListContextProps<Patient> {}
 
-const PatientListContext = createContext<PatientListContextProps | null>(null);
+const PatientContext = createContext<PatientContextProps | null>(null);
 
-interface PatientListProviderProps {
+interface PatientProviderProps {
 	children: ReactNode;
 }
 
-const PatientListProvider = ({ children }: PatientListProviderProps) => {
+const PatientProvider = ({ children }: PatientProviderProps) => {
 	const listName = "Patients";
 
 	const { db } = useDatabase();
 	const { user } = useAuth();
 
-	const [rawInfo, setRawInfo] = useState<PatientInfo[] | null>(null);
-	const [info, setInfo] = useState<PatientInfo[] | null>(null);
+	const [rawInfo, setRawInfo] = useState<Patient[] | null>(null);
+	const [info, setInfo] = useState<Patient[] | null>(null);
 	const [sortAsc, setSortAsc] = useState<boolean>(false);
-	const [selected, setSelected] = useState<PatientInfo | null>(null);
+	const [selected, setSelected] = useState<Patient | null>(null);
 	const [edit, setEdit] = useState<boolean>(false);
 	const {
 		value: search,
@@ -80,7 +72,7 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
 
 	useEffect(() => {
 		if (data) {
-			const patientList: PatientInfo[] = data.patients as PatientInfo[];
+			const patientList: Patient[] = data.patients as Patient[];
 			// const sorted = patientList.sort((a, b) => {
 			// 	if (sortAsc) {
 			// 		return a.lastName > b.lastName ? -1 : 1;
@@ -148,22 +140,20 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
 		setEdit(true);
 	};
 
-	const update = (patient: PatientInfo) => {
+	const update = (patient: Patient) => {
 		if (user) {
-			db.transact(
-				db.tx.patients[patient.id].update(patient as PatientInfo as any),
-			);
+			db.transact(db.tx.patients[patient.id].update(patient));
 			db.transact(db.tx.patients[patient.id].link({ admin: user.id }));
 		}
 	};
 
-	const remove = (patient: PatientInfo) => {
+	const remove = (patient: Patient) => {
 		db.transact(db.tx.patients[patient.id].delete());
 		setSelected(null);
 	};
 
 	return (
-		<PatientListContext.Provider
+		<PatientContext.Provider
 			value={{
 				listName,
 				info,
@@ -186,17 +176,17 @@ const PatientListProvider = ({ children }: PatientListProviderProps) => {
 			}}
 		>
 			{children}
-		</PatientListContext.Provider>
+		</PatientContext.Provider>
 	);
 };
 
-const usePatientList = () => {
-	const context = useContext(PatientListContext);
+const usePatient = () => {
+	const context = useContext(PatientContext);
 
 	if (!context) {
-		throw new Error("usePatientList must be used within a PatientListProvider");
+		throw new Error("usePatient must be used within a PatientProvider");
 	}
 	return context;
 };
 
-export { PatientListProvider, usePatientList };
+export { PatientProvider, usePatient };

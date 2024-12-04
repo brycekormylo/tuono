@@ -1,15 +1,23 @@
 "use client";
 
 import React, { createContext, useContext, type ReactNode } from "react";
-import { init_experimental, type InstantReactWeb } from "@instantdb/react";
-import schema from "../instant.schema";
+import {
+	init_experimental,
+	type InstantReactWebDatabase,
+} from "@instantdb/react";
+import _schema from "../instant.schema";
+
+// Typescript intellisense for InstantDB
+type _AppSchema = typeof _schema;
+export interface AppSchema extends _AppSchema {}
+const schema: AppSchema = _schema;
 
 export interface Identifiable {
 	id: string;
 }
 
 interface DatabaseContextProps {
-	db: InstantReactWeb;
+	db: InstantReactWebDatabase<AppSchema>;
 }
 
 const DatabaseContext = createContext<DatabaseContextProps | undefined>(
@@ -21,7 +29,7 @@ interface DatabaseProviderProps {
 }
 
 const DatabaseProvider = ({ children }: DatabaseProviderProps) => {
-	const db: InstantReactWeb = init_experimental({
+	const db = init_experimental({
 		appId: "bd7b55f0-2338-4b87-8b7a-44ed0df6ae13",
 		schema,
 	});

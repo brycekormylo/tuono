@@ -3,47 +3,49 @@
 // npx instant-cli push-schema
 
 import { i } from "@instantdb/react";
+import type { Message } from "./contexts/conversations";
 
 const graph = i.graph(
 	{
 		admins: i.entity({
-			email: i.any().unique(),
-			fullName: i.any(),
-			handle: i.any().unique().indexed(),
+			email: i.string().unique(),
+			fullName: i.string(),
+			handle: i.string().unique().indexed(),
+			created: i.string(),
 		}),
 		appointments: i.entity({
-			time: i.any(),
-			duration: i.any(),
+			date: i.string(),
+			durationInMinutes: i.number(),
 		}),
 		conversations: i.entity({
-			created: i.any(),
-			lastUpdated: i.any(),
-			messages: i.any(),
+			created: i.string(),
+			lastUpdated: i.string(),
+			messages: i.json<Message>(),
 		}),
 		exercises: i.entity({
-			aliases: i.any().indexed(),
+			aliases: i.string().indexed(),
 			bodyParts: i.any().indexed(),
 			difficulty: i.any().indexed(),
-			holdTimeInSeconds: i.any(),
-			imageUrls: i.any(),
-			repetitions: i.any(),
-			sets: i.any(),
+			holdTimeInSeconds: i.number(),
+			imageUrls: i.string(),
+			repetitions: i.number(),
+			sets: i.number(),
 			steps: i.any(),
-			title: i.any().indexed(),
-			weight: i.any(),
+			title: i.string().indexed(),
+			weight: i.number(),
 		}),
 		patients: i.entity({
-			created: i.any(),
-			email: i.any(),
-			firstName: i.any(),
-			lastName: i.any().indexed(),
-			phone: i.any().unique(),
-			dob: i.any(),
-			homeAddress: i.any(),
+			created: i.string(),
+			email: i.string(),
+			firstName: i.string(),
+			lastName: i.string().indexed(),
+			phone: i.string().unique(),
+			dob: i.string(),
+			homeAddress: i.string(),
 		}),
 		routines: i.entity({
 			created: i.any(),
-			name: i.any().indexed(),
+			name: i.string().indexed(),
 			steps: i.any(),
 		}),
 	},
