@@ -1,9 +1,8 @@
 "use client";
 
-import { useDatabase } from "@/contexts/database";
-import { useAuth } from "@/contexts/auth";
+import { type AppSchema, useDatabase } from "@/contexts/database";
+import { InstaQLParams } from "@instantdb/react";
 import { useInput } from "@/hooks/use-input";
-import { tx } from "@instantdb/react";
 
 import React, {
 	createContext,
@@ -14,6 +13,7 @@ import React, {
 } from "react";
 import { ListContextProps } from "./list-context-props";
 import { Identifiable } from "@/contexts/database";
+import { useAccount } from "./account";
 
 export enum Difficulty {
 	EASY = "EASY",
@@ -43,7 +43,7 @@ export enum BodyPart {
 	GLUTES = "GLUTES",
 }
 
-export interface ExerciseInfo extends Identifiable {
+export interface Exercise extends Identifiable {
 	title?: string;
 	aliases: string[];
 	bodyParts: BodyPart[];
@@ -56,7 +56,7 @@ export interface ExerciseInfo extends Identifiable {
 	weight?: number;
 }
 
-interface ExerciseListContextProps extends ListContextProps<ExerciseInfo> {
+interface ExerciseContextProps extends ListContextProps<Exercise> {
 	formatEnumValue: (value?: string) => string;
 }
 
@@ -69,24 +69,22 @@ export function formatEnumValue(value?: string): string {
 		: "";
 }
 
-const ExerciseListContext = createContext<ExerciseListContextProps | null>(
-	null,
-);
+const ExerciseContext = createContext<ExerciseContextProps | null>(null);
 
-interface ExerciseListProviderProps {
+interface ExerciseProviderProps {
 	children: ReactNode;
 }
 
-const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
+const ExerciseProvider = ({ children }: ExerciseProviderProps) => {
 	const listName = "Exercises";
 
 	const { db } = useDatabase();
-	const { user } = useAuth();
+	const { admin } = useAccount();
 
-	const [rawInfo, setRawInfo] = useState<ExerciseInfo[] | null>(null);
-	const [info, setInfo] = useState<ExerciseInfo[] | null>(null);
+	const [rawInfo, setRawInfo] = useState<Exercise[] | null>(null);
+	const [info, setInfo] = useState<Exercise[] | null>(null);
 	const [sortAsc, setSortAsc] = useState<boolean>(false);
-	const [selected, setSelected] = useState<ExerciseInfo | null>(null);
+	const [selected, setSelected] = useState<Exercise | null>(null);
 
 	const [edit, setEdit] = useState<boolean>(false);
 	const {
@@ -99,17 +97,17 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
 		exercises: {
 			$: {
 				where: {
-					admin: user?.id,
+					admin: admin.id,
 				},
 			},
 		},
-	};
+	} satisfies InstaQLParams<AppSchema>;
 
 	const { isLoading, error, data } = db.useQuery(query);
 
 	useEffect(() => {
 		if (data) {
-			const rawExerciseData: ExerciseInfo[] = data.exercises as ExerciseInfo[];
+			const rawExerciseData: Exercise[] = data.exercises as Exercise[];
 			setRawInfo(rawExerciseData);
 		} else {
 			setRawInfo(null);
@@ -165,12 +163,14 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
 		setEdit(true);
 	};
 
-	const update = (exercise: ExerciseInfo) => {
-		db.transact(db.tx.exercises[exercise.id].update(exercise as any));
-		user && db.transact(db.tx.exercises[exercise.id].link({ admin: user.id }));
+	const update = (exercise: Exercise) => {
+		db.transact([
+			db.tx.exercises[exercise.id].update(exercise),
+			db.tx.exercises[exercise.id].link({ admin: admin.id }),
+		]);
 	};
 
-	const remove = (exercise: ExerciseInfo) => {
+	const remove = (exercise: Exercise) => {
 		db.transact(db.tx.exercises[exercise.id].delete());
 		setSelected(null);
 	};
@@ -180,7 +180,7 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
 	}, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
-		<ExerciseListContext.Provider
+		<ExerciseContext.Provider
 			value={{
 				listName,
 				info,
@@ -197,26 +197,26 @@ const ExerciseListProvider = ({ children }: ExerciseListProviderProps) => {
 				edit,
 				setEdit,
 				toggleEdit,
-				createNew,
+				send: createNew,
 				remove,
 				update,
 				formatEnumValue,
+				isLoading,
+				error,
 			}}
 		>
 			{children}
-		</ExerciseListContext.Provider>
+		</ExerciseContext.Provider>
 	);
 };
 
-const useExerciseList = () => {
-	const context = useContext(ExerciseListContext);
+const useExercise = () => {
+	const context = useContext(ExerciseContext);
 
 	if (!context) {
-		throw new Error(
-			"useExerciseList must be used within a ExerciseListProvider",
-		);
+		throw new Error("useExercise must be used within a ExerciseProvider");
 	}
 	return context;
 };
 
-export { ExerciseListProvider, useExerciseList };
+export { ExerciseProvider, useExercise };

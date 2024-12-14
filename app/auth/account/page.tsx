@@ -1,51 +1,30 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
-import { useDatabase } from "@/contexts/database";
+import { useAccount } from "@/contexts/account";
 import { useAuth, type AdminAccount } from "@/contexts/auth";
 import { LuMail } from "react-icons/lu";
 
+interface FormData {
+	fullName: string;
+	handle: string;
+}
+
 export default function Account() {
-	const [handle, setHandle] = useState<string>("");
-	const [fullName, setFullName] = useState<string>("");
+	const { user, signOut } = useAuth();
+	const { admin, updateName, updateHandle } = useAccount();
 
-	const { db } = useDatabase();
-	const { user } = useAuth();
-	const query = {
-		admins: {
-			$: {
-				where: {
-					id: user?.id,
-				},
-			},
-		},
-	};
-
-	const { isLoading, error, data } = db.useQuery(query);
-
-	const handleSignOut = (e: FormEvent) => {
+	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		db.auth.signOut();
+		const formData: FormData = {
+			fullName: (document.getElementById("fullName") as HTMLInputElement).value,
+			handle: (document.getElementById("handle") as HTMLInputElement).value,
+		};
+		updateName(formData.fullName);
+		updateHandle(formData.handle);
 	};
-
-	const handleSaveChanges = (e: FormEvent) => {
-		e.preventDefault();
-		user &&
-			db.transact([
-				db.tx.admins[user.id].update({ fullName: fullName, handle: handle }),
-			]);
-	};
-
-	useEffect(() => {
-		if (data != null) {
-			const formattedData: AdminAccount = data.admins[0] as AdminAccount;
-			formattedData.fullName && setFullName(formattedData.fullName);
-			formattedData.handle && setHandle(formattedData.handle);
-		}
-	}, [data]);
 
 	return (
-		<div className="flex flex-col gap-6">
+		<form name="auth" className="flex flex-col gap-6">
 			<div className="flex justify-between items-center px-8 h-16 bg-gray-50 rounded-xl">
 				<LuMail size={32} className="text-gray-600" />
 				<p className="text-xl">{user?.email}</p>
@@ -57,9 +36,9 @@ export default function Account() {
 				<input
 					className="text-xl bg-transparent outline-none text-end"
 					id="fullName"
+					name="fullName"
+					placeholder={admin.fullName}
 					type="text"
-					value={fullName || ""}
-					onChange={(e) => setFullName(e.target.value)}
 				/>
 			</div>
 			<div className="flex gap-8 justify-between items-center px-8 h-16 bg-gray-50 rounded-xl">
@@ -69,27 +48,27 @@ export default function Account() {
 				<input
 					className="text-xl bg-transparent outline-none text-end"
 					id="handle"
+					name="handle"
+					placeholder={admin.handle}
 					type="text"
-					value={handle || ""}
-					onChange={(e) => setHandle(e.target.value)}
 				/>
 			</div>
 			<div className="flex gap-6 justify-end px-4">
 				<button
 					type="button"
 					className="px-8 h-12 bg-gray-300 rounded-xl"
-					onClick={handleSignOut}
+					onClick={signOut}
 				>
 					Sign Out
 				</button>
 				<button
 					type="button"
+					onClick={handleSubmit}
 					className="px-8 h-12 bg-gray-200 rounded-xl"
-					onClick={handleSaveChanges}
 				>
 					Save Changes
 				</button>
 			</div>
-		</div>
+		</form>
 	);
 }

@@ -2,7 +2,6 @@
 
 import type { InstaQLEntity, InstaQLParams } from "@instantdb/react";
 import { type AppSchema, useDatabase } from "@/contexts/database";
-import { useAuth } from "@/contexts/auth";
 import type { ListContextProps } from "./list-context-props";
 import { useInput } from "@/hooks/use-input";
 
@@ -13,6 +12,7 @@ import React, {
 	useEffect,
 	type ReactNode,
 } from "react";
+import { useProfile } from "./profiles";
 
 export const formattedPhoneNumber = (phone: string): string => {
 	const phoneArr = Array.from(phone);
@@ -29,7 +29,14 @@ export const formattedPhoneNumber = (phone: string): string => {
 	return formatted;
 };
 
-export type Patient = InstaQLEntity<AppSchema, "patients">;
+export type Patient = InstaQLEntity<
+	AppSchema,
+	"patients",
+	// biome-ignore lint: This syntax is mandatory
+	{ profile: {} }
+>;
+
+type Records = InstaQLEntity<AppSchema, "patients">;
 
 export interface PatientContextProps extends ListContextProps<Patient> {}
 
@@ -43,7 +50,7 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 	const listName = "Patients";
 
 	const { db } = useDatabase();
-	const { user } = useAuth();
+	const { profile } = useProfile();
 
 	const [rawInfo, setRawInfo] = useState<Patient[] | null>(null);
 	const [info, setInfo] = useState<Patient[] | null>(null);
@@ -56,53 +63,47 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 		setValue: setSearch,
 	} = useInput("");
 
-	const query = user
-		? ({
-				patients: {
-					$: {
-						where: {
-							admin: user.id,
-						},
-					},
+	const profileID = profile?.admin?.id ?? "";
+
+	const query = {
+		patients: {
+			$: {
+				where: {
+					admin: profileID,
 				},
-			} satisfies InstaQLParams<AppSchema>)
-		: {};
+			},
+			profile: {},
+		},
+	} satisfies InstaQLParams<AppSchema>;
 
 	const { isLoading, error, data } = db.useQuery(query);
 
 	useEffect(() => {
-		if (data) {
-			const patientList: Patient[] = data.patients as Patient[];
-			// const sorted = patientList.sort((a, b) => {
-			// 	if (sortAsc) {
-			// 		return a.lastName > b.lastName ? -1 : 1;
-			// 	}
-			// 	return a.lastName < b.lastName ? -1 : 1;
-			// });
-			//
-			setRawInfo(patientList);
-			sort();
-		}
-	}, [data]); // eslint-disable-line react-hooks/exhaustive-deps
-
-	// useEffect(() => {
-	// 	sort();
-	// }, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
+		data && setRawInfo(data.patients);
+	}, [data]);
 
 	useEffect(() => {
 		if (search === "") {
 			setInfo(rawInfo);
 		} else {
-			filterBy(search);
+			filter();
 		}
-	}, [search, rawInfo]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [search, rawInfo]);
 
-	const filterBy = (input: string) => {
+	useEffect(() => {
+		sort();
+	}, [sortAsc]);
+
+	const filter = () => {
 		if (info) {
 			const filtered = info.filter((patient) => {
 				return (
-					patient.lastName.toLowerCase().includes(search.toLowerCase()) ||
-					patient.firstName.toLowerCase().includes(search.toLowerCase())
+					patient.profile?.lastName
+						.toLowerCase()
+						.includes(search.toLowerCase()) ||
+					patient.profile?.firstName
+						.toLowerCase()
+						.includes(search.toLowerCase())
 				);
 			});
 			setInfo(filtered);
@@ -114,10 +115,13 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 	const sort = () => {
 		if (rawInfo) {
 			const sorted = rawInfo.sort((a, b) => {
-				if (sortAsc) {
-					return a.lastName > b.lastName ? -1 : 1;
+				if (a.profile?.lastName && b.profile?.lastName) {
+					if (sortAsc) {
+						return a.profile.lastName > b.profile.lastName ? -1 : 1;
+					}
+					return a.profile.lastName < b.profile.lastName ? -1 : 1;
 				}
-				return a.lastName < b.lastName ? -1 : 1;
+				return a.profile?.lastName ? 1 : -1;
 			});
 			setRawInfo([...sorted]);
 		}
@@ -141,14 +145,35 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 	};
 
 	const update = (patient: Patient) => {
-		if (user) {
-			db.transact(db.tx.patients[patient.id].update(patient));
-			db.transact(db.tx.patients[patient.id].link({ admin: user.id }));
+		const patientProfile = patient.profile;
+		const patientRecords: Records = {
+			id: patient.id,
+			email: patient.email,
+			created: patient.created,
+			dob: patient.dob,
+			homeAddress: patient.homeAddress,
+			occupation: patient.occupation,
+			sex: patient.sex,
+			enthicity: patient.enthicity,
+			emergencyPhone: patient.emergencyPhone,
+		};
+		console.log(patientRecords);
+		if (patientProfile) {
+			db.transact([
+				db.tx.profiles[patientProfile.id].update(patientProfile),
+				db.tx.patients[patientRecords.id]
+					.update(patientRecords)
+					.link({ profile: patientProfile.id })
+					.link({ admin: profile?.admin?.id }),
+			]);
 		}
 	};
 
 	const remove = (patient: Patient) => {
-		db.transact(db.tx.patients[patient.id].delete());
+		db.transact([
+			db.tx.profiles[patient.profile?.id ?? ""].delete(),
+			db.tx.patients[patient.id].delete(),
+		]);
 		setSelected(null);
 	};
 
@@ -170,9 +195,11 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 				edit,
 				setEdit,
 				toggleEdit,
-				createNew,
+				send: createNew,
 				remove,
 				update,
+				isLoading,
+				error,
 			}}
 		>
 			{children}

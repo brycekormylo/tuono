@@ -1,37 +1,38 @@
 "use client";
 
-import { usePatientList, type PatientInfo } from "./patient-list";
 import type { ChangeEvent, ReactNode } from "react";
 import type { ListContextProps } from "./list-context-props";
-import { useDatabase, type Identifiable } from "./database";
+import { type AppSchema, useDatabase } from "./database";
 import { useAuth, type AdminAccount } from "./auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useInput } from "@/hooks/use-input";
-import { id } from "@instantdb/react";
+import { id, type InstaQLEntity, type InstaQLParams } from "@instantdb/react";
 import { useTextArea } from "@/hooks/use-text-area";
+import { type Patient, usePatient } from "./patients";
+import { useAccount } from "./account";
 
-export interface Message {
-	fromAdmin: boolean;
-	body: string;
-	timestamp: Date;
-}
+export type Message = InstaQLEntity<
+	AppSchema,
+	"messages",
+	// biome-ignore lint: This syntax is mandatory
+	{ admin: {}; patient: {} }
+>;
 
-export interface Conversation extends Identifiable {
-	messages: Message[];
-	created: Date;
-	lastUpdated: Date;
-	admin: AdminAccount;
-	patient: PatientInfo;
-}
+export type Conversation = InstaQLEntity<
+	AppSchema,
+	"conversations",
+	// biome-ignore lint: This syntax is mandatory
+	{ admin: {}; patient: {}; messages: {} }
+>;
 
 interface ConversationContextProps extends ListContextProps<Conversation> {
 	newMessage: string;
 	changeNewMessage: (input: ChangeEvent<HTMLTextAreaElement>) => void;
 	setNewMessage: (newMessage: string) => void;
-	setSelectedFromPatient: (patient: PatientInfo) => void;
-	select: (conversation: Conversation) => void;
+	setSelectedFromPatient: (patient: Patient) => void;
 	showOptions: boolean;
 	setShowOptions: (value: boolean) => void;
+	send: () => void;
 }
 
 const ConversationContext = createContext<ConversationContextProps | null>(
@@ -46,8 +47,9 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 	const listName = "Messages";
 
 	const { db } = useDatabase();
-	const { user, admin } = useAuth();
-	const { setSelected: setSelectedPatient } = usePatientList();
+	const { admin } = useAccount();
+	const { selected: selectedPatient, setSelected: setSelectedPatient } =
+		usePatient();
 
 	const [rawInfo, setRawInfo] = useState<Conversation[] | null>(null);
 	const [info, setInfo] = useState<Conversation[] | null>(null);
@@ -71,81 +73,25 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 		conversations: {
 			$: {
 				where: {
-					admin: user?.id,
+					admin: admin.id,
 				},
 			},
 			patient: {},
 			admin: {},
+			messages: {},
 		},
-	};
+	} satisfies InstaQLParams<AppSchema>;
 
 	const { isLoading, error, data } = db.useQuery(query);
 
 	useEffect(() => {
-		if (data) {
-			const conversations: Conversation[] = data.conversations.map(
-				(conversation) => {
-					const patient: PatientInfo =
-						conversation.patient as unknown as PatientInfo;
-					const admin: AdminAccount =
-						conversation.admin as unknown as AdminAccount;
-					return {
-						...conversation,
-						patient: patient,
-						admin: admin,
-					};
-				},
-			);
-			const sorted = conversations.sort((a, b) => {
-				if (sortAsc) {
-					return a.created > b.created ? -1 : 1;
-				}
-				return a.created < b.created ? -1 : 1;
-			});
-			setRawInfo(sorted);
-		}
-	}, [data, sortAsc]);
-
-	// useEffect(() => {
-	// 	sort();
-	// });
+		console.log(`Selection changes: ${selectedPatient?.firstName}`);
+		selectedPatient && setSelectedFromPatient(selectedPatient);
+	}, [selectedPatient]);
 
 	useEffect(() => {
-		// if (search == "") {
-		//   setInfo(rawInfo);
-		// } else {
-		//   filterBy(search);
-		// }
-		setInfo(rawInfo);
-	}, [rawInfo]);
-
-	const filterBy = (input: string) => {
-		if (info) {
-			const filtered = info.filter((conversation) => {
-				conversation.patient.firstName
-					.toLowerCase()
-					.includes(input.toLowerCase()) ||
-					conversation.patient.lastName
-						.toLowerCase()
-						.includes(input.toLowerCase());
-			});
-			setInfo(filtered);
-		} else {
-			setInfo(rawInfo);
-		}
-	};
-
-	const sort = () => {
-		if (rawInfo) {
-			const sorted = rawInfo.sort((a, b) => {
-				if (sortAsc) {
-					return a.created > b.created ? -1 : 1;
-				}
-				return a.created < b.created ? -1 : 1;
-			});
-			setRawInfo([...sorted]);
-		}
-	};
+		data && setInfo(data.conversations);
+	}, [data]);
 
 	const toggleSort = () => {
 		setSortAsc(!sortAsc);
@@ -159,71 +105,63 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 		setSearch("");
 	};
 
-	const setSelectedFromPatient = (patient: PatientInfo) => {
-		const prevConversation = rawInfo
-			?.filter((conversation) => conversation.patient.id === patient.id)
+	const setSelectedFromPatient = (patient: Patient) => {
+		const prevConversation = info
+			?.filter((conversation) => conversation.patient?.id === patient.id)
 			.at(0);
 
 		if (prevConversation) {
 			setSelected(prevConversation);
 		} else {
-			if (admin) {
-				const newDraft: Conversation = {
-					messages: [],
-					created: new Date(),
-					lastUpdated: new Date(),
-					admin: admin,
-					patient: patient,
-					id: id(),
-				};
-				update(newDraft);
-			}
-		}
-		setSelectedPatient(patient);
-	};
-
-	const createNew = () => {
-		const msg: Message = {
-			fromAdmin: true,
-			body: newMessage,
-			timestamp: new Date(),
-		};
-		setNewMessage("");
-		if (selected) {
-			const updatedConversation: Conversation = {
-				...selected,
-				messages: [...selected.messages, msg],
+			const newDraft: Conversation = {
+				id: id(),
+				created: JSON.stringify(new Date()),
+				messages: [],
+				admin: admin,
+				patient: patient,
 			};
-			update(updatedConversation);
+			update(newDraft);
 		}
 	};
 
-	const select = (selection: Conversation) => {
-		setShowOptions(false);
-		setSelected(selection);
-		setSelectedPatient(selection.patient);
+	const send = () => {
+		if (selected && selectedPatient) {
+			const msg = {
+				id: id(),
+				content: newMessage,
+				timestamp: JSON.stringify(new Date()),
+				fromAdmin: true,
+			};
+			db.transact([
+				db.tx.messages[msg.id].update(msg),
+				db.tx.messages[msg.id].link({
+					admin: admin.id,
+				}),
+				db.tx.messages[msg.id].link({
+					patient: selectedPatient.id,
+				}),
+				db.tx.messages[msg.id].link({
+					conversation: selected.id,
+				}),
+			]);
+			setSelectedPatient(selectedPatient);
+		}
 	};
 
 	const update = (conversation: Conversation) => {
 		const dataToInsert = {
 			id: conversation.id,
 			created: conversation.created,
-			lastUpdated: conversation.lastUpdated,
-			messages: conversation.messages,
 		};
-		db.transact(db.tx.conversations[conversation.id].update(dataToInsert));
-		user &&
-			db.transact(
-				db.tx.conversations[conversation.id].link({
-					admin: user?.id,
-				}),
-			);
-		conversation.patient &&
-			db.transact(
-				db.tx.conversations[conversation.id].link({
-					patient: conversation.patient.id,
-				}),
-			);
+		db.transact([
+			db.tx.conversations[conversation.id].update(dataToInsert),
+			db.tx.conversations[conversation.id].link({
+				admin: admin.id,
+			}),
+			db.tx.conversations[conversation.id].link({
+				patient: conversation.patient?.id,
+			}),
+		]);
 		setSelected(conversation);
 	};
 
@@ -252,7 +190,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 				edit,
 				setEdit,
 				toggleEdit,
-				createNew,
+				send,
 				remove,
 				update,
 				newMessage,
@@ -260,7 +198,8 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 				changeNewMessage,
 				showOptions,
 				setShowOptions,
-				select,
+				isLoading,
+				error,
 			}}
 		>
 			{children}

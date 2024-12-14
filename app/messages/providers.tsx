@@ -1,11 +1,10 @@
 import { ConversationProvider } from "@/contexts/conversations";
-import { PatientListProvider } from "@/contexts/patient-list";
-import { ReactNode } from "react";
+import { PatientProvider } from "@/contexts/patients";
 
-export function Providers({ children }: { children: ReactNode }) {
-  return (
-    <PatientListProvider>
-      <ConversationProvider>{children}</ConversationProvider>
-    </PatientListProvider>
-  );
+export function Providers({ children }: { children: React.ReactNode }) {
+	return (
+		<PatientProvider>
+			<ConversationProvider>{children}</ConversationProvider>
+		</PatientProvider>
+	);
 }

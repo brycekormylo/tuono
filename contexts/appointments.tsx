@@ -202,7 +202,7 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 				edit,
 				setEdit,
 				toggleEdit,
-				createNew,
+				send: createNew,
 				remove,
 				update,
 				newAppointment,

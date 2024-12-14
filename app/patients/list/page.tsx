@@ -1,41 +1,41 @@
 "use client";
 
-import {
-  formattedPhoneNumber,
-  PatientInfo,
-  usePatientList,
-} from "@/contexts/patient-list";
-import { ReactNode } from "react";
-import PatientEditor from "../editor/page";
+import type { ReactNode } from "react";
 import Table from "@/app/_components/table/table";
-import { ListContextProps } from "@/contexts/list-context-props";
+import type { ListContextProps } from "@/contexts/list-context-props";
 import TableRow from "@/app/_components/table/table-row";
+import {
+	formattedPhoneNumber,
+	type Patient,
+	usePatient,
+} from "@/contexts/patients";
+import PatientDetails from "@/app/patient_details/page";
 
 export default function PatientList() {
-  const list: ListContextProps<PatientInfo> = usePatientList();
+	const list: ListContextProps<Patient> = usePatient();
 
-  const tableRows = list.info?.map((patient) => {
-    return (
-      <TableRow
-        key={patient.email}
-        source={list}
-        element={patient}
-        displayProperties={{
-          left: `${patient.lastName}, ${patient.firstName}`,
-          center: `${patient.email}`,
-          right: `${formattedPhoneNumber(patient.phone)}`,
-        }}
-      />
-    );
-  });
+	const tableRows = list.info?.map((patient) => {
+		return (
+			<TableRow
+				key={patient.email}
+				source={list}
+				element={patient}
+				displayProperties={{
+					left: `${patient.profile?.lastName}, ${patient.profile?.firstName}`,
+					center: `${patient.profile?.email}`,
+					right: `${formattedPhoneNumber(patient.profile?.phone ?? "")}`,
+				}}
+			/>
+		);
+	});
 
-  return (
-    <Table
-      source={list}
-      title="Patients"
-      tableRows={tableRows as ReactNode[]}
-      headerColumns={{ left: "Name", center: "Email", right: "Phone" }}
-      drawerItem={<PatientEditor />}
-    />
-  );
+	return (
+		<Table
+			source={list}
+			title="Patients"
+			tableRows={tableRows as ReactNode[]}
+			headerColumns={{ left: "Name", center: "Email", right: "Phone" }}
+			overlay={<PatientDetails />}
+		/>
+	);
 }

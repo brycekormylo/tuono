@@ -1,52 +1,93 @@
 "use client";
 
-import type { ChangeEvent } from "react";
-import type { PatientInfo } from "@/contexts/patient-list";
-import { usePatientList } from "@/contexts/patient-list";
+import { usePatient, type Patient } from "@/contexts/patients";
 import { useEffect, useState } from "react";
-import ActionButtons from "@/app/_components/editor/action-buttons";
 import { id } from "@instantdb/react";
 
-const emptyPatient: PatientInfo = {
+const emptyPatient: Patient = {
+	profile: {
+		id: id(),
+		firstName: "",
+		lastName: "",
+		email: "",
+		phone: "",
+		created: JSON.stringify(new Date()),
+		isAdmin: false,
+	},
+	dob: "",
+	homeAddress: "",
 	id: id(),
-	firstName: "",
-	lastName: "",
+	created: undefined,
+	occupation: undefined,
+	sex: undefined,
+	enthicity: undefined,
+	emergencyPhone: undefined,
 	email: "",
-	phone: "",
 };
 
-interface PatientDetailProps {
-	dismiss: () => void;
-}
+export default function PatientDetails() {
+	const { update, selected, setEdit } = usePatient();
 
-export default function PatientDetails(props: PatientDetailProps) {
-	const { update, selected } = usePatientList();
-	const { dismiss } = props;
-
-	const [patient, setPatient] = useState<PatientInfo>(
+	const [patient, setPatient] = useState<Patient>(
 		selected ? selected : emptyPatient,
 	);
 
-	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const { name, value } = e.target;
-		setPatient((prevState: PatientInfo) => ({
-			...prevState,
-			[name]: value,
-		}));
-	};
-
-	const handleSubmit = () => {
-		update(patient);
-		handleReturn();
-	};
-
 	const handleReturn = () => {
-		dismiss();
+		setEdit(false);
 	};
 
 	useEffect(() => {
-		selected && setPatient(selected);
+		setPatient(selected ?? emptyPatient);
 	}, [selected]);
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+
+		const formData = getFormData();
+		update({
+			...patient,
+			email: formData.email,
+			profile: {
+				id: patient.profile?.id ?? id(),
+				created: patient.profile?.created ?? JSON.stringify(new Date()),
+				isAdmin: false,
+				firstName:
+					formData.firstName !== ""
+						? formData.firstName
+						: (patient.profile?.firstName ?? ""),
+				lastName:
+					formData.lastName !== ""
+						? formData.lastName
+						: (patient.profile?.lastName ?? ""),
+				email: formData.email !== "" ? formData.email : (patient.email ?? ""),
+				phone:
+					formData.phone !== ""
+						? formData.phone
+						: (patient.profile?.phone ?? ""),
+			},
+		});
+
+		// setEdit(false);
+		clearForm();
+		setEdit(false);
+	};
+
+	const getFormData = () => {
+		return {
+			firstName: (document.getElementById("firstName") as HTMLInputElement)
+				.value,
+			lastName: (document.getElementById("lastName") as HTMLInputElement).value,
+			email: (document.getElementById("email") as HTMLInputElement).value,
+			phone: (document.getElementById("phone") as HTMLInputElement).value,
+		};
+	};
+
+	const clearForm = () => {
+		(document.getElementById("firstName") as HTMLInputElement).value = "";
+		(document.getElementById("lastName") as HTMLInputElement).value = "";
+		(document.getElementById("email") as HTMLInputElement).value = "";
+		(document.getElementById("phone") as HTMLInputElement).value = "";
+	};
 
 	return (
 		<div className="fixed top-0 left-0 z-20 w-screen h-screen stack">
@@ -58,7 +99,9 @@ export default function PatientDetails(props: PatientDetailProps) {
 
 			<div className="flex flex-col gap-8 justify-start items-start py-8 px-12 bg-gray-50 rounded-xl h-[80vh] min-w-[54rem]">
 				<h2 className="px-4 text-2xl">
-					{patient.lastName}, {patient.firstName}
+					{patient.profile
+						? `${patient.profile?.lastName}, {patient.profile?.firstName}`
+						: ""}
 				</h2>
 
 				<form className="flex flex-col gap-4 items-end w-[24rem]">
@@ -70,9 +113,8 @@ export default function PatientDetails(props: PatientDetailProps) {
 							type="text"
 							name="firstName"
 							id="firstName"
-							value={patient.firstName}
+							placeholder={patient.profile?.firstName}
 							className="rounded-input"
-							onChange={handleChange}
 						/>
 					</div>
 
@@ -85,8 +127,7 @@ export default function PatientDetails(props: PatientDetailProps) {
 							name="lastName"
 							id="lastName"
 							type="text"
-							value={patient.lastName}
-							onChange={handleChange}
+							placeholder={patient.profile?.lastName}
 						/>
 					</div>
 
@@ -99,8 +140,7 @@ export default function PatientDetails(props: PatientDetailProps) {
 							name="email"
 							id="email"
 							type="text"
-							value={patient.email}
-							onChange={handleChange}
+							placeholder={patient.profile?.email}
 						/>
 					</div>
 
@@ -113,15 +153,27 @@ export default function PatientDetails(props: PatientDetailProps) {
 							name="phone"
 							id="phone"
 							type="text"
-							value={patient.phone}
-							onChange={handleChange}
+							placeholder={patient.profile?.phone}
 						/>
 					</div>
 
-					<ActionButtons
-						handleSubmit={handleSubmit}
-						handleReturn={handleReturn}
-					/>
+					<div className="flex gap-6 justify-end px-4">
+						<button
+							type="button"
+							className="px-8 h-12 bg-gray-300 rounded-xl"
+							onClick={handleReturn}
+						>
+							Cancel
+						</button>
+						<button
+							type="button"
+							onClick={handleSubmit}
+							className="px-8 h-12 bg-gray-200 rounded-xl disabled:text-gray-500 disabled:bg-gray-200/75"
+							// disabled={!edit}
+						>
+							Save Changes
+						</button>
+					</div>
 				</form>
 			</div>
 		</div>

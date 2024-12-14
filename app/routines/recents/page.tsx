@@ -1,43 +1,41 @@
 "use client";
 
-import { Routine, useRoutineList } from "@/contexts/routine-list";
+import { type Routine, useRoutine } from "@/contexts/routines";
 import Table from "@/app/_components/table/table";
-import { ListContextProps } from "@/contexts/list-context-props";
+import type { ListContextProps } from "@/contexts/list-context-props";
 import RoutineCanvas from "../canvas/page";
-import RoutineRow from "./_components/routine-row";
 import TableRow from "@/app/_components/table/table-row";
-import { ReactNode } from "react";
 
 export default function Recents() {
-  const list: ListContextProps<Routine> = useRoutineList();
+	const source: ListContextProps<Routine> = useRoutine();
 
-  const tableRows = list.info?.map((routine, index) => {
-    const date = new Date(routine.created);
-    return (
-      <TableRow
-        key={index}
-        element={routine}
-        source={list}
-        displayProperties={{
-          left: routine.name,
-          center: date.toLocaleDateString(),
-          right: routine.steps.length,
-        }}
-      />
-    );
-  });
+	const tableRows = source.info?.map((routine, index) => {
+		const date = new Date(routine.created);
+		return (
+			<TableRow
+				key={routine.id}
+				element={routine}
+				source={source}
+				displayProperties={{
+					left: routine.name,
+					center: date.toLocaleDateString(),
+					right: routine.steps.length,
+				}}
+			/>
+		);
+	});
 
-  return (
-    <Table
-      source={list}
-      title="Routines"
-      tableRows={tableRows as ReactNode[]}
-      headerColumns={{
-        left: "Name",
-        center: "Date Sent",
-        right: "Step Count",
-      }}
-      drawerItem={<RoutineCanvas />}
-    />
-  );
+	return (
+		<Table
+			source={source}
+			title="Routines"
+			tableRows={tableRows as React.ReactNode[]}
+			headerColumns={{
+				left: "Name",
+				center: "Date Sent",
+				right: "Step Count",
+			}}
+			overlay={<RoutineCanvas />}
+		/>
+	);
 }

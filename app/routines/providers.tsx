@@ -1,11 +1,10 @@
-import { ReactNode } from "react";
-import { RoutineListProvider } from "@/contexts/routine-list";
-import { ExerciseListProvider } from "@/contexts/exercise-list";
+import { RoutineProvider } from "@/contexts/routines";
+import { ExerciseProvider } from "@/contexts/exercises";
 
-export function Providers({ children }: { children: ReactNode }) {
-  return (
-    <ExerciseListProvider>
-      <RoutineListProvider>{children}</RoutineListProvider>
-    </ExerciseListProvider>
-  );
+export function Providers({ children }: { children: React.ReactNode }) {
+	return (
+		<ExerciseProvider>
+			<RoutineProvider>{children}</RoutineProvider>
+		</ExerciseProvider>
+	);
 }

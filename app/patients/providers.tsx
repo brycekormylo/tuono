@@ -1,6 +1,5 @@
-import { ReactNode } from "react";
-import { PatientListProvider } from "@/contexts/patient-list";
+import { PatientProvider } from "@/contexts/patients";
 
-export function Providers({ children }: { children: ReactNode }) {
-  return <PatientListProvider>{children}</PatientListProvider>;
+export function Providers({ children }: { children: React.ReactNode }) {
+	return <PatientProvider>{children}</PatientProvider>;
 }

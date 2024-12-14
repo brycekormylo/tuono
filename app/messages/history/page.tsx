@@ -2,13 +2,13 @@
 
 import SearchButton from "@/app/_components/table/search-button";
 import { useConversations } from "@/contexts/conversations";
-import { usePatientList, type PatientInfo } from "@/contexts/patient-list";
+import { usePatient, type Patient } from "@/contexts/patients";
 import { LuSearch, LuUser } from "react-icons/lu";
 
 export default function History() {
-	const { info, selected, select, setSelectedFromPatient, setShowOptions } =
-		useConversations();
-	const source = usePatientList();
+	const { info, selected, setShowOptions } = useConversations();
+	const { setSelected } = usePatient();
+	const source = usePatient();
 
 	return (
 		<div className="flex flex-col gap-2 h-full min-w-[28rem] grow">
@@ -17,7 +17,7 @@ export default function History() {
 					source={source}
 					itemAction={(item) => {
 						setShowOptions(false);
-						setSelectedFromPatient(item as PatientInfo);
+						setSelected(item as Patient);
 					}}
 				>
 					<div className="flex gap-4 justify-start items-center px-6">
@@ -31,16 +31,15 @@ export default function History() {
 				<h2 className="px-4 text-lg font-medium">Recent</h2>
 
 				{info?.map((conversation) => {
-					const lastUpdate = new Date(conversation.lastUpdated);
 					const lastMessage = conversation.messages?.at(
 						conversation.messages?.length - 1,
-					)?.body;
+					);
 					return (
 						<button
 							key={conversation.id}
 							type="button"
 							id="conversation"
-							onClick={() => select(conversation)}
+							onClick={() => setSelected(conversation.patient || null)}
 							className={`${conversation.id === selected?.id ? "hover:ring-gray-400 bg-gray-50 ring-[1px] ring-gray-300" : "hover:bg-gray-50/80"} flex rounded-xl justify-start items-center w-full h-16`}
 						>
 							<div className="w-10 h-10 bg-gray-100 rounded-full stack ms-4">
@@ -53,16 +52,17 @@ export default function History() {
 								>
 									{`${conversation.patient?.lastName}, ${conversation.patient?.firstName}`}
 								</label>
-								<p className="text-xs text-gray-700">{lastMessage}</p>
+								<p className="text-xs text-gray-700">{lastMessage?.content}</p>
 							</div>
 							<div className="grow" />
 							<p className="mx-6 text-sm text-gray-600">
-								{lastUpdate.getMonth()}/{lastUpdate.getDate()}
+								{`${lastMessage?.timestamp.toString().substring(9, 11) || "-"} / ${lastMessage?.timestamp.toString().substring(6, 8) || "-"}`}
 							</p>
 						</button>
 					);
 				})}
 			</div>
+
 			{!info && <p className="w-full h-12 stack">Not Found</p>}
 		</div>
 	);

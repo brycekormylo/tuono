@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { LuSend } from "react-icons/lu";
 
 export default function MessageInput() {
-	const { newMessage, changeNewMessage, createNew, selected, setShowOptions } =
+	const { newMessage, changeNewMessage, send, selected, setShowOptions } =
 		useConversations();
 
 	const [error, setError] = useState<string | null>();
@@ -19,7 +19,7 @@ export default function MessageInput() {
 			setError("No conversation selected");
 			return;
 		}
-		createNew();
+		send();
 	};
 
 	useEffect(() => {
@@ -43,7 +43,7 @@ export default function MessageInput() {
 						htmlFor="message"
 						className={`px-4 text-sm text-red-500 ${error ? "block" : "hidden"}`}
 					>
-						{"Message can't be empty"}
+						{error}
 					</label>
 					<textarea
 						name="message"

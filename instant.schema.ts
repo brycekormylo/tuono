@@ -3,55 +3,127 @@
 // npx instant-cli push-schema
 
 import { i } from "@instantdb/react";
-import type { Message } from "./contexts/conversations";
 
 const graph = i.graph(
 	{
-		admins: i.entity({
-			email: i.string().unique(),
-			fullName: i.string(),
-			handle: i.string().unique().indexed(),
-			created: i.string(),
+		$users: i.entity({
+			email: i.string().unique().indexed(),
 		}),
+
+		profiles: i.entity({
+			firstName: i.string(),
+			lastName: i.string(),
+			phone: i.string().unique(),
+			isAdmin: i.boolean(),
+			created: i.date(),
+			email: i.string().unique().indexed(),
+		}),
+
+		// Links need to move to admins/patients instead of to profiles
+		admins: i.entity({
+			handle: i.string().unique().indexed().optional(),
+		}),
+
+		patients: i.entity({
+			email: i.string().unique().indexed(),
+			created: i.string().optional(),
+			dob: i.string().optional(),
+			homeAddress: i.string().optional(),
+			occupation: i.string().optional(),
+			sex: i.string().optional(),
+			enthicity: i.string().optional(),
+			emergencyPhone: i.string().optional(),
+		}),
+
 		appointments: i.entity({
-			date: i.string(),
+			date: i.date(),
 			durationInMinutes: i.number(),
 		}),
+
 		conversations: i.entity({
-			created: i.string(),
-			lastUpdated: i.string(),
-			messages: i.json<Message>(),
+			created: i.date(),
 		}),
+
+		messages: i.entity({
+			content: i.string(),
+			timestamp: i.date(),
+			fromAdmin: i.boolean(),
+		}),
+
 		exercises: i.entity({
-			aliases: i.string().indexed(),
-			bodyParts: i.any().indexed(),
-			difficulty: i.any().indexed(),
-			holdTimeInSeconds: i.number(),
-			imageUrls: i.string(),
-			repetitions: i.number(),
-			sets: i.number(),
-			steps: i.any(),
+			aliases: i.any().indexed().optional(),
+			bodyParts: i.any().indexed().optional(),
+			difficulty: i.any().indexed().optional(),
+			holdTimeInSeconds: i.number().optional(),
+			imageUrls: i.any().optional(),
+			repetitions: i.number().optional(),
+			sets: i.number().optional(),
+			steps: i.any().optional(),
 			title: i.string().indexed(),
-			weight: i.number(),
+			weight: i.number().optional(),
 		}),
-		patients: i.entity({
-			created: i.string(),
-			email: i.string(),
-			firstName: i.string(),
-			lastName: i.string().indexed(),
-			phone: i.string().unique(),
-			dob: i.string(),
-			homeAddress: i.string(),
-		}),
+
 		routines: i.entity({
-			created: i.any(),
+			created: i.any().optional(),
 			name: i.string().indexed(),
-			steps: i.any(),
+			steps: i.any().optional(),
 		}),
 	},
 
 	{
-		conversationsAdmin: {
+		userProfile: {
+			forward: {
+				on: "profiles",
+				has: "one",
+				label: "user",
+			},
+			reverse: {
+				on: "$users",
+				has: "one",
+				label: "profile",
+			},
+		},
+
+		profileAdmin: {
+			forward: {
+				on: "profiles",
+				has: "one",
+				label: "admin",
+			},
+			reverse: {
+				on: "admins",
+				has: "one",
+				label: "profile",
+			},
+		},
+
+		profilePatient: {
+			forward: {
+				on: "profiles",
+				has: "one",
+				label: "patient",
+			},
+			reverse: {
+				on: "patients",
+				has: "one",
+				label: "profile",
+			},
+		},
+
+		adminPatients: {
+			forward: {
+				on: "admins",
+				has: "many",
+				label: "patients",
+			},
+			reverse: {
+				on: "patients",
+				has: "one",
+				label: "admin",
+			},
+		},
+
+		conversationAdmin: {
 			forward: {
 				on: "conversations",
 				has: "one",
@@ -63,7 +135,8 @@ const graph = i.graph(
 				label: "conversations",
 			},
 		},
-		conversationsPatient: {
+
+		conversationPatient: {
 			forward: {
 				on: "conversations",
 				has: "one",
@@ -71,22 +144,63 @@ const graph = i.graph(
 			},
 			reverse: {
 				on: "patients",
-				has: "many",
-				label: "conversations",
+				has: "one",
+				label: "conversation",
 			},
 		},
-		appointmentsPatient: {
+
+		conversationMessages: {
 			forward: {
-				on: "appointments",
-				has: "one",
-				label: "patient",
+				on: "conversations",
+				has: "many",
+				label: "messages",
 			},
 			reverse: {
+				on: "messages",
+				has: "one",
+				label: "conversation",
+			},
+		},
+
+		appointmentsPatient: {
+			forward: {
 				on: "patients",
 				has: "many",
 				label: "appointments",
 			},
+			reverse: {
+				on: "appointments",
+				has: "one",
+				label: "patient",
+			},
 		},
+
+		appointmentsAdmin: {
+			forward: {
+				on: "appointments",
+				has: "one",
+				label: "admin",
+			},
+			reverse: {
+				on: "admins",
+				has: "many",
+				label: "appointments",
+			},
+		},
+
+		messagesProfile: {
+			forward: {
+				on: "messages",
+				has: "one",
+				label: "sender",
+			},
+			reverse: {
+				on: "profiles",
+				has: "many",
+				label: "messages",
+			},
+		},
+
 		exercisesAdmin: {
 			forward: {
 				on: "exercises",
@@ -99,18 +213,7 @@ const graph = i.graph(
 				label: "exercises",
 			},
 		},
-		patientsAdmin: {
-			forward: {
-				on: "patients",
-				has: "one",
-				label: "admin",
-			},
-			reverse: {
-				on: "admins",
-				has: "many",
-				label: "patients",
-			},
-		},
+
 		routinesAdmin: {
 			forward: {
 				on: "routines",
@@ -121,18 +224,6 @@ const graph = i.graph(
 				on: "admins",
 				has: "many",
 				label: "routines",
-			},
-		},
-		appointmentsAdmin: {
-			forward: {
-				on: "appointments",
-				has: "one",
-				label: "admin",
-			},
-			reverse: {
-				on: "admins",
-				has: "many",
-				label: "appointments",
 			},
 		},
 	},

@@ -1,7 +1,8 @@
 import { Providers } from "./providers";
-import type { ReactNode } from "react";
 
-export default function MessagesLayout({ children }: { children: ReactNode }) {
+export default function MessagesLayout({
+	children,
+}: { children: React.ReactNode }) {
 	return (
 		<section className="block w-full h-full">
 			<Providers>{children}</Providers>

@@ -7,52 +7,52 @@ import React, {
 	useEffect,
 	type ReactNode,
 } from "react";
-import { useDatabase, type Identifiable } from "@/contexts/database";
-import { useAuth } from "@/contexts/auth";
-import { tx } from "@instantdb/react";
-import type { ExerciseInfo } from "./exercise-list";
+import {
+	type AppSchema,
+	useDatabase,
+	type Identifiable,
+} from "@/contexts/database";
+import type { Exercise } from "./exercises";
 import { useInput } from "@/hooks/use-input";
 import type { ListContextProps } from "./list-context-props";
+import type { InstaQLEntity, InstaQLParams } from "@instantdb/react";
+import { useAccount } from "./account";
 
-export interface RoutineListData extends Identifiable {
+export interface RoutineData extends Identifiable {
 	routines: Routine[];
 }
 
-export interface Routine extends Identifiable {
-	name: string;
-	steps: AnnotatedExercise[];
-	created: Date;
-}
+export type Routine = InstaQLEntity<AppSchema, "routines">;
 
 export interface AnnotatedExercise {
-	exercise: ExerciseInfo;
+	exercise: Exercise;
 	note?: string;
 }
 
-interface RoutineListContextProps extends ListContextProps<Routine> {
-	step: ExerciseInfo | null;
-	setStep: (exercise: ExerciseInfo | null) => void;
+interface RoutineContextProps extends ListContextProps<Routine> {
+	step: Exercise | null;
+	setStep: (exercise: Exercise | null) => void;
 	note: string | null;
 	setNote: (note: string) => void;
 }
 
-const RoutineListContext = createContext<RoutineListContextProps | null>(null);
+const RoutineContext = createContext<RoutineContextProps | null>(null);
 
-interface RoutineListProviderProps {
+interface RoutineProviderProps {
 	children: ReactNode;
 }
 
-const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
+const RoutineProvider = ({ children }: RoutineProviderProps) => {
 	const listName = "Routines";
 
 	const { db } = useDatabase();
-	const { user } = useAuth();
+	const { admin } = useAccount();
 
 	const [rawInfo, setRawInfo] = useState<Routine[] | null>(null);
 	const [info, setInfo] = useState<Routine[] | null>(null);
 	const [sortAsc, setSortAsc] = useState<boolean>(false);
 	const [selected, setSelected] = useState<Routine | null>(null);
-	const [step, setStep] = useState<ExerciseInfo | null>(null);
+	const [step, setStep] = useState<Exercise | null>(null);
 	const [note, setNote] = useState<string | null>(null);
 
 	const [edit, setEdit] = useState<boolean>(false);
@@ -61,11 +61,11 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
 		routines: {
 			$: {
 				where: {
-					admin: user?.id,
+					admin: admin.id,
 				},
 			},
 		},
-	};
+	} satisfies InstaQLParams<AppSchema>;
 
 	const { isLoading, error, data } = db.useQuery(query);
 	const {
@@ -113,17 +113,18 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
 			const sorted = rawInfo.sort((a, b) => {
 				if (sortAsc) {
 					return a.name > b.name ? -1 : 1;
-				} else {
-					return a.name < b.name ? -1 : 1;
 				}
+				return a.name < b.name ? -1 : 1;
 			});
 			setInfo([...sorted]);
 		}
 	};
 
 	const update = (routine: Routine) => {
-		db.transact(db.tx.routines[routine.id].update(routine as any));
-		user && db.transact(db.tx.routines[routine.id].link({ admin: user.id }));
+		db.transact([
+			db.tx.routines[routine.id].update(routine),
+			db.tx.routines[routine.id].link({ admin: admin.id }),
+		]);
 	};
 
 	const remove = (routine: Routine) => {
@@ -145,7 +146,7 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
 	};
 
 	return (
-		<RoutineListContext.Provider
+		<RoutineContext.Provider
 			value={{
 				listName,
 				sortAsc,
@@ -168,21 +169,23 @@ const RoutineListProvider = ({ children }: RoutineListProviderProps) => {
 				edit,
 				setEdit,
 				toggleEdit,
-				createNew,
+				send: createNew,
+				isLoading,
+				error,
 			}}
 		>
 			{children}
-		</RoutineListContext.Provider>
+		</RoutineContext.Provider>
 	);
 };
 
-const useRoutineList = () => {
-	const context = useContext(RoutineListContext);
+const useRoutine = () => {
+	const context = useContext(RoutineContext);
 
 	if (!context) {
-		throw new Error("useRoutineList must be used within a RoutineListProvider");
+		throw new Error("useRoutine must be used within a RoutineProvider");
 	}
 	return context;
 };
 
-export { RoutineListProvider, useRoutineList };
+export { RoutineProvider, useRoutine };
