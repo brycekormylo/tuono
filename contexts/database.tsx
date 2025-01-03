@@ -7,14 +7,10 @@ import {
 } from "@instantdb/react";
 import _schema from "../instant.schema";
 
-// Typescript intellisense for InstantDB
+// Typescript intellisense from InstantDB schema
 type _AppSchema = typeof _schema;
 export interface AppSchema extends _AppSchema {}
 const schema: AppSchema = _schema;
-
-export interface Identifiable {
-	id: string;
-}
 
 interface DatabaseContextProps {
 	db: InstantReactWebDatabase<AppSchema>;

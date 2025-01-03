@@ -17,6 +17,8 @@ import { useInput } from "@/hooks/use-input";
 import type { ListContextProps } from "./list-context-props";
 import type { InstaQLEntity, InstaQLParams } from "@instantdb/react";
 import { useAccount } from "./account";
+import { useAuth } from "./auth";
+import { useProfile } from "./profiles";
 
 export interface RoutineData extends Identifiable {
 	routines: Routine[];
@@ -46,7 +48,18 @@ const RoutineProvider = ({ children }: RoutineProviderProps) => {
 	const listName = "Routines";
 
 	const { db } = useDatabase();
-	const { admin } = useAccount();
+	const { profile } = useProfile();
+	const adminID = profile?.admin?.id ?? "";
+
+	const query = {
+		routines: {
+			$: {
+				where: {
+					admin: adminID,
+				},
+			},
+		},
+	} satisfies InstaQLParams<AppSchema>;
 
 	const [rawInfo, setRawInfo] = useState<Routine[] | null>(null);
 	const [info, setInfo] = useState<Routine[] | null>(null);
@@ -56,16 +69,6 @@ const RoutineProvider = ({ children }: RoutineProviderProps) => {
 	const [note, setNote] = useState<string | null>(null);
 
 	const [edit, setEdit] = useState<boolean>(false);
-
-	const query = {
-		routines: {
-			$: {
-				where: {
-					admin: admin.id,
-				},
-			},
-		},
-	} satisfies InstaQLParams<AppSchema>;
 
 	const { isLoading, error, data } = db.useQuery(query);
 	const {

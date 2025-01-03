@@ -35,6 +35,7 @@ export default function BodyPartInput({
 			<label htmlFor="body-part-input" className="text-xl">
 				Body Parts
 			</label>
+
 			<Select
 				id="body-part-input"
 				onChange={(newValues) => {

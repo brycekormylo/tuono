@@ -3,19 +3,18 @@
 import type { ChangeEvent, ReactNode } from "react";
 import type { ListContextProps } from "./list-context-props";
 import { type AppSchema, useDatabase } from "./database";
-import { useAuth, type AdminAccount } from "./auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useInput } from "@/hooks/use-input";
 import { id, type InstaQLEntity, type InstaQLParams } from "@instantdb/react";
 import { useTextArea } from "@/hooks/use-text-area";
 import { type Patient, usePatient } from "./patients";
-import { useAccount } from "./account";
+import { useProfile } from "./profiles";
 
 export type Message = InstaQLEntity<
 	AppSchema,
 	"messages",
 	// biome-ignore lint: This syntax is mandatory
-	{ admin: {}; patient: {} }
+	{ profile: {} }
 >;
 
 export type Conversation = InstaQLEntity<
@@ -47,9 +46,10 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 	const listName = "Messages";
 
 	const { db } = useDatabase();
-	const { admin } = useAccount();
+	const { profile } = useProfile();
 	const { selected: selectedPatient, setSelected: setSelectedPatient } =
 		usePatient();
+	const adminID = profile?.admin?.id ?? "";
 
 	const [rawInfo, setRawInfo] = useState<Conversation[] | null>(null);
 	const [info, setInfo] = useState<Conversation[] | null>(null);
@@ -73,7 +73,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 		conversations: {
 			$: {
 				where: {
-					admin: admin.id,
+					admin: adminID,
 				},
 			},
 			patient: {},
@@ -85,7 +85,6 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 	const { isLoading, error, data } = db.useQuery(query);
 
 	useEffect(() => {
-		console.log(`Selection changes: ${selectedPatient?.firstName}`);
 		selectedPatient && setSelectedFromPatient(selectedPatient);
 	}, [selectedPatient]);
 
@@ -117,7 +116,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 				id: id(),
 				created: JSON.stringify(new Date()),
 				messages: [],
-				admin: admin,
+				admin: profile?.admin,
 				patient: patient,
 			};
 			update(newDraft);
@@ -135,10 +134,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 			db.transact([
 				db.tx.messages[msg.id].update(msg),
 				db.tx.messages[msg.id].link({
-					admin: admin.id,
-				}),
-				db.tx.messages[msg.id].link({
-					patient: selectedPatient.id,
+					sender: profile?.id,
 				}),
 				db.tx.messages[msg.id].link({
 					conversation: selected.id,
@@ -156,7 +152,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 		db.transact([
 			db.tx.conversations[conversation.id].update(dataToInsert),
 			db.tx.conversations[conversation.id].link({
-				admin: admin.id,
+				admin: adminID,
 			}),
 			db.tx.conversations[conversation.id].link({
 				patient: conversation.patient?.id,

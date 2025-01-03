@@ -51,6 +51,18 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 
 	const { db } = useDatabase();
 	const { profile } = useProfile();
+	const adminID = profile?.admin?.id ?? "";
+
+	const query = {
+		patients: {
+			$: {
+				where: {
+					admin: adminID,
+				},
+			},
+			profile: {},
+		},
+	} satisfies InstaQLParams<AppSchema>;
 
 	const [rawInfo, setRawInfo] = useState<Patient[] | null>(null);
 	const [info, setInfo] = useState<Patient[] | null>(null);
@@ -62,19 +74,6 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 		onChange: changeSearch,
 		setValue: setSearch,
 	} = useInput("");
-
-	const profileID = profile?.admin?.id ?? "";
-
-	const query = {
-		patients: {
-			$: {
-				where: {
-					admin: profileID,
-				},
-			},
-			profile: {},
-		},
-	} satisfies InstaQLParams<AppSchema>;
 
 	const { isLoading, error, data } = db.useQuery(query);
 

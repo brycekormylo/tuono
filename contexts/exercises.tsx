@@ -1,19 +1,18 @@
 "use client";
 
 import { type AppSchema, useDatabase } from "@/contexts/database";
-import { InstaQLParams } from "@instantdb/react";
+import type { InstaQLEntity, InstaQLParams } from "@instantdb/react";
 import { useInput } from "@/hooks/use-input";
 
-import React, {
+import {
 	createContext,
 	useState,
 	useContext,
 	useEffect,
-	ReactNode,
+	type ReactNode,
 } from "react";
-import { ListContextProps } from "./list-context-props";
-import { Identifiable } from "@/contexts/database";
-import { useAccount } from "./account";
+import type { ListContextProps } from "./list-context-props";
+import { useProfile } from "./profiles";
 
 export enum Difficulty {
 	EASY = "EASY",
@@ -43,18 +42,14 @@ export enum BodyPart {
 	GLUTES = "GLUTES",
 }
 
-export interface Exercise extends Identifiable {
-	title?: string;
-	aliases: string[];
-	bodyParts: BodyPart[];
-	difficulty?: Difficulty;
-	steps: string[];
-	imageUrls: string[];
-	sets?: number;
-	repetitions?: number;
-	holdTimeInSeconds?: number;
-	weight?: number;
-}
+export type ExerciseWithAdmin = InstaQLEntity<
+	AppSchema,
+	"exercises",
+	// biome-ignore lint: This syntax is mandatory
+	{ admin: {} }
+>;
+
+export type Exercise = InstaQLEntity<AppSchema, "exercises">;
 
 interface ExerciseContextProps extends ListContextProps<Exercise> {
 	formatEnumValue: (value?: string) => string;
@@ -79,7 +74,18 @@ const ExerciseProvider = ({ children }: ExerciseProviderProps) => {
 	const listName = "Exercises";
 
 	const { db } = useDatabase();
-	const { admin } = useAccount();
+	const { profile } = useProfile();
+	const adminID = profile?.admin?.id ?? "";
+
+	const query = {
+		exercises: {
+			$: {
+				where: {
+					admin: adminID,
+				},
+			},
+		},
+	} satisfies InstaQLParams<AppSchema>;
 
 	const [rawInfo, setRawInfo] = useState<Exercise[] | null>(null);
 	const [info, setInfo] = useState<Exercise[] | null>(null);
@@ -92,16 +98,6 @@ const ExerciseProvider = ({ children }: ExerciseProviderProps) => {
 		onChange: changeSearch,
 		setValue: setSearch,
 	} = useInput("");
-
-	const query = {
-		exercises: {
-			$: {
-				where: {
-					admin: admin.id,
-				},
-			},
-		},
-	} satisfies InstaQLParams<AppSchema>;
 
 	const { isLoading, error, data } = db.useQuery(query);
 
@@ -152,6 +148,7 @@ const ExerciseProvider = ({ children }: ExerciseProviderProps) => {
 
 	const toggleEdit = () => {
 		setEdit(!edit);
+		!edit && setSelected(null);
 	};
 
 	const clearSearch = () => {
@@ -166,7 +163,7 @@ const ExerciseProvider = ({ children }: ExerciseProviderProps) => {
 	const update = (exercise: Exercise) => {
 		db.transact([
 			db.tx.exercises[exercise.id].update(exercise),
-			db.tx.exercises[exercise.id].link({ admin: admin.id }),
+			db.tx.exercises[exercise.id].link({ admin: adminID }),
 		]);
 	};
 
