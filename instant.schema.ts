@@ -48,6 +48,7 @@ const graph = i.graph(
 			content: i.string(),
 			timestamp: i.date(),
 			fromAdmin: i.boolean(),
+			seen: i.boolean(),
 		}),
 
 		exercises: i.entity({

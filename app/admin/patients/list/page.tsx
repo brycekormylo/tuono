@@ -9,7 +9,7 @@ import {
 	type Patient,
 	usePatient,
 } from "@/contexts/patients";
-import PatientDetails from "@/app/patient_details/page";
+import PatientDetails from "@/app/admin/patient_details/page";
 
 export default function PatientList() {
 	const list: ListContextProps<Patient> = usePatient();

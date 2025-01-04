@@ -1,10 +1,8 @@
 "use client";
 
 import { createContext, useEffect, useState, useContext } from "react";
-import type { InstaQLEntity, User } from "@instantdb/react";
-import { type AppSchema, useDatabase } from "./database";
-
-export type AdminAccount = InstaQLEntity<AppSchema, "admins">;
+import type { User } from "@instantdb/react";
+import { useDatabase } from "./database";
 
 interface AuthContextProps {
 	submittedEmail?: string;
@@ -12,6 +10,7 @@ interface AuthContextProps {
 	signInWithCode: (code: string) => void;
 	signOut: () => void;
 	user: string;
+	userEmail: string;
 	userData?: User;
 }
 
@@ -21,9 +20,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	const { db } = useDatabase();
 	const { isLoading, user: userData, error } = db.useAuth();
 	const [user, setUser] = useState<string>("");
+	const [userEmail, setUserEmail] = useState<string>("");
 
 	useEffect(() => {
-		userData && setUser(userData.id);
+		if (userData) {
+			setUser(userData.id);
+			setUserEmail(userData.email);
+		}
 	}, [userData]);
 
 	const [submittedEmail, setSubmittedEmail] = useState<string | undefined>(
@@ -35,6 +38,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 		db.auth.sendMagicCode({ email }).catch((err) => {
 			alert(`Uh oh : ${err.body?.message}`);
+			console.log(`Uh oh : ${err.body?.message}`);
 		});
 	};
 
@@ -62,6 +66,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 				signInWithCode,
 				signOut,
 				user,
+				userEmail,
 				userData,
 			}}
 		>

@@ -1,5 +1,5 @@
-import Intro from "./intro/page";
+import Auth from "./auth/page";
 
 export default function Home() {
-	return <Intro />;
+	return <Auth />;
 }

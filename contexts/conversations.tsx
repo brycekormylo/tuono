@@ -5,12 +5,7 @@ import type { ListContextProps } from "./list-context-props";
 import { type AppSchema, useDatabase } from "./database";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useInput } from "@/hooks/use-input";
-import {
-	id,
-	lookup,
-	type InstaQLEntity,
-	type InstaQLParams,
-} from "@instantdb/react";
+import { id, type InstaQLEntity, type InstaQLParams } from "@instantdb/react";
 import { useTextArea } from "@/hooks/use-text-area";
 import { type Patient, usePatient } from "./patients";
 import { useProfile } from "./profiles";
@@ -140,6 +135,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 				content: newMessage,
 				timestamp: JSON.stringify(new Date()),
 				fromAdmin: profile?.isAdmin,
+				seen: false,
 			};
 
 			db.transact([

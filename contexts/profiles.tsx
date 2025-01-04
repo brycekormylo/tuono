@@ -28,7 +28,7 @@ const ProfileContext = createContext<ProfileContextProps | undefined>(
 
 const ProfileProvider = ({ children }: { children: React.ReactNode }) => {
 	const { db } = useDatabase();
-	const { user, userData } = useAuth();
+	const { user, userEmail, userData } = useAuth();
 
 	const [profile, setProfile] = useState<Profile | undefined>(undefined);
 
@@ -36,7 +36,7 @@ const ProfileProvider = ({ children }: { children: React.ReactNode }) => {
 		profiles: {
 			$: {
 				where: {
-					user: user,
+					email: userEmail,
 				},
 			},
 			user: {},
@@ -50,9 +50,11 @@ const ProfileProvider = ({ children }: { children: React.ReactNode }) => {
 	useEffect(() => {
 		if (!isLoading && profileInfo) {
 			if (profileInfo.profiles.length === 0) {
-				initializeProfile();
+				initializeAdmin();
 			} else {
-				setProfile(profileInfo.profiles.at(0) as Profile);
+				const profile = profileInfo.profiles.at(0) as Profile;
+				setProfile(profile);
+				!profile.isAdmin && initializePatient();
 			}
 		}
 	}, [profileInfo, isLoading]);
@@ -81,21 +83,22 @@ const ProfileProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	};
 
-	const initializeProfile = () => {
-		const emptyProfile = {
-			firstName: "",
-			lastName: "",
-			phone: "",
-			isAdmin: true,
-			email: userData?.email,
-			created: JSON.stringify(new Date()),
-		};
-		const profileID = id();
+	const initializePatient = () => {
 		db.transact([
-			db.tx.profiles[profileID].update(emptyProfile).link({ user: user }),
+			db.tx.profiles[lookup("email", userEmail)].link({
+				user: lookup("email", userEmail),
+			}),
+		]);
+	};
+
+	const initializeAdmin = () => {
+		db.transact([
+			db.tx.profiles[lookup("email", userEmail)]
+				.update({ created: JSON.stringify(new Date()) })
+				.link({ user: lookup("email", userEmail) }),
 			db.tx.admins[id()]
 				.update({ handle: "handle" })
-				.link({ profile: profileID }),
+				.link({ profile: lookup("email", userEmail) }),
 		]);
 	};
 

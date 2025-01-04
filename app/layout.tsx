@@ -18,11 +18,13 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={`${font.className}`}>
+			<body className={`${font.className} font-medium`}>
 				<Providers>
 					<main className="h-screen bg-gray-100 overflow-clip stack [&_*]:transition-all [&_*]:ease-in [&_*]:transition-duration-75">
 						<NavBar />
-						<div className="flex py-16 px-56 w-full h-full">{children}</div>
+						<div className="flex px-48 pt-24 pb-16 w-full h-full">
+							{children}
+						</div>
 					</main>
 				</Providers>
 			</body>
