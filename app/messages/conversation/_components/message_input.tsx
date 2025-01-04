@@ -45,6 +45,7 @@ export default function MessageInput() {
 					>
 						{error}
 					</label>
+
 					<textarea
 						name="message"
 						id="message"

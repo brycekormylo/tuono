@@ -16,7 +16,7 @@ export default function PatientTag() {
 				>
 					<LuEllipsisVertical size={24} />
 					<p className="px-2 text-xl">
-						{selected.patient.lastName}, {selected.patient.firstName}
+						{`${selected.patient?.profile?.lastName}, ${selected.patient?.profile?.firstName}`}
 					</p>
 				</button>
 

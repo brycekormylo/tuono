@@ -1,6 +1,6 @@
 "use client";
 
-import { type Message, useConversations } from "@/contexts/conversations";
+import { useConversations } from "@/contexts/conversations";
 
 export default function ConversationBody() {
 	const { selected } = useConversations();
@@ -13,7 +13,7 @@ export default function ConversationBody() {
 					<div>
 						{selected?.messages?.reverse().map((message) => {
 							const date = new Date(JSON.parse(message.timestamp.toString()));
-							const formattedDate = `${date.getHours() % 12 === 0 ? "12" : date.getHours() % 12}:${date.getMinutes()} ${date.getHours() % 12 !== date.getHours() ? "PM" : "AM"}`;
+							const formattedDate = `${date.getHours() % 12 === 0 ? "12" : date.getHours() % 12}:${date.getMinutes() < 10 ? "0" : ""}${date.getMinutes()} ${date.getHours() % 12 !== date.getHours() ? "PM" : "AM"}`;
 							return (
 								<div
 									key={message.timestamp.toString()}

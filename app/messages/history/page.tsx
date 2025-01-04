@@ -6,8 +6,13 @@ import { usePatient, type Patient } from "@/contexts/patients";
 import { LuSearch, LuUser } from "react-icons/lu";
 
 export default function History() {
-	const { info, selected, setShowOptions } = useConversations();
-	const { setSelected } = usePatient();
+	const {
+		info,
+		selected,
+		setSelectedFromPatient,
+		setSelectedFromConversation,
+		setShowOptions,
+	} = useConversations();
 	const source = usePatient();
 
 	return (
@@ -17,7 +22,7 @@ export default function History() {
 					source={source}
 					itemAction={(item) => {
 						setShowOptions(false);
-						setSelected(item as Patient);
+						setSelectedFromPatient(item as Patient);
 					}}
 				>
 					<div className="flex gap-4 justify-start items-center px-6">
@@ -39,21 +44,24 @@ export default function History() {
 							key={conversation.id}
 							type="button"
 							id="conversation"
-							onClick={() => setSelected(conversation.patient || null)}
+							onClick={() => setSelectedFromConversation(conversation)}
 							className={`${conversation.id === selected?.id ? "hover:ring-gray-400 bg-gray-50 ring-[1px] ring-gray-300" : "hover:bg-gray-50/80"} flex rounded-xl justify-start items-center w-full h-16`}
 						>
 							<div className="w-10 h-10 bg-gray-100 rounded-full stack ms-4">
 								<LuUser size={24} />
 							</div>
+
 							<div className="flex flex-col justify-between items-start py-2 mx-4">
 								<label
 									htmlFor="conversation"
 									className="justify-self-end text-lg"
 								>
-									{`${conversation.patient?.lastName}, ${conversation.patient?.firstName}`}
+									{`${conversation.patient?.profile?.lastName}, ${conversation.patient?.profile?.firstName}`}
 								</label>
+
 								<p className="text-xs text-gray-700">{lastMessage?.content}</p>
 							</div>
+
 							<div className="grow" />
 							<p className="mx-6 text-sm text-gray-600">
 								{`${lastMessage?.timestamp.toString().substring(9, 11) || "-"} / ${lastMessage?.timestamp.toString().substring(6, 8) || "-"}`}

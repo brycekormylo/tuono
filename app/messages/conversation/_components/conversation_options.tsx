@@ -2,21 +2,25 @@
 
 import PatientDetails from "@/app/patient_details/page";
 import { useConversations } from "@/contexts/conversations";
-import { useState } from "react";
+import { usePatient } from "@/contexts/patients";
 import { LuInfo, LuPin, LuTrash } from "react-icons/lu";
 
 export default function ConversationOptions() {
-	const { selected, showOptions, remove } = useConversations();
+	const { selected, showOptions, setShowOptions, remove } = useConversations();
+	const { edit, setEdit } = usePatient();
 
-	const [showPatientDetails, setShowPatientDetails] = useState(false);
+	const handleClickDetails = () => {
+		setEdit(true);
+		setShowOptions(false);
+	};
 
-	return selected && showPatientDetails ? (
-		<PatientDetails dismiss={() => setShowPatientDetails(false)} />
+	return selected && edit ? (
+		<PatientDetails />
 	) : (
 		showOptions && (
 			<div className="flex z-10 flex-col justify-self-start self-start mt-20 w-56 rounded-xl bg-gray-100/50 overflow-clip ms-4">
 				<button
-					onClick={() => setShowPatientDetails(true)}
+					onClick={handleClickDetails}
 					className="flex gap-4 items-center p-4 w-full hover:bg-gray-100"
 					id="showPatientDetails"
 					type="button"

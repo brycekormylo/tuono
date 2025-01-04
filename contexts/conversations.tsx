@@ -5,7 +5,12 @@ import type { ListContextProps } from "./list-context-props";
 import { type AppSchema, useDatabase } from "./database";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useInput } from "@/hooks/use-input";
-import { id, type InstaQLEntity, type InstaQLParams } from "@instantdb/react";
+import {
+	id,
+	lookup,
+	type InstaQLEntity,
+	type InstaQLParams,
+} from "@instantdb/react";
 import { useTextArea } from "@/hooks/use-text-area";
 import { type Patient, usePatient } from "./patients";
 import { useProfile } from "./profiles";
@@ -14,14 +19,14 @@ export type Message = InstaQLEntity<
 	AppSchema,
 	"messages",
 	// biome-ignore lint: This syntax is mandatory
-	{ profile: {} }
+	{ sender: {} }
 >;
 
 export type Conversation = InstaQLEntity<
 	AppSchema,
 	"conversations",
 	// biome-ignore lint: This syntax is mandatory
-	{ admin: {}; patient: {}; messages: {} }
+	{ admin: {}; patient: { profile: {} }; messages: {} }
 >;
 
 interface ConversationContextProps extends ListContextProps<Conversation> {
@@ -29,6 +34,7 @@ interface ConversationContextProps extends ListContextProps<Conversation> {
 	changeNewMessage: (input: ChangeEvent<HTMLTextAreaElement>) => void;
 	setNewMessage: (newMessage: string) => void;
 	setSelectedFromPatient: (patient: Patient) => void;
+	setSelectedFromConversation: (conversation: Conversation) => void;
 	showOptions: boolean;
 	setShowOptions: (value: boolean) => void;
 	send: () => void;
@@ -49,6 +55,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 	const { profile } = useProfile();
 	const { selected: selectedPatient, setSelected: setSelectedPatient } =
 		usePatient();
+
 	const adminID = profile?.admin?.id ?? "";
 
 	const [rawInfo, setRawInfo] = useState<Conversation[] | null>(null);
@@ -69,24 +76,20 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 		setValue: setSearch,
 	} = useInput("");
 
-	const query = {
+	const conversationQuery = {
 		conversations: {
 			$: {
 				where: {
 					admin: adminID,
 				},
 			},
-			patient: {},
+			patient: { profile: {} },
 			admin: {},
 			messages: {},
 		},
 	} satisfies InstaQLParams<AppSchema>;
 
-	const { isLoading, error, data } = db.useQuery(query);
-
-	useEffect(() => {
-		selectedPatient && setSelectedFromPatient(selectedPatient);
-	}, [selectedPatient]);
+	const { isLoading, error, data } = db.useQuery(conversationQuery);
 
 	useEffect(() => {
 		data && setInfo(data.conversations);
@@ -102,6 +105,12 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 
 	const clearSearch = () => {
 		setSearch("");
+	};
+
+	const setSelectedFromConversation = (conversation: Conversation) => {
+		setShowOptions(false);
+		setSelected(conversation);
+		conversation.patient && setSelectedPatient(conversation.patient);
 	};
 
 	const setSelectedFromPatient = (patient: Patient) => {
@@ -120,17 +129,19 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 				patient: patient,
 			};
 			update(newDraft);
+			setSelectedPatient(patient);
 		}
 	};
 
 	const send = () => {
-		if (selected && selectedPatient) {
+		if (selected) {
 			const msg = {
 				id: id(),
 				content: newMessage,
 				timestamp: JSON.stringify(new Date()),
-				fromAdmin: true,
+				fromAdmin: profile?.isAdmin,
 			};
+
 			db.transact([
 				db.tx.messages[msg.id].update(msg),
 				db.tx.messages[msg.id].link({
@@ -140,7 +151,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 					conversation: selected.id,
 				}),
 			]);
-			setSelectedPatient(selectedPatient);
+			setNewMessage("");
 		}
 	};
 
@@ -159,9 +170,15 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 			}),
 		]);
 		setSelected(conversation);
+		conversation.patient && setSelectedPatient(conversation.patient);
 	};
 
 	const remove = (conversation: Conversation) => {
+		db.transact(
+			conversation.messages.map((message) =>
+				db.tx.messages[message.id].delete(),
+			),
+		);
 		db.transact(db.tx.conversations[conversation.id].delete());
 		setSelected(null);
 		setSelectedPatient(null);
@@ -176,6 +193,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 				selected,
 				setSelected,
 				setSelectedFromPatient,
+				setSelectedFromConversation,
 				sortAsc,
 				setSortAsc,
 				toggleSort,

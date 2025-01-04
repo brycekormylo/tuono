@@ -12,22 +12,6 @@ import StepInput from "../_components/step-input";
 import AliasInput from "../_components/alias-input";
 import BodyPartInput from "../_components/body-part-selector";
 import { id } from "@instantdb/react";
-import ActionButtons from "@/app/_components/editor/action-buttons";
-
-const emptyExercise: Exercise = {
-	id: id(),
-	title: "",
-	difficulty: undefined,
-	sets: 0,
-	repetitions: 0,
-	weight: 0,
-	holdTimeInSeconds: 0,
-
-	aliases: [],
-	bodyParts: [],
-	imageUrls: [],
-	steps: [],
-};
 
 export default function ExerciseEditor() {
 	const { edit, setEdit, update, selected, setSelected } = useExercise();
@@ -106,6 +90,7 @@ export default function ExerciseEditor() {
 
 	const handleReturn = () => {
 		setEdit(false);
+		clearForm();
 	};
 
 	const properties = [
@@ -122,35 +107,6 @@ export default function ExerciseEditor() {
 			value: exercise.holdTimeInSeconds,
 		},
 	];
-
-	// const handleSubmitEx = (e: React.FormEvent) => {
-	// 	e.preventDefault();
-	//
-	// 	const formData = getFormData();
-	// 	update({
-	// 		...exercise,
-	// 		email: formData.email,
-	// 		profile: {
-	// 			id: exercise.profile?.id ?? id(),
-	// 			created: exercise.profile?.created ?? JSON.stringify(new Date()),
-	// 			isAdmin: false,
-	// 			firstName:
-	// 				formData.firstName !== ""
-	// 					? formData.firstName
-	// 					: (exercise.profile?.firstName ?? ""),
-	// 			lastName:
-	// 				formData.lastName !== ""
-	// 					? formData.lastName
-	// 					: (exercise.profile?.lastName ?? ""),
-	// 			email: formData.email !== "" ? formData.email : (exercise.email ?? ""),
-	// 			phone: formData.phone !== "" ? formData.phone : (exercise ?? ""),
-	// 		},
-	// 	});
-	//
-	// 	// setEdit(false);
-	// 	clearForm();
-	// 	setEdit(false);
-	// };
 
 	const getFormData = () => {
 		return {
@@ -207,7 +163,7 @@ export default function ExerciseEditor() {
 
 						<div className="flex gap-2 justify-between items-center py-4 h-full">
 							<h2 className="px-6 text-lg">Difficulty</h2>
-							{Object.keys(Difficulty).map((key, index) => {
+							{Object.keys(Difficulty).map((key) => {
 								const dif: Difficulty =
 									Difficulty[key as keyof typeof Difficulty];
 								return (
@@ -270,10 +226,22 @@ export default function ExerciseEditor() {
 							/>
 						</div>
 
-						<ActionButtons
-							handleSubmit={handleSubmit}
-							handleReturn={handleReturn}
-						/>
+						<div className="flex gap-6 justify-end px-4">
+							<button
+								type="button"
+								className="px-8 h-12 bg-gray-300 rounded-xl"
+								onClick={handleReturn}
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={handleSubmit}
+								className="px-8 h-12 bg-gray-200 rounded-xl disabled:text-gray-500 disabled:bg-gray-200/75"
+							>
+								Save Changes
+							</button>
+						</div>
 					</form>
 				</div>
 			</div>

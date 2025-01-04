@@ -99,9 +99,7 @@ export default function PatientDetails() {
 
 			<div className="flex flex-col gap-8 justify-start items-start py-8 px-12 bg-gray-50 rounded-xl h-[80vh] min-w-[54rem]">
 				<h2 className="px-4 text-2xl">
-					{patient.profile
-						? `${patient.profile?.lastName}, {patient.profile?.firstName}`
-						: ""}
+					{`${patient.profile?.lastName}, ${patient.profile?.firstName}`}
 				</h2>
 
 				<form className="flex flex-col gap-4 items-end w-[24rem]">
