@@ -1,12 +1,13 @@
 "use client";
 
 import PatientDetails from "@/app/admin/patient_details/page";
-import { useConversations } from "@/contexts/conversations";
+import { usePatientConversations } from "@/contexts/patient-conversations";
 import { usePatient } from "@/contexts/patients";
 import { LuInfo, LuPin, LuTrash } from "react-icons/lu";
 
 export default function ConversationOptions() {
-	const { selected, showOptions, setShowOptions, remove } = useConversations();
+	const { conversation, showOptions, setShowOptions } =
+		usePatientConversations();
 	const { edit, setEdit } = usePatient();
 
 	const handleClickDetails = () => {
@@ -14,7 +15,7 @@ export default function ConversationOptions() {
 		setShowOptions(false);
 	};
 
-	return selected && edit ? (
+	return conversation && edit ? (
 		<PatientDetails />
 	) : (
 		showOptions && (
@@ -45,7 +46,7 @@ export default function ConversationOptions() {
 					type="button"
 					id="delete"
 					className="flex gap-4 items-center p-4 w-full text-red-500 hover:bg-gray-100"
-					onClick={() => selected && remove(selected)}
+					onClick={() => {}}
 				>
 					<LuTrash size={18} />
 					<label htmlFor="delete" className="text-sm">

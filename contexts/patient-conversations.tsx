@@ -1,13 +1,10 @@
 "use client";
 
 import type { ChangeEvent, ReactNode } from "react";
-import type { ListContextProps } from "./list-context-props";
 import { type AppSchema, useDatabase } from "./database";
 import { createContext, useContext, useEffect, useState } from "react";
-import { useInput } from "@/hooks/use-input";
 import { id, type InstaQLEntity, type InstaQLParams } from "@instantdb/react";
 import { useTextArea } from "@/hooks/use-text-area";
-import { type Patient, usePatient } from "./patients";
 import { useProfile } from "./profiles";
 
 export type Message = InstaQLEntity<
@@ -25,7 +22,7 @@ export type PatientConversation = InstaQLEntity<
 >;
 
 interface PatientConversationContextProps {
-	conversation?: PatientConversation;
+	conversation: PatientConversation | null;
 	newMessage: string;
 	changeNewMessage: (input: ChangeEvent<HTMLTextAreaElement>) => void;
 	setNewMessage: (newMessage: string) => void;
@@ -49,7 +46,9 @@ const PatientConversationProvider = ({
 
 	const patientID = profile?.patient?.id ?? "";
 
-	const [info, setInfo] = useState<PatientConversation | null>(null);
+	const [conversation, setConversation] = useState<PatientConversation | null>(
+		null,
+	);
 	const [showOptions, setShowOptions] = useState<boolean>(false);
 
 	const {
@@ -74,7 +73,7 @@ const PatientConversationProvider = ({
 	const { isLoading, error, data } = db.useQuery(conversationQuery);
 
 	useEffect(() => {
-		data && setInfo(data.conversations.at(0) || null);
+		data && setConversation(data.conversations.at(0) || null);
 	}, [data]);
 
 	const send = () => {
@@ -92,7 +91,7 @@ const PatientConversationProvider = ({
 				sender: profile?.id,
 			}),
 			db.tx.messages[msg.id].link({
-				conversation: info?.id,
+				conversation: conversation?.id,
 			}),
 		]);
 	};
@@ -100,6 +99,7 @@ const PatientConversationProvider = ({
 	return (
 		<PatientConversationContext.Provider
 			value={{
+				conversation,
 				newMessage,
 				setNewMessage,
 				changeNewMessage,

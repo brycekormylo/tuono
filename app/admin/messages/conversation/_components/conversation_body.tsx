@@ -17,7 +17,7 @@ export default function ConversationBody() {
 							return (
 								<div
 									key={message.timestamp.toString()}
-									className={`py-1 flex gap-2 items-center ${message ? "justify-end" : "justify-start flex-row-reverse"}`}
+									className={`py-1 flex gap-2 items-center ${message.fromAdmin ? "justify-end" : "justify-start"}`}
 								>
 									<p className="text-xs text-gray-400">{formattedDate}</p>
 									<p className="py-2 px-4 bg-gray-200 rounded-xl">

@@ -1,12 +1,12 @@
 "use client";
 
-import { useConversations } from "@/contexts/conversations";
+import { usePatientConversations } from "@/contexts/patient-conversations";
 import { useEffect, useState } from "react";
 import { LuSend } from "react-icons/lu";
 
 export default function MessageInput() {
-	const { newMessage, changeNewMessage, send, selected, setShowOptions } =
-		useConversations();
+	const { newMessage, changeNewMessage, send, conversation, setShowOptions } =
+		usePatientConversations();
 
 	const [error, setError] = useState<string | null>();
 
@@ -15,7 +15,7 @@ export default function MessageInput() {
 			setError("Message can't be empty");
 			return;
 		}
-		if (!selected) {
+		if (!conversation) {
 			setError("No conversation selected");
 			return;
 		}
@@ -35,7 +35,7 @@ export default function MessageInput() {
 	};
 
 	return (
-		selected && (
+		conversation && (
 			<>
 				<div className="flex justify-self-end items-center self-end">
 					<div className="grow" />

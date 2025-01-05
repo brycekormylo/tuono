@@ -1,13 +1,14 @@
 "use client";
-import { useConversations } from "@/contexts/conversations";
 import { LuEllipsisVertical } from "react-icons/lu";
 import ConversationOptions from "./conversation_options";
+import { usePatientConversations } from "@/contexts/patient-conversations";
 
 export default function PatientTag() {
-	const { selected, showOptions, setShowOptions } = useConversations();
+	const { conversation, showOptions, setShowOptions } =
+		usePatientConversations();
 
 	return (
-		selected && (
+		conversation && (
 			<>
 				<button
 					type="button"
@@ -16,7 +17,7 @@ export default function PatientTag() {
 				>
 					<LuEllipsisVertical size={24} />
 					<p className="px-2 text-xl">
-						{`${selected.patient?.profile?.lastName}, ${selected.patient?.profile?.firstName}`}
+						{`${conversation.patient?.profile?.lastName}, ${conversation.patient?.profile?.firstName}`}
 					</p>
 				</button>
 
