@@ -6,5 +6,5 @@ import Profile from "./profile/page";
 
 export default function Auth() {
 	const { user } = useAuth();
-	return <>{user ? <Profile /> : <Entry />}</>;
+	return user ? <Profile /> : <Entry />;
 }

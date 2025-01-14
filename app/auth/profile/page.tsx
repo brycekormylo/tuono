@@ -2,142 +2,92 @@
 
 import { useProfile } from "@/contexts/profiles";
 import { useAuth } from "@/contexts/auth";
-import { LuLock, LuMail } from "react-icons/lu";
+import { LuLock, LuMail, LuPencil } from "react-icons/lu";
 import { useState } from "react";
+import ProfileEditor from "./_components/editor";
 
 export default function ProfilePage() {
 	const { signOut } = useAuth();
 	const { profile, updateProfile } = useProfile();
 	const [edit, setEdit] = useState<boolean>(false);
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-
-		profile &&
-			updateProfile({
-				...profile,
-				firstName: (document.getElementById("firstName") as HTMLInputElement)
-					.value,
-				lastName: (document.getElementById("lastName") as HTMLInputElement)
-					.value,
-				phone: (document.getElementById("phone") as HTMLInputElement).value,
-			});
-
-		setEdit(false);
-		clearForm();
-	};
-
-	const handleFocusOut = () => {
-		const formData = getFormData();
-		if (formData.firstName !== "") {
-			setEdit(true);
-			return;
-		}
-		if (formData.lastName !== "") {
-			setEdit(true);
-			return;
-		}
-		if (formData.phone !== "") {
-			setEdit(true);
-			return;
-		}
-		setEdit(false);
-	};
-
-	const getFormData = () => {
-		return {
-			firstName: (document.getElementById("firstName") as HTMLInputElement)
-				.value,
-			lastName: (document.getElementById("lastName") as HTMLInputElement).value,
-			phone: (document.getElementById("phone") as HTMLInputElement).value,
-		};
-	};
-
-	const clearForm = () => {
-		(document.getElementById("firstName") as HTMLInputElement).value = "";
-		(document.getElementById("lastName") as HTMLInputElement).value = "";
-		(document.getElementById("phone") as HTMLInputElement).value = "";
-	};
-
 	return (
-		<div className="w-full h-full stack">
-			<form
-				name="auth"
-				className="flex flex-col gap-4 justify-self-start self-start my-16 mx-8 max-w-[30rem]"
-			>
-				<h1 className="self-start pb-6 text-3xl stack">{"Account Info"}</h1>
-
-				<div className="flex items-center px-2 w-min bg-gray-300 rounded-lg">
-					{profile?.isAdmin ? "Admin" : "Patient"}
+		<div className="self-start stack">
+			{edit && (
+				<div className="fixed top-0 z-20 w-screen h-screen stack">
+					<button
+						type="button"
+						onClick={() => setEdit(false)}
+						className="w-full h-full bg-black/20"
+					/>
+					<ProfileEditor />
 				</div>
+			)}
+			<div className="flex z-0 flex-col gap-4 self-start">
+				<h1 className="self-start pb-6 text-3xl">{"Account Details"}</h1>
 
-				<div className="flex justify-start items-center px-6 h-12 text-gray-700 rounded-xl group">
-					<LuMail size={28} className="" />
-					<p className="h-16 text-xl ps-20 pe-2 stack">{profile?.email}</p>
-					<div className="text-gray-500 opacity-0 group-hover:opacity-100 stack">
-						<LuLock size={18} />
+				<div className="flex flex-col gap-4 self-start p-8 bg-white rounded-tl-2xl rounded-br-2xl w-[56rem]">
+					<div className="flex flex-col gap-2 p-6 w-full rounded-xl border-0 border-gray-300">
+						<div className="flex gap-4 items-center">
+							<h1 className="text-2xl text-gray-500">Account</h1>
+
+							<div className="px-4 h-6 text-sm text-gray-600 bg-gray-200 rounded-xl stack">
+								{profile?.isAdmin ? "Admin" : "Patient"}
+							</div>
+						</div>
+
+						<div className="flex justify-start items-center h-12 text-gray-700 rounded-xl group">
+							<LuMail size={28} />
+							<p className="px-4 text-xl stack">{profile?.email}</p>
+							<div className="text-gray-500 opacity-0 group-hover:opacity-100 stack">
+								<LuLock size={18} />
+							</div>
+						</div>
+					</div>
+
+					<div className="w-full stack">
+						<button
+							type="button"
+							onClick={() => setEdit(true)}
+							className="z-10 justify-self-end self-start m-4 w-12 h-12 text-gray-700 bg-gray-200 rounded-full stack"
+						>
+							<LuPencil size={20} />
+						</button>
+
+						<div className="flex z-0 flex-col p-6 w-full rounded-xl border-0 border-gray-300">
+							<h1 className="pb-6 text-2xl text-gray-500">
+								Personal Information
+							</h1>
+							<div className="flex flex-col gap-6 w-full">
+								<div className="flex flex-col gap-2">
+									<p className="text-sm text-gray-500">First Name</p>
+									<p className="text-xl">{profile?.firstName}</p>
+								</div>
+
+								<div className="flex flex-col gap-2">
+									<p className="text-sm text-gray-500">Last Name</p>
+									<p className="text-xl">{profile?.lastName}</p>
+								</div>
+
+								<div className="flex flex-col gap-2">
+									<p className="text-sm text-gray-500">Phone</p>
+									<p className="text-xl">{profile?.phone}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div className="flex gap-6 justify-end px-4 pt-12">
+						<button
+							type="button"
+							className="px-8 h-12 bg-gray-300 rounded-xl"
+							onClick={signOut}
+						>
+							Sign Out
+						</button>
 					</div>
 				</div>
-
-				<div className="flex gap-8 justify-between items-center px-6 h-16 bg-gray-50 rounded-xl group">
-					<label className="text-base text-gray-600" htmlFor="firstName">
-						First Name
-					</label>
-					<input
-						className="text-xl placeholder-gray-700 text-black bg-transparent outline-none text-start"
-						onBlur={handleFocusOut}
-						id="firstName"
-						name="firstName"
-						placeholder={profile?.firstName}
-						type="text"
-					/>
-				</div>
-
-				<div className="flex gap-8 justify-between items-center px-6 h-16 bg-gray-50 rounded-xl">
-					<label className="text-base text-gray-600" htmlFor="lastName">
-						Last Name
-					</label>
-					<input
-						className="text-xl placeholder-gray-800 text-black bg-transparent outline-none text-start"
-						id="lastName"
-						name="lastName"
-						placeholder={profile?.lastName}
-						type="text"
-					/>
-				</div>
-
-				<div className="flex gap-8 justify-between items-center px-6 h-16 bg-gray-50 rounded-xl">
-					<label className="text-base text-gray-600" htmlFor="phone">
-						Phone
-					</label>
-					<input
-						className="text-xl placeholder-gray-800 text-black bg-transparent outline-none text-start"
-						id="phone"
-						name="phone"
-						placeholder={profile?.phone}
-						type="text"
-					/>
-				</div>
-
-				<div className="flex gap-6 justify-end px-4">
-					<button
-						type="button"
-						onClick={handleSubmit}
-						className="px-8 h-12 bg-gray-200 rounded-xl disabled:text-gray-500 disabled:bg-gray-200/75"
-						disabled={!edit}
-					>
-						Save Changes
-					</button>
-
-					<button
-						type="button"
-						className="px-8 h-12 bg-gray-300 rounded-xl"
-						onClick={signOut}
-					>
-						Sign Out
-					</button>
-				</div>
-			</form>
+			</div>
 		</div>
 	);
 }
