@@ -6,17 +6,15 @@ import type { HeaderInfo } from "./table-header";
 
 interface TableProps<V extends ListContextProps<any>> {
 	source: V;
-	title: string;
 	headerColumns: HeaderInfo;
-	overlay: ReactNode;
+	creatorOverlay: ReactNode;
 	tableRows: ReactNode[];
 }
 
 export default function Table<V extends ListContextProps<any>>({
 	source,
-	title,
 	headerColumns,
-	overlay,
+	creatorOverlay,
 	tableRows,
 }: TableProps<V>) {
 	const { info, edit, sortAsc, toggleSort } = source;
@@ -24,7 +22,7 @@ export default function Table<V extends ListContextProps<any>>({
 	return (
 		<div className="self-start w-full stack">
 			<div className="flex flex-col min-h-96 w-full gap-8 p-4 grow [&_*]:flex-nowrap">
-				<Utils source={source} title={title} />
+				<Utils source={source} overlay={creatorOverlay} />
 				<div className="flex justify-start items-start">
 					<TableBody
 						sortAsc={sortAsc}
@@ -35,7 +33,6 @@ export default function Table<V extends ListContextProps<any>>({
 					/>
 				</div>
 			</div>
-			{edit && overlay}
 		</div>
 	);
 }

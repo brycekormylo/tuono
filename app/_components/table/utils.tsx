@@ -1,29 +1,31 @@
 import ResultCounter from "./result-counter";
 import SearchBar from "./search-bar";
-import NewEntryButton from "./new-entry-button";
-import { ListContextProps } from "@/contexts/list-context-props";
+import type { ListContextProps } from "@/contexts/list-context-props";
+import PopoverButton from "../popover/popover_button";
+import { LuPlus } from "react-icons/lu";
 
-interface UtilsProps<T, V extends ListContextProps<any>> {
-	title: string;
+interface UtilsProps<V extends ListContextProps<any>> {
 	source: V;
+	overlay: React.ReactNode;
 }
 
-export default function Utils<T, V extends ListContextProps<any>>({
-	title,
+export default function Utils<V extends ListContextProps<any>>({
 	source,
-}: UtilsProps<T, V>) {
-	const { rawInfo, info, edit, selected, send: createNew } = source;
+	overlay,
+}: UtilsProps<V>) {
+	const { rawInfo, info, setEdit } = source;
+
 	return (
-		<div className="flex justify-between items-center px-8">
-			<h1 className="text-4xl">{title}</h1>
+		<div className="flex justify-end items-center px-8">
 			<div className="flex gap-8 items-center">
 				<ResultCounter rawResults={rawInfo} results={info} />
 				<SearchBar source={source} />
-				<NewEntryButton
-					editMode={edit}
-					selectedEntry={selected}
-					handleClick={createNew}
-				/>
+
+				<PopoverButton popover={overlay}>
+					<div className="z-20 w-12 h-12 bg-gray-300 rounded-full ring-gray-400 stack hover:ring-[1px]">
+						<LuPlus size={28} />
+					</div>
+				</PopoverButton>
 			</div>
 		</div>
 	);

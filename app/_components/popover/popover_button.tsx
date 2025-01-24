@@ -1,0 +1,56 @@
+import { createContext, useState } from "react";
+
+interface PopoverButtonContextProps {
+	show: boolean;
+	setShow: (show: boolean) => void;
+}
+
+const PopoverButtonContext = createContext<PopoverButtonContextProps | null>(
+	null,
+);
+
+interface PopoverButtonProps {
+	popover: React.ReactNode;
+	pressAction?: () => void;
+	dismissAction?: () => void;
+	children: React.ReactNode;
+}
+
+export default function PopoverButton({
+	popover,
+	children,
+}: PopoverButtonProps) {
+	const [show, setShow] = useState(false);
+
+	// Now if something is a popover it needs useContext(PopoverButtonContext)
+
+	const handleDismiss = () => {
+		setShow(false);
+	};
+
+	const handleOpen = () => {
+		setShow(true);
+	};
+
+	return (
+		<PopoverButtonContext.Provider value={{ show, setShow }}>
+			<div className="stack">
+				{show && (
+					<div className="fixed top-0 right-0 bottom-0 left-0 z-20 stack">
+						<button
+							type="button"
+							onClick={handleDismiss}
+							className="w-full h-full bg-gray-200/50"
+						/>
+						<div className="p-4 bg-white rounded-xl stack">{popover}</div>
+					</div>
+				)}
+				<button type="button" onClick={handleOpen} className="stack">
+					{children}
+				</button>
+			</div>
+		</PopoverButtonContext.Provider>
+	);
+}
+
+export { PopoverButtonContext };

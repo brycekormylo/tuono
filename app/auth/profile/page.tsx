@@ -1,90 +1,88 @@
 "use client";
 
 import { useProfile } from "@/contexts/profiles";
-import { useAuth } from "@/contexts/auth";
-import { LuLock, LuMail, LuPencil } from "react-icons/lu";
-import { useState } from "react";
-import ProfileEditor from "./_components/editor";
+import { LuEllipsis, LuLock, LuMail, LuPencil } from "react-icons/lu";
+import ProfileEditor from "./_components/profile_editor";
+import PopoverButton from "@/app/_components/popover/popover_button";
+import AccountManagementOptions from "./_components/account_management_options";
+import SignoutOptions from "./_components/signout_options";
+import { formattedPhoneNumber } from "@/contexts/patients";
 
 export default function ProfilePage() {
-	const { signOut } = useAuth();
-	const { profile, updateProfile } = useProfile();
-	const [edit, setEdit] = useState<boolean>(false);
+	const { profile } = useProfile();
 
 	return (
 		<div className="self-start stack">
-			{edit && (
-				<div className="fixed top-0 z-20 w-screen h-screen stack">
-					<button
-						type="button"
-						onClick={() => setEdit(false)}
-						className="w-full h-full bg-black/20"
-					/>
-					<ProfileEditor />
-				</div>
-			)}
 			<div className="flex z-0 flex-col gap-4 self-start">
-				<h1 className="self-start pb-6 text-3xl">{"Account Details"}</h1>
+				<h1 className="self-start py-6 text-3xl">{"Account Details"}</h1>
 
-				<div className="flex flex-col gap-4 self-start p-8 bg-white rounded-tl-2xl rounded-br-2xl w-[56rem]">
-					<div className="flex flex-col gap-2 p-6 w-full rounded-xl border-0 border-gray-300">
-						<div className="flex gap-4 items-center">
+				<div className="flex flex-col gap-4 self-start w-[48rem]">
+					<div className="flex flex-col gap-2 p-6 w-full rounded-xl border-2 border-gray-400">
+						<div className="flex gap-4 items-center pb-2">
 							<h1 className="text-2xl text-gray-500">Account</h1>
 
-							<div className="px-4 h-6 text-sm text-gray-600 bg-gray-200 rounded-xl stack">
+							<div className="px-4 h-6 text-sm font-semibold text-white bg-gray-600 rounded-xl stack">
 								{profile?.isAdmin ? "Admin" : "Patient"}
 							</div>
 						</div>
 
 						<div className="flex justify-start items-center h-12 text-gray-700 rounded-xl group">
-							<LuMail size={28} />
+							<LuMail className="text-gray-600" size={28} />
 							<p className="px-4 text-xl stack">{profile?.email}</p>
+
 							<div className="text-gray-500 opacity-0 group-hover:opacity-100 stack">
 								<LuLock size={18} />
 							</div>
 						</div>
 					</div>
 
-					<div className="w-full stack">
-						<button
-							type="button"
-							onClick={() => setEdit(true)}
-							className="z-10 justify-self-end self-start m-4 w-12 h-12 text-gray-700 bg-gray-200 rounded-full stack"
-						>
-							<LuPencil size={20} />
-						</button>
+					<div className="p-6 w-full rounded-xl border-2 border-gray-400 stack">
+						<div className="justify-self-end self-start">
+							<PopoverButton popover={<ProfileEditor />}>
+								<div className="z-10 w-12 h-12 text-gray-600 stack">
+									<LuPencil size={20} />
+								</div>
+							</PopoverButton>
+						</div>
 
-						<div className="flex z-0 flex-col p-6 w-full rounded-xl border-0 border-gray-300">
+						<div className="flex z-0 flex-col w-full">
 							<h1 className="pb-6 text-2xl text-gray-500">
 								Personal Information
 							</h1>
+
 							<div className="flex flex-col gap-6 w-full">
-								<div className="flex flex-col gap-2">
+								<div className="flex flex-col gap-1">
 									<p className="text-sm text-gray-500">First Name</p>
 									<p className="text-xl">{profile?.firstName}</p>
 								</div>
 
-								<div className="flex flex-col gap-2">
+								<div className="flex flex-col gap-1">
 									<p className="text-sm text-gray-500">Last Name</p>
 									<p className="text-xl">{profile?.lastName}</p>
 								</div>
 
-								<div className="flex flex-col gap-2">
+								<div className="flex flex-col gap-1">
 									<p className="text-sm text-gray-500">Phone</p>
-									<p className="text-xl">{profile?.phone}</p>
+									<p className="text-xl">
+										{profile && formattedPhoneNumber(profile.phone)}
+									</p>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					<div className="flex gap-6 justify-end px-4 pt-12">
-						<button
-							type="button"
-							className="px-8 h-12 bg-gray-300 rounded-xl"
-							onClick={signOut}
-						>
-							Sign Out
-						</button>
+					<div className="flex gap-4 justify-end p-4">
+						<PopoverButton popover={<AccountManagementOptions />}>
+							<p className="px-8 h-12 bg-gray-50 rounded-xl border-2 border-gray-600 stack">
+								<LuEllipsis size={24} />
+							</p>
+						</PopoverButton>
+
+						<PopoverButton popover={<SignoutOptions />}>
+							<p className="px-8 h-12 font-semibold text-white bg-gray-600 rounded-xl stack">
+								Sign Out
+							</p>
+						</PopoverButton>
 					</div>
 				</div>
 			</div>

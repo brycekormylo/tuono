@@ -1,15 +1,11 @@
-import {
-	LuUndo,
-	LuTrash2,
-	LuTornado,
-	LuHistory,
-	LuUserCog,
-	LuTrash,
-	LuPencil,
-} from "react-icons/lu";
-import { ReactNode, useEffect, useState } from "react";
-import { ListContextProps } from "@/contexts/list-context-props";
-import { Identifiable } from "@/contexts/database";
+import { LuUndo, LuTrash2, LuHistory, LuUserCog } from "react-icons/lu";
+import { type ReactNode, useEffect, useState } from "react";
+import type { ListContextProps } from "@/contexts/list-context-props";
+import PopoverButton from "../popover/popover_button";
+
+interface Identifiable {
+	id: string;
+}
 
 interface DisplayProperties {
 	left: string;
@@ -24,19 +20,20 @@ interface TableRowProps<
 	source: V;
 	element: T;
 	displayProperties: DisplayProperties;
+	detailOverlay: ReactNode;
 }
 
 export default function TableRow<
 	T extends Identifiable,
 	V extends ListContextProps<any>,
->({ source, element, displayProperties }: TableRowProps<T, V>) {
+>({ source, element, displayProperties, detailOverlay }: TableRowProps<T, V>) {
 	const { remove, selected, setSelected, edit, setEdit } = source;
 
 	const [isSelected, setIsSelected] = useState(false);
 	const [deleteMode, setDeleteMode] = useState(false);
 
 	useEffect(() => {
-		setIsSelected(selected?.id == element.id);
+		setIsSelected(selected?.id === element.id);
 	}, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	useEffect(() => {
@@ -44,7 +41,7 @@ export default function TableRow<
 	}, [isSelected]);
 
 	const handleClick = () => {
-		if (selected?.id == element.id) {
+		if (selected?.id === element.id) {
 			setEdit(false);
 			setSelected(null);
 		} else {
@@ -74,6 +71,7 @@ export default function TableRow<
 			>
 				<h2 className="text-lg select-none">{displayProperties.left}</h2>
 			</div>
+
 			<div
 				className={` flex flex-wrap col-start-2 row-start-1 justify-end items-center w-full h-full group-hover:bg-gray-200 ${isSelected ? "bg-gray-100 " : "bg-gray-50"}`}
 			>
@@ -83,6 +81,7 @@ export default function TableRow<
 					<>{displayProperties.center}</>
 				)}
 			</div>
+
 			<div
 				className={`flex z-10 col-start-3 row-start-1 gap-2 justify-end justify-items-end items-center w-full h-full rounded-r-md ${isSelected ? "bg-gray-100" : "bg-gray-50"} min-w-40`}
 			>
@@ -94,11 +93,13 @@ export default function TableRow<
 					)}
 				</div>
 			</div>
+
 			<button
 				className="z-10 col-start-1 col-end-4 row-start-1 h-full bg-transparent grow"
 				onMouseDown={handleClick}
 			/>
-			<div className="flex z-0 col-start-4 col-end-5 row-start-1 justify-evenly justify-self-end items-center h-full rounded-r-md min-w-[10rem]">
+
+			<div className="flex col-start-4 col-end-5 row-start-1 justify-evenly justify-self-end items-center h-full rounded-r-md min-w-[10rem]">
 				{deleteMode ? (
 					<>
 						<button onClick={() => setDeleteMode(false)}>
@@ -122,9 +123,11 @@ export default function TableRow<
 						<a href={"/elements"} className="">
 							<LuHistory size={20} />
 						</a>
-						<button onClick={handleEdit} className="">
-							<LuUserCog size={20} />
-						</button>
+						<PopoverButton popover={detailOverlay}>
+							<div>
+								<LuUserCog size={20} />
+							</div>
+						</PopoverButton>
 					</>
 				)}
 			</div>

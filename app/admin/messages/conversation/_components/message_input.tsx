@@ -36,8 +36,8 @@ export default function MessageInput() {
 
 	return (
 		selected && (
-			<>
-				<div className="flex justify-self-end items-center self-end">
+			<div className="justify-self-end self-end stack">
+				<div className="flex items-center">
 					<div className="grow" />
 					<label
 						htmlFor="message"
@@ -66,7 +66,7 @@ export default function MessageInput() {
 				>
 					<LuSend />
 				</button>
-			</>
+			</div>
 		)
 	);
 }

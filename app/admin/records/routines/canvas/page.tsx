@@ -13,7 +13,7 @@ import { LuX } from "react-icons/lu";
 import { id } from "@instantdb/react";
 import ExerciseAnnotator from "./_components/exercise-annotator";
 import ActionButtons from "@/app/_components/editor/action-buttons";
-import SearchButton from "@/app/_components/table/search-button";
+import SearchButton from "@/app/_components/search/search-button";
 
 export default function RoutineCanvas() {
 	const { step, setStep, update, selected, setSelected, setEdit } =

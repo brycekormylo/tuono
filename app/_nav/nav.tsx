@@ -3,11 +3,10 @@
 import {
 	LuUserCog,
 	LuUsers,
-	LuDumbbell,
-	LuIterationCw,
 	LuLayoutDashboard,
 	LuCalendar,
 	LuMessageCircle,
+	LuBook,
 } from "react-icons/lu";
 import { usePathname, useRouter } from "next/navigation";
 import { useProfile } from "@/contexts/profiles";
@@ -28,20 +27,11 @@ const AdminNavbarItems = [
 		slug: "admin/schedule",
 		icon: LuCalendar,
 	},
+
 	{
-		name: "Routines",
-		slug: "admin/routines",
-		icon: LuIterationCw,
-	},
-	{
-		name: "Exercises",
-		slug: "admin/exercises",
-		icon: LuDumbbell,
-	},
-	{
-		name: "Patients",
-		slug: "admin/patients",
-		icon: LuUsers,
+		name: "Records",
+		slug: "admin/records",
+		icon: LuBook,
 	},
 	{
 		name: "Account",

@@ -1,10 +1,13 @@
 "use client";
 
+import { PopoverButtonContext } from "@/app/_components/popover/popover_button";
 import { useProfile } from "@/contexts/profiles";
-import { useState } from "react";
+import { useContext } from "react";
+import { LuCheck, LuX } from "react-icons/lu";
 
 export default function ProfileEditor() {
 	const { profile, updateProfile } = useProfile();
+	const context = useContext(PopoverButtonContext);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -20,6 +23,11 @@ export default function ProfileEditor() {
 			});
 
 		clearForm();
+		context?.setShow(false);
+	};
+
+	const handleCancel = () => {
+		context?.setShow(false);
 	};
 
 	const handleFocusOut = () => {
@@ -51,18 +59,19 @@ export default function ProfileEditor() {
 	};
 
 	return (
-		<div className="flex flex-col gap-4 self-start mt-36">
+		<div className="flex flex-col gap-4">
 			<form
 				name="auth"
-				className="flex flex-col gap-4 self-start p-8 bg-white rounded-tl-2xl rounded-br-2xl w-[36rem]"
+				className="flex flex-col gap-6 self-start p-4 w-[26rem]"
 			>
-				<h1 className="pb-6 text-2xl text-gray-500">Personal Information</h1>
-				<div className="flex gap-8 justify-start items-center px-6 h-16 group">
-					<label className="w-24 text-base text-gray-600" htmlFor="firstName">
+				<h1 className="pb-2 text-2xl text-gray-500">Personal Information</h1>
+
+				<div className="flex flex-col justify-start items-start group">
+					<label className="text-sm text-gray-600" htmlFor="firstName">
 						First Name
 					</label>
 					<input
-						className="px-6 h-16 text-xl placeholder-gray-700 text-black bg-gray-50 rounded-xl outline-none text-start"
+						className="px-4 h-12 text-xl placeholder-gray-700 text-black border-b-2 border-gray-400 outline-none text-start"
 						onBlur={handleFocusOut}
 						id="firstName"
 						name="firstName"
@@ -71,12 +80,13 @@ export default function ProfileEditor() {
 					/>
 				</div>
 
-				<div className="flex gap-8 justify-start items-center px-6 h-16 rounded-xl">
-					<label className="w-24 text-base text-gray-600" htmlFor="lastName">
+				<div className="flex flex-col justify-start items-start group">
+					<label className="text-sm text-gray-600" htmlFor="lastName">
 						Last Name
 					</label>
 					<input
-						className="px-6 h-16 text-xl placeholder-gray-700 text-black bg-gray-50 rounded-xl outline-none text-start"
+						className="px-4 h-12 text-xl placeholder-gray-700 text-black border-b-2 border-gray-400 outline-none text-start"
+						onBlur={handleFocusOut}
 						id="lastName"
 						name="lastName"
 						placeholder={profile?.lastName}
@@ -84,12 +94,13 @@ export default function ProfileEditor() {
 					/>
 				</div>
 
-				<div className="flex gap-8 justify-start items-center px-6 h-16 rounded-xl">
-					<label className="w-24 text-base text-gray-600" htmlFor="phone">
+				<div className="flex flex-col justify-start items-start group">
+					<label className="text-sm text-gray-600" htmlFor="phone">
 						Phone
 					</label>
 					<input
-						className="px-6 h-16 text-xl placeholder-gray-700 text-black bg-gray-50 rounded-xl outline-none text-start"
+						className="px-4 h-12 text-xl placeholder-gray-700 text-black border-b-2 border-gray-400 outline-none text-start"
+						onBlur={handleFocusOut}
 						id="phone"
 						name="phone"
 						placeholder={profile?.phone}
@@ -97,13 +108,21 @@ export default function ProfileEditor() {
 					/>
 				</div>
 
-				<div className="flex gap-6 justify-end px-4 pt-12">
+				<div className="flex gap-4 justify-end pt-4">
+					<button
+						type="button"
+						onClick={handleCancel}
+						className="px-8 h-12 rounded-xl border-2 border-gray-600"
+					>
+						<LuX size={24} />
+					</button>
+
 					<button
 						type="button"
 						onClick={handleSubmit}
-						className="px-8 h-12 bg-gray-200 rounded-xl disabled:text-gray-500 disabled:bg-gray-200/75"
+						className="px-12 h-12 text-white bg-gray-600 rounded-xl"
 					>
-						Save
+						<LuCheck size={24} />
 					</button>
 				</div>
 			</form>

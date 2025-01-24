@@ -166,6 +166,7 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 					.link({ admin: profile?.admin?.id }),
 			]);
 		}
+		setSelected(patient);
 	};
 
 	const remove = (patient: Patient) => {

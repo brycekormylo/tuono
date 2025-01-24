@@ -65,7 +65,7 @@ export default function ExerciseList() {
 				center: "Body Part",
 				right: "Difficulty",
 			}}
-			overlay={<ExerciseEditor />}
+			creatorOverlay={<ExerciseEditor />}
 		/>
 	);
 }

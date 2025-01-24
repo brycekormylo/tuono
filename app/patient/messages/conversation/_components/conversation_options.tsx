@@ -1,6 +1,6 @@
 "use client";
 
-import PatientDetails from "@/app/admin/patient_details/page";
+import PatientDetails from "@/app/admin/_components/patient_details/page";
 import { usePatientConversations } from "@/contexts/patient-conversations";
 import { usePatient } from "@/contexts/patients";
 import { LuInfo, LuPin, LuTrash } from "react-icons/lu";

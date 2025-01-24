@@ -9,7 +9,7 @@ import {
 	type Patient,
 	usePatient,
 } from "@/contexts/patients";
-import PatientDetails from "@/app/admin/patient_details/page";
+import PatientDetails from "@/app/admin/_components/patient_details/page";
 
 export default function PatientList() {
 	const list: ListContextProps<Patient> = usePatient();
@@ -25,6 +25,7 @@ export default function PatientList() {
 					center: `${patient.profile?.email}`,
 					right: `${formattedPhoneNumber(patient.profile?.phone ?? "")}`,
 				}}
+				detailOverlay={<PatientDetails />}
 			/>
 		);
 	});
@@ -32,10 +33,9 @@ export default function PatientList() {
 	return (
 		<Table
 			source={list}
-			title="Patients"
 			tableRows={tableRows as ReactNode[]}
 			headerColumns={{ left: "Name", center: "Email", right: "Phone" }}
-			overlay={<PatientDetails />}
+			creatorOverlay={<PatientDetails />}
 		/>
 	);
 }

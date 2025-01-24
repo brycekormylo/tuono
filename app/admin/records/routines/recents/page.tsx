@@ -35,7 +35,7 @@ export default function Recents() {
 				center: "Date Sent",
 				right: "Step Count",
 			}}
-			overlay={<RoutineCanvas />}
+			creatorOverlay={<RoutineCanvas />}
 		/>
 	);
 }

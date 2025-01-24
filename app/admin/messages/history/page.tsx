@@ -1,6 +1,6 @@
 "use client";
 
-import SearchButton from "@/app/_components/table/search-button";
+import SearchButton from "@/app/_components/search/search-button";
 import { useConversations } from "@/contexts/conversations";
 import { usePatient, type Patient } from "@/contexts/patients";
 import { LuSearch, LuUser } from "react-icons/lu";
