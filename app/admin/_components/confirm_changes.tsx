@@ -1,14 +1,13 @@
-"use client";
-
 import { PopoverButtonContext } from "@/app/_components/popover/popover_button";
 import { usePatient } from "@/contexts/patients";
 import { useContext, useEffect, useState } from "react";
+import { LuArrowRight } from "react-icons/lu";
 
-interface PatientFormData {
-	firstName?: string;
-	lastName?: string;
-	email?: string;
-	phone?: string;
+export interface PatientFormData {
+	firstName: string;
+	lastName: string;
+	email: string;
+	phone: string;
 }
 
 interface ConfirmChangesProps {
@@ -29,10 +28,10 @@ export default function ConfirmChanges({
 	const context = useContext(PopoverButtonContext);
 
 	const prevData: PatientFormData = {
-		firstName: selected?.profile?.firstName,
-		lastName: selected?.profile?.lastName,
-		email: selected?.profile?.email,
-		phone: selected?.profile?.phone,
+		firstName: selected?.profile?.firstName ?? "",
+		lastName: selected?.profile?.lastName ?? "",
+		email: selected?.profile?.email ?? "",
+		phone: selected?.profile?.phone ?? "",
 	};
 
 	type ChangeRecord = {
@@ -48,25 +47,22 @@ export default function ConfirmChanges({
 	};
 
 	useEffect(() => {
+		const newChanges: ChangeRecord[] = [];
 		Object.entries(formData).map((element) => {
-			console.log(element);
 			if (element[1] === "") {
 				return;
 			}
 
 			const key = element[0];
-			const newValue = element[1];
-			const prevElement = prevData[key as keyof typeof prevData];
-
-			if (element[1] !== "") {
-				const change: ChangeRecord = { key, prevElement, newValue };
-				const newChanges = changes;
-				newChanges.push(change);
-				setChanges(newChanges);
-			}
+			const change: ChangeRecord = {
+				key: key,
+				prevElement: prevData[key as keyof typeof prevData],
+				newValue: element[1],
+			};
+			newChanges.push(change);
 		});
 
-		console.log(changes);
+		setChanges(newChanges);
 	}, []);
 
 	return (
@@ -76,19 +72,25 @@ export default function ConfirmChanges({
 				<h3 className="text-sm text-gray-500">This action cannot be undone</h3>
 			</div>
 
-			<div className="flex flex-col gap-1 items-center self-start p-2 mt-2 bg-gray-200">
+			<div className="flex flex-col gap-4 items-center self-start p-2 my-2">
 				{changes.map((change) => {
 					return (
-						<div key={change?.key} className="flex gap-4 h-12">
+						<div
+							key={change?.key}
+							className="flex flex-col gap-1 items-start w-[24rem]"
+						>
 							<p className="text-sm">{camelCaseToWords(change?.key ?? "")}</p>
-							<p>{change?.prevElement}</p>
-							<p>{change?.newValue}</p>
+							<div className="flex gap-4 justify-between items-center px-4 w-full h-12 bg-gray-100 rounded-md">
+								<p className="w-[10rem] stack">{change?.prevElement}</p>
+								<LuArrowRight size={24} />
+								<p className="w-[10rem] stack">{change?.newValue}</p>
+							</div>
 						</div>
 					);
 				})}
 			</div>
 
-			<div className="flex gap-4 justify-evenly items-center self-end w-full h-12">
+			<div className="flex gap-4 justify-evenly items-center self-end mt-8 w-full h-12">
 				<button
 					type="button"
 					className="h-12 text-gray-700 rounded-lg border-2 border-gray-600 grow"

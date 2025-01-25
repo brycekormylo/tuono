@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 interface PopoverButtonContextProps {
 	show: boolean;
@@ -18,6 +18,8 @@ interface PopoverButtonProps {
 
 export default function PopoverButton({
 	popover,
+	pressAction,
+	dismissAction,
 	children,
 }: PopoverButtonProps) {
 	const [show, setShow] = useState(false);
@@ -31,6 +33,12 @@ export default function PopoverButton({
 	const handleOpen = () => {
 		setShow(true);
 	};
+
+	useEffect(() => {
+		if (pressAction) {
+			pressAction();
+		}
+	}, []);
 
 	return (
 		<PopoverButtonContext.Provider value={{ show, setShow }}>
