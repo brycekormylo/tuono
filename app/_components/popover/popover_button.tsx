@@ -27,6 +27,9 @@ export default function PopoverButton({
 	// Now if something is a popover it needs useContext(PopoverButtonContext)
 
 	const handleDismiss = () => {
+		if (dismissAction) {
+			dismissAction();
+		}
 		setShow(false);
 	};
 
@@ -50,7 +53,7 @@ export default function PopoverButton({
 							onClick={handleDismiss}
 							className="w-full h-full bg-gray-200/50"
 						/>
-						<div className="p-4 bg-white rounded-xl stack">{popover}</div>
+						<div className="p-4 bg-gray-50 rounded-lg stack">{popover}</div>
 					</div>
 				)}
 				<button type="button" onClick={handleOpen} className="stack">

@@ -1,6 +1,6 @@
 interface EditableFieldProps {
 	label: string;
-	placeholder: string;
+	placeholder?: string;
 	value: string;
 	handleInputChange: (event: React.FormEvent<HTMLInputElement>) => void;
 	inputID: string;
@@ -24,8 +24,8 @@ export default function EditableField({
 				type="text"
 				id={id}
 				name={id}
-				className="w-72 text-xl placeholder-gray-600 text-black outline-none disabled:placeholder-black"
-				placeholder={placeholder}
+				className="w-72 text-xl placeholder-gray-600 text-black bg-transparent outline-none disabled:placeholder-black"
+				placeholder={placeholder ?? ""}
 				value={value}
 				onChange={handleInputChange}
 				disabled={!edit}

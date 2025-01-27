@@ -10,7 +10,7 @@ import { id } from "@instantdb/react";
 import PopoverButton, {
 	PopoverButtonContext,
 } from "@/app/_components/popover/popover_button";
-import { LuPencil, LuX } from "react-icons/lu";
+import { LuCheck, LuMinus, LuPencil, LuX } from "react-icons/lu";
 import EditableField from "../editable_field";
 import ConfirmChanges from "../confirm_changes";
 
@@ -47,11 +47,12 @@ export default function PatientDetails() {
 	const { update, selected, edit, setEdit } = usePatient();
 
 	const [patient, setPatient] = useState<Patient>(selected ?? emptyPatient);
+	const [isNewPatient, setIsNewPatient] = useState(false);
 	const [formData, setFormData] = useState<PatientFormData>({
-		firstName: "",
-		lastName: "",
-		email: "",
-		phone: "",
+		firstName: patient.profile?.firstName ?? "",
+		lastName: patient.profile?.lastName ?? "",
+		email: patient.profile?.email ?? "",
+		phone: patient.profile?.phone ?? "",
 	});
 
 	const handleReturn = () => {
@@ -62,6 +63,13 @@ export default function PatientDetails() {
 	useEffect(() => {
 		setPatient(selected ?? emptyPatient);
 	}, [selected]);
+
+	useEffect(() => {
+		if (patient.email === "") {
+			setIsNewPatient(true);
+			setEdit(true);
+		}
+	}, []);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -97,98 +105,98 @@ export default function PatientDetails() {
 	};
 
 	const clearForm = () => {
-		setFormData({ firstName: "", lastName: "", phone: "", email: "" });
+		setFormData({
+			firstName: patient.profile?.firstName ?? "",
+			lastName: patient.profile?.lastName ?? "",
+			email: patient.profile?.email ?? "",
+			phone: patient.profile?.phone ?? "",
+		});
+		setEdit(false);
+		isNewPatient && context?.setShow(false);
 	};
 
 	return (
-		<div className="flex-col">
-			<div className="p-6 w-full rounded-xl stack">
-				<form className="flex z-0 flex-col w-[30rem]">
-					<div className="flex flex-row justify-between items-center pb-6 h-20">
-						<h1 className="text-2xl text-gray-500">Patient Information</h1>
+		<form className="flex flex-col py-2 px-6 rounded-md w-[28rem]">
+			<div className="flex flex-row gap-2 items-center mb-6 h-12 text-gray-600">
+				<h1 className="text-2xl">
+					{isNewPatient ? "Create Patient" : "Patient Information"}
+				</h1>
+				<div className="grow" />
+
+				{!edit ? (
+					<>
 						<button
 							type="button"
-							onClick={() => setEdit(!edit)}
-							className="w-12 h-12 text-gray-600 bg-gray-100 rounded-full stack"
+							onClick={() => setEdit(true)}
+							className="w-10 h-10 stack"
 						>
 							<LuPencil size={20} />
 						</button>
-					</div>
 
-					<div className="flex flex-col gap-6 w-full">
-						<EditableField
-							label="First Name"
-							placeholder={patient.profile?.firstName || ""}
-							value={formData.firstName}
-							handleInputChange={handleInputChange}
-							inputID="firstName"
-							edit={edit}
-						/>
+						<button
+							type="button"
+							onClick={handleReturn}
+							className="w-10 h-10 stack"
+						>
+							<LuMinus size={20} />
+						</button>
+					</>
+				) : (
+					<>
+						<button
+							type="button"
+							onClick={clearForm}
+							className="w-10 h-10 stack"
+						>
+							<LuX size={20} />
+						</button>
 
-						<EditableField
-							label="Last Name"
-							placeholder={patient.profile?.lastName || ""}
-							value={formData.lastName}
-							handleInputChange={handleInputChange}
-							inputID="lastName"
-							edit={edit}
-						/>
-
-						<EditableField
-							label="Email"
-							placeholder={patient.profile?.email || ""}
-							value={formData.email}
-							handleInputChange={handleInputChange}
-							inputID="email"
-							edit={edit}
-						/>
-
-						<EditableField
-							label="Phone"
-							placeholder={
-								patient.profile
-									? formattedPhoneNumber(patient.profile.phone)
-									: ""
+						<PopoverButton
+							popover={
+								<ConfirmChanges action={handleSubmit} formData={formData} />
 							}
-							value={formData.phone}
-							handleInputChange={handleInputChange}
-							inputID="phone"
-							edit={edit}
-						/>
-
-						{edit ? (
-							<div className="flex z-20 gap-6 justify-end px-4 mt-8">
-								<button
-									type="button"
-									className="px-8 h-12 bg-gray-300 rounded-xl"
-									onClick={handleReturn}
-								>
-									Cancel
-								</button>
-								<PopoverButton
-									popover={
-										<ConfirmChanges action={handleSubmit} formData={formData} />
-									}
-								>
-									<div className="px-8 h-12 bg-gray-200 rounded-xl disabled:text-gray-500 stack disabled:bg-gray-200/75">
-										Save Changes
-									</div>
-								</PopoverButton>
+						>
+							<div className="w-10 h-10 stack">
+								<LuCheck size={20} />
 							</div>
-						) : (
-							<div className="flex gap-6 justify-end px-4 mt-8">
-								<button
-									type="button"
-									className="px-8 h-12 bg-gray-300 rounded-xl stack"
-									onClick={handleReturn}
-								>
-									Close
-								</button>
-							</div>
-						)}
-					</div>
-				</form>
+						</PopoverButton>
+					</>
+				)}
 			</div>
-		</div>
+
+			<div className="flex flex-col gap-4 w-full">
+				<EditableField
+					label="First Name"
+					value={formData.firstName}
+					handleInputChange={handleInputChange}
+					inputID="firstName"
+					edit={edit}
+				/>
+
+				<EditableField
+					label="Last Name"
+					value={formData.lastName}
+					handleInputChange={handleInputChange}
+					inputID="lastName"
+					edit={edit}
+				/>
+
+				<EditableField
+					label="Email"
+					value={formData.email}
+					handleInputChange={handleInputChange}
+					inputID="email"
+					edit={edit}
+				/>
+
+				<EditableField
+					label="Phone"
+					value={formData.phone}
+					handleInputChange={handleInputChange}
+					inputID="phone"
+					edit={edit}
+				/>
+			</div>
+		</form>
 	);
 }

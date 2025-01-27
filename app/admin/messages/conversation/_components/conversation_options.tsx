@@ -7,18 +7,18 @@ import DeleteOptions from "./delete_options";
 
 export default function ConversationOptions() {
 	return (
-		<div className="flex z-10 flex-col justify-self-start self-start mt-20 w-56 bg-gray-50 rounded-xl overflow-clip ms-4">
+		<div className="flex flex-col gap-2">
 			<PopoverButton popover={<PatientDetails />}>
-				<div className="flex gap-4 items-center p-4 w-56 hover:bg-gray-100">
+				<div className="flex gap-4 items-center p-4 w-72 bg-white rounded-md">
 					<LuInfo size={18} />
-					<p className="text-sm">Patient Details</p>
+					<p className="">Patient Details</p>
 				</div>
 			</PopoverButton>
 
 			<PopoverButton popover={<DeleteOptions />}>
-				<div className="flex gap-4 items-center p-4 w-56 text-red-500 hover:bg-gray-100">
+				<div className="flex gap-4 items-center p-4 w-72 text-red-500 bg-white rounded-md">
 					<LuTrash size={18} />
-					<label htmlFor="delete" className="text-sm">
+					<label htmlFor="delete" className="">
 						Delete conversation
 					</label>
 				</div>
