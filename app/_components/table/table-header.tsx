@@ -18,7 +18,7 @@ export default function TableHeader({
 	toggleSort,
 }: TableHeaderProps) {
 	return (
-		<div className="grid items-center text-xl font-semibold grid-cols-[1fr,1fr,1fr]">
+		<div className="grid items-center px-4 text-xl font-semibold grid-cols-[1fr,1fr,1fr]">
 			<div className="flex gap-4 items-center h-8 ps-6">
 				<h1 className="h-full">{info.left}</h1>
 				<button

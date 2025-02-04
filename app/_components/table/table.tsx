@@ -21,7 +21,7 @@ export default function Table<V extends ListContextProps<any>>({
 
 	return (
 		<div className="self-start w-full stack">
-			<div className="flex flex-col min-h-96 w-full gap-8 p-4 grow [&_*]:flex-nowrap">
+			<div className="flex flex-col gap-8 p-4 w-full min-h-96 grow">
 				<Utils source={source} overlay={creatorOverlay} />
 				<div className="flex justify-start items-start">
 					<TableBody

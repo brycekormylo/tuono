@@ -34,14 +34,11 @@ export default function PopoverButton({
 	};
 
 	const handleOpen = () => {
-		setShow(true);
-	};
-
-	useEffect(() => {
 		if (pressAction) {
 			pressAction();
 		}
-	}, []);
+		setShow(true);
+	};
 
 	return (
 		<PopoverButtonContext.Provider value={{ show, setShow }}>

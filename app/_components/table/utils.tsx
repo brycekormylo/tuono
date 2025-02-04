@@ -13,7 +13,12 @@ export default function Utils<V extends ListContextProps<any>>({
 	source,
 	overlay,
 }: UtilsProps<V>) {
-	const { rawInfo, info, setEdit } = source;
+	const { rawInfo, info, setEdit, setSelected } = source;
+
+	const deselect = () => {
+		setEdit(true);
+		setSelected(null);
+	};
 
 	return (
 		<div className="flex justify-end items-center px-8">
@@ -21,7 +26,7 @@ export default function Utils<V extends ListContextProps<any>>({
 				<ResultCounter rawResults={rawInfo} results={info} />
 				<SearchBar source={source} />
 
-				<PopoverButton popover={overlay}>
+				<PopoverButton popover={overlay} pressAction={deselect}>
 					<div className="z-20 w-12 h-12 bg-gray-300 rounded-full ring-gray-400 stack hover:ring-[1px]">
 						<LuPlus size={28} />
 					</div>

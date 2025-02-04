@@ -27,7 +27,7 @@ export default function NavBar() {
 	const router = useRouter();
 
 	return (
-		<div className="fixed left-0 top-20 z-0 ms-60">
+		<div className="fixed left-0 top-16 z-0 ms-60">
 			<div className="flex gap-8 justify-start p-2 w-screen bg-none group overflow-clip">
 				{TableItems.map((item) => {
 					const isSelected = pathname.includes(`/${item.slug}`);

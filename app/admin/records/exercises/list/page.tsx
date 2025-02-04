@@ -11,6 +11,7 @@ import Table from "@/app/_components/table/table";
 import type { ListContextProps } from "@/contexts/list-context-props";
 import type { ReactNode } from "react";
 import TableRow from "@/app/_components/table/table-row";
+import ExerciseDetails from "@/app/admin/_components/exercise_details/page";
 
 export default function ExerciseList() {
 	const list: ListContextProps<Exercise> = useExercise();
@@ -46,6 +47,7 @@ export default function ExerciseList() {
 				key={exercise.id}
 				source={list}
 				element={exercise}
+				detailOverlay={<ExerciseDetails />}
 				displayProperties={{
 					left: `${exercise.title}`,
 					center: getBodyParts(exercise),
@@ -58,14 +60,13 @@ export default function ExerciseList() {
 	return (
 		<Table
 			source={list}
-			title="Exercises"
 			tableRows={tableRows as ReactNode[]}
 			headerColumns={{
 				left: "Title",
 				center: "Body Part",
 				right: "Difficulty",
 			}}
-			creatorOverlay={<ExerciseEditor />}
+			creatorOverlay={<ExerciseDetails />}
 		/>
 	);
 }

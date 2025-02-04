@@ -7,10 +7,10 @@ import {
 	type BodyPart,
 	Difficulty,
 } from "@/contexts/exercises";
-import ImageInput from "../_components/image-input";
-import StepInput from "../_components/step-input";
-import AliasInput from "../_components/alias-input";
-import BodyPartInput from "../_components/body-part-selector";
+import ImageInput from "./_components/image-input";
+import StepInput from "./_components/step-input";
+import AliasInput from "./_components/alias-input";
+import BodyPartInput from "./_components/body-part-selector";
 import { id } from "@instantdb/react";
 
 export default function ExerciseEditor() {

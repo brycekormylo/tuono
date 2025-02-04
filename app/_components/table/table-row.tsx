@@ -2,6 +2,7 @@ import { LuUndo, LuTrash2, LuHistory, LuUserCog } from "react-icons/lu";
 import { type ReactNode, useEffect, useState } from "react";
 import type { ListContextProps } from "@/contexts/list-context-props";
 import PopoverButton from "../popover/popover_button";
+import DeleteOptions from "./delete-options";
 
 interface Identifiable {
 	id: string;
@@ -102,24 +103,27 @@ export default function TableRow<
 			<div className="flex col-start-4 col-end-5 row-start-1 justify-evenly justify-self-end items-center h-full rounded-r-md min-w-[10rem]">
 				{deleteMode ? (
 					<>
-						<button onClick={() => setDeleteMode(false)}>
+						<button type="button" onClick={() => setDeleteMode(false)}>
 							<LuUndo size={20} />
 						</button>
 						<div>
 							<label className="text-sm text-wrap">Delete?</label>
 						</div>
-						<button onClick={handleDelete} className="text-red-600">
+						<button
+							type="button"
+							onClick={handleDelete}
+							className="text-red-600"
+						>
 							<LuTrash2 size={20} />
 						</button>
 					</>
 				) : (
 					<>
-						<button
-							onClick={() => setDeleteMode(true)}
-							className="text-red-600"
-						>
-							<LuTrash2 size={20} />
-						</button>
+						<PopoverButton popover={<DeleteOptions source={source} />}>
+							<div className="text-red-600">
+								<LuTrash2 size={20} />
+							</div>
+						</PopoverButton>
 						<a href={"/elements"} className="">
 							<LuHistory size={20} />
 						</a>

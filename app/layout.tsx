@@ -22,9 +22,7 @@ export default function RootLayout({
 				<Providers>
 					<main className="h-screen bg-gray-100 overflow-clip stack [&_*]:transition-all [&_*]:ease-in [&_*]:transition-duration-75">
 						<NavBar />
-						<div className="px-48 pt-20 pb-16 w-full h-full stack">
-							{children}
-						</div>
+						<div className="py-16 px-48 w-full h-full stack">{children}</div>
 					</main>
 				</Providers>
 			</body>

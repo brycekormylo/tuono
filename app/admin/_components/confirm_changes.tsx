@@ -71,13 +71,13 @@ export default function ConfirmChanges({
 		<div className="flex-col p-2 h-auto w-[36rem]">
 			<div className="flex flex-col gap-1 items-center self-start mt-2">
 				<h2 className="text-xl">
-					{isNewPatient ? "Create Patient?" : "Save Changes?"}
+					{isNewPatient ? "Create New Patient?" : "Save Changes?"}
 				</h2>
-				{!isNewPatient && (
-					<h3 className="text-sm text-gray-500">
-						This action cannot be undone
-					</h3>
-				)}
+				<h3 className="text-sm text-gray-500">
+					{isNewPatient
+						? "You can edit this later"
+						: "This action cannot be undone"}
+				</h3>
 			</div>
 
 			<div className="flex flex-col gap-4 items-center self-start p-2 my-2">

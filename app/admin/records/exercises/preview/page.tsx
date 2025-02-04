@@ -1,6 +1,6 @@
 "use client";
 
-import ExerciseDetailBody from "../_components/exercise-details";
+import ExerciseDetailBody from "../editor/_components/exercise-details";
 import { useExercise } from "@/contexts/exercises";
 import Link from "next/link";
 import { LuArrowLeft } from "react-icons/lu";
