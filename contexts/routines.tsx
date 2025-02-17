@@ -7,22 +7,12 @@ import React, {
 	useEffect,
 	type ReactNode,
 } from "react";
-import {
-	type AppSchema,
-	useDatabase,
-	type Identifiable,
-} from "@/contexts/database";
+import { type AppSchema, useDatabase } from "@/contexts/database";
 import type { Exercise } from "./exercises";
 import { useInput } from "@/hooks/use-input";
-import type { ListContextProps } from "./list-context-props";
+import type { ChangeRecord, ListContextProps } from "./list-context-props";
 import type { InstaQLEntity, InstaQLParams } from "@instantdb/react";
-import { useAccount } from "./account";
-import { useAuth } from "./auth";
 import { useProfile } from "./profiles";
-
-export interface RoutineData extends Identifiable {
-	routines: Routine[];
-}
 
 export type Routine = InstaQLEntity<AppSchema, "routines">;
 
@@ -126,7 +116,7 @@ const RoutineProvider = ({ children }: RoutineProviderProps) => {
 	const update = (routine: Routine) => {
 		db.transact([
 			db.tx.routines[routine.id].update(routine),
-			db.tx.routines[routine.id].link({ admin: admin.id }),
+			db.tx.routines[routine.id].link({ admin: adminID }),
 		]);
 	};
 
@@ -147,6 +137,8 @@ const RoutineProvider = ({ children }: RoutineProviderProps) => {
 		setSelected(null);
 		setEdit(true);
 	};
+
+	const [changeLog, setChangeLog] = useState<ChangeRecord[]>([]);
 
 	return (
 		<RoutineContext.Provider
@@ -175,6 +167,8 @@ const RoutineProvider = ({ children }: RoutineProviderProps) => {
 				send: createNew,
 				isLoading,
 				error,
+				changeLog,
+				setChangeLog,
 			}}
 		>
 			{children}

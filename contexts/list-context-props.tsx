@@ -1,5 +1,11 @@
 import type { ChangeEvent } from "react";
 
+export type ChangeRecord = {
+	key: string;
+	prevElement?: string;
+	newValue: string;
+};
+
 export interface ListContextProps<Type> {
 	listName: string;
 	info: Type[] | null;
@@ -21,4 +27,6 @@ export interface ListContextProps<Type> {
 	update: (element: Type) => void;
 	isLoading: boolean;
 	error: { message: string } | undefined;
+	changeLog: ChangeRecord[];
+	setChangeLog: (log: ChangeRecord[]) => void;
 }

@@ -13,11 +13,16 @@ export default function SearchOverlay<V extends ListContextProps<any>>({
 	itemAction,
 	toggle: toggleVisible,
 }: SearchOverlayProps<V>) {
-	const { listName, info, search, changeSearch, setSelected } = source;
+	const { listName, info, search, setSearch, changeSearch, setSelected } =
+		source;
 
 	const ref = useRef<HTMLInputElement>(null);
 
 	const [showList, setShowList] = useState(false);
+
+	useEffect(() => {
+		setSearch("");
+	}, []);
 
 	useEffect(() => {
 		setShowList(search !== "");

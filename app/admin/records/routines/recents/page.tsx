@@ -3,8 +3,8 @@
 import { type Routine, useRoutine } from "@/contexts/routines";
 import Table from "@/app/_components/table/table";
 import type { ListContextProps } from "@/contexts/list-context-props";
-import RoutineCanvas from "../canvas/page";
 import TableRow from "@/app/_components/table/table-row";
+import RoutineDetails from "@/app/admin/_components/routine_details/page";
 
 export default function Recents() {
 	const source: ListContextProps<Routine> = useRoutine();
@@ -16,6 +16,7 @@ export default function Recents() {
 				key={routine.id}
 				element={routine}
 				source={source}
+				detailOverlay={<RoutineDetails />}
 				displayProperties={{
 					left: routine.name,
 					center: date.toLocaleDateString(),
@@ -28,14 +29,13 @@ export default function Recents() {
 	return (
 		<Table
 			source={source}
-			title="Routines"
 			tableRows={tableRows as React.ReactNode[]}
 			headerColumns={{
 				left: "Name",
 				center: "Date Sent",
 				right: "Step Count",
 			}}
-			creatorOverlay={<RoutineCanvas />}
+			creatorOverlay={<RoutineDetails />}
 		/>
 	);
 }

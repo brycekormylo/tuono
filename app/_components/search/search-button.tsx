@@ -24,7 +24,7 @@ export default function SearchButton<T, V extends ListContextProps<any>>({
 		<div className="stack">
 			<button type="button" onClick={toggleOverlay} className="z-10 stack">
 				{children || (
-					<div className="h-12 bg-gray-400 rounded-full">
+					<div className="w-12 h-12 bg-gray-400 rounded-full stack">
 						<LuSearch size={24} />
 					</div>
 				)}

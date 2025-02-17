@@ -2,7 +2,7 @@
 
 import type { InstaQLEntity, InstaQLParams } from "@instantdb/react";
 import { type AppSchema, useDatabase } from "@/contexts/database";
-import type { ListContextProps } from "./list-context-props";
+import type { ChangeRecord, ListContextProps } from "./list-context-props";
 import { useInput } from "@/hooks/use-input";
 
 import React, {
@@ -169,6 +169,8 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 		setSelected(patient);
 	};
 
+	const [changeLog, setChangeLog] = useState<ChangeRecord[]>([]);
+
 	const remove = (patient: Patient) => {
 		db.transact([
 			db.tx.profiles[patient.profile?.id ?? ""].delete(),
@@ -200,6 +202,8 @@ const PatientProvider = ({ children }: PatientProviderProps) => {
 				update,
 				isLoading,
 				error,
+				changeLog,
+				setChangeLog,
 			}}
 		>
 			{children}

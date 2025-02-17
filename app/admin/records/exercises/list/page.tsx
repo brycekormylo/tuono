@@ -5,8 +5,8 @@ import {
 	useExercise,
 	type Exercise,
 	formatEnumValue,
+	type BodyPart,
 } from "@/contexts/exercises";
-import ExerciseEditor from "../editor/page";
 import Table from "@/app/_components/table/table";
 import type { ListContextProps } from "@/contexts/list-context-props";
 import type { ReactNode } from "react";
@@ -17,7 +17,7 @@ export default function ExerciseList() {
 	const list: ListContextProps<Exercise> = useExercise();
 
 	function getBodyParts(exercise: Exercise) {
-		const bodyParts = exercise.bodyParts?.map((part) => (
+		const bodyParts = exercise.bodyParts?.map((part: BodyPart) => (
 			<div
 				key={part}
 				className="justify-center items-center py-1 px-3 mx-1 rounded-md ring-gray-300 ring-[1px]"

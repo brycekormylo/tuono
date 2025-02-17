@@ -1,6 +1,6 @@
 import { PopoverButtonContext } from "@/app/_components/popover/popover_button";
-import { usePatient } from "@/contexts/patients";
-import { useContext, useEffect, useState } from "react";
+import type { ChangeRecord } from "@/contexts/list-context-props";
+import { useContext } from "react";
 import { LuArrowRight } from "react-icons/lu";
 
 export interface PatientFormData {
@@ -12,7 +12,8 @@ export interface PatientFormData {
 
 interface ConfirmChangesProps {
 	action: (e: React.FormEvent) => void;
-	formData: PatientFormData;
+	changeLog: ChangeRecord[];
+	isNew: boolean;
 }
 
 export function camelCaseToWords(s: string) {
@@ -22,80 +23,38 @@ export function camelCaseToWords(s: string) {
 
 export default function ConfirmChanges({
 	action,
-	formData,
+	changeLog,
+	isNew,
 }: ConfirmChangesProps) {
-	const { selected } = usePatient();
 	const context = useContext(PopoverButtonContext);
-
-	const prevData: PatientFormData = {
-		firstName: selected?.profile?.firstName ?? "",
-		lastName: selected?.profile?.lastName ?? "",
-		email: selected?.profile?.email ?? "",
-		phone: selected?.profile?.phone ?? "",
-	};
-
-	type ChangeRecord = {
-		key: string;
-		prevElement?: string;
-		newValue: string;
-	};
-
-	const [changes, setChanges] = useState<ChangeRecord[]>([]);
-	const [isNewPatient, setIsNewPatient] = useState(false);
 
 	const handleCancel = () => {
 		context?.setShow(false);
 	};
 
-	useEffect(() => {
-		if (selected?.profile?.email === "" || !selected) {
-			setIsNewPatient(true);
-		}
-		const newChanges: ChangeRecord[] = [];
-		Object.entries(formData).map((element) => {
-			const key = element[0];
-			const change: ChangeRecord = {
-				key: key,
-				prevElement: prevData[key as keyof typeof prevData],
-				newValue: element[1],
-			};
-			if (change.prevElement !== change.newValue) {
-				newChanges.push(change);
-			}
-		});
-
-		setChanges(newChanges);
-	}, []);
-
 	return (
-		<div className="flex-col p-2 h-auto w-[36rem]">
+		<div className="overflow-y-scroll flex-col p-2 max-h-[48rem] w-[36rem]">
 			<div className="flex flex-col gap-1 items-center self-start mt-2">
-				<h2 className="text-xl">
-					{isNewPatient ? "Create New Patient?" : "Save Changes?"}
-				</h2>
-				<h3 className="text-sm text-gray-500">
-					{isNewPatient
-						? "You can edit this later"
-						: "This action cannot be undone"}
-				</h3>
+				<h2 className="text-xl">{isNew ? "Create New?" : "Save Changes?"}</h2>
+				<h3 className="text-sm text-gray-500">You can edit this again later</h3>
 			</div>
 
 			<div className="flex flex-col gap-4 items-center self-start p-2 my-2">
-				{changes.map((change) => {
+				{changeLog.map((change) => {
 					return (
 						<div
 							key={change?.key}
-							className="flex flex-col gap-1 items-start w-[24rem]"
+							className="flex flex-col gap-1 items-start min-w-[24rem]"
 						>
 							<p className="text-sm">{camelCaseToWords(change?.key ?? "")}</p>
-							<div className="flex gap-4 justify-between items-center px-4 w-full h-12 bg-gray-100 rounded-md">
-								{!isNewPatient && (
+							<div className="flex gap-4 justify-between items-center p-4 w-full text-center bg-gray-100 rounded-md">
+								{!isNew && (
 									<>
-										<p className="w-[10rem] stack">{change?.prevElement}</p>
+										<p className="w-[12rem] stack">{change?.prevElement}</p>
 										<LuArrowRight size={24} />
 									</>
 								)}
-								<p className={`${!isNewPatient && "stack"} w-[10rem] `}>
+								<p className={`${!isNew && "stack w-[12rem]"} `}>
 									{change?.newValue}
 								</p>
 							</div>

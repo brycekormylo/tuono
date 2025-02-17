@@ -1,10 +1,6 @@
 "use client";
 
-import {
-	formattedPhoneNumber,
-	usePatient,
-	type Patient,
-} from "@/contexts/patients";
+import { usePatient, type Patient } from "@/contexts/patients";
 import { useContext, useEffect, useState } from "react";
 import { id } from "@instantdb/react";
 import PopoverButton, {
@@ -13,6 +9,7 @@ import PopoverButton, {
 import { LuCheck, LuMinus, LuPencil, LuX } from "react-icons/lu";
 import EditableField from "../editable_field";
 import ConfirmChanges from "../confirm_changes";
+import type { ChangeRecord } from "@/contexts/list-context-props";
 
 const emptyPatient: Patient = {
 	profile: {
@@ -44,10 +41,11 @@ type PatientFormData = {
 
 export default function PatientDetails() {
 	const context = useContext(PopoverButtonContext);
-	const { update, selected, edit, setEdit } = usePatient();
+	const { update, selected, edit, setEdit, changeLog, setChangeLog } =
+		usePatient();
 
-	const [patient, setPatient] = useState<Patient>(selected ?? emptyPatient);
-	const [isNewPatient, setIsNewPatient] = useState(false);
+	const patient = selected ?? emptyPatient;
+
 	const [formData, setFormData] = useState<PatientFormData>({
 		firstName: patient.profile?.firstName ?? "",
 		lastName: patient.profile?.lastName ?? "",
@@ -61,15 +59,8 @@ export default function PatientDetails() {
 	};
 
 	useEffect(() => {
-		setPatient(selected ?? emptyPatient);
-	}, [selected]);
-
-	useEffect(() => {
-		if (patient.email === "") {
-			setIsNewPatient(true);
-			setEdit(true);
-		}
-	}, []);
+		patient.email === "" && setEdit(true);
+	}, [patient.email, setEdit]);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -112,14 +103,39 @@ export default function PatientDetails() {
 			phone: patient.profile?.phone ?? "",
 		});
 		setEdit(false);
-		isNewPatient && context?.setShow(false);
+		patient.email === "" && context?.setShow(false);
+	};
+
+	const createChangeLog = () => {
+		const prevData: PatientFormData = {
+			firstName: patient.profile?.firstName ?? "",
+			lastName: patient.profile?.lastName ?? "",
+			email: patient.profile?.email ?? "",
+			phone: patient.profile?.phone ?? "",
+		};
+
+		const newChanges: ChangeRecord[] = [];
+
+		Object.entries(formData).map((element) => {
+			const key = element[0];
+			const change: ChangeRecord = {
+				key: key,
+				prevElement: prevData[key as keyof typeof prevData],
+				newValue: element[1],
+			};
+			if (change.prevElement !== change.newValue) {
+				newChanges.push(change);
+			}
+		});
+
+		setChangeLog(newChanges);
 	};
 
 	return (
-		<form className="flex flex-col py-2 px-6 rounded-md w-[28rem]">
+		<form className="flex flex-col py-4 px-6 rounded-md w-[28rem]">
 			<div className="flex flex-row gap-2 items-center mb-6 h-12 text-gray-600">
 				<h1 className="text-2xl">
-					{isNewPatient ? "Create Patient" : "Patient Information"}
+					{patient.email === "" ? "Create Patient" : "Patient Information"}
 				</h1>
 				<div className="grow" />
 
@@ -152,8 +168,13 @@ export default function PatientDetails() {
 						</button>
 
 						<PopoverButton
+							pressAction={createChangeLog}
 							popover={
-								<ConfirmChanges action={handleSubmit} formData={formData} />
+								<ConfirmChanges
+									action={handleSubmit}
+									isNew={patient.email === ""}
+									changeLog={changeLog}
+								/>
 							}
 						>
 							<div className="w-10 h-10 stack">

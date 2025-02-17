@@ -1,8 +1,6 @@
 "use client";
 
-import { type AdminAccount, useAuth } from "./auth";
-import type { PatientInfo } from "./patient-list";
-import { type Identifiable, useDatabase } from "./database";
+import { type AppSchema, useDatabase } from "./database";
 import {
 	type ReactNode,
 	createContext,
@@ -10,20 +8,22 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import type { ListContextProps } from "./list-context-props";
+import type { ChangeRecord, ListContextProps } from "./list-context-props";
 import { useInput } from "@/hooks/use-input";
+import type { InstaQLEntity } from "@instantdb/react";
+import { useProfile } from "./profiles";
 
 export enum AppointmentType {
-	full = 60,
-	half = 30,
+	FULL = 60,
+	HALF = 30,
 }
 
-export interface Appointment extends Identifiable {
-	time: Date;
-	duration: AppointmentType;
-	admin: AdminAccount;
-	patient: PatientInfo;
-}
+export type Appointment = InstaQLEntity<
+	AppSchema,
+	"appointments",
+	// biome-ignore lint: This syntax is mandatory
+	{ admin: {}; profile: {} }
+>;
 
 interface AppointmentContextProps extends ListContextProps<Appointment> {
 	newAppointment: Appointment | null;
@@ -40,7 +40,8 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 	const listName = "Appointments";
 
 	const { db } = useDatabase();
-	const { user } = useAuth();
+	const { profile } = useProfile();
+	const adminID = profile?.admin?.id ?? "";
 
 	const [rawInfo, setRawInfo] = useState<Appointment[] | null>(null);
 	const [info, setInfo] = useState<Appointment[] | null>(null);
@@ -60,10 +61,10 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 		appointments: {
 			$: {
 				where: {
-					admin: user?.id,
+					admin: adminID,
 				},
 			},
-			patient: {},
+			profile: {},
 			admin: {},
 		},
 	};
@@ -72,58 +73,41 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 
 	useEffect(() => {
 		if (data) {
-			const appointments: Appointment[] = data.appointments.map(
-				(appointment) => {
-					const patient: PatientInfo = appointment.patient[0] as PatientInfo;
-					const admin: AdminAccount = appointment.admin[0] as AdminAccount;
-					const date = new Date(appointment.time);
-					const duration =
-						AppointmentType[
-							appointment.duration as keyof typeof AppointmentType
-						];
-					return {
-						id: appointment.id,
-						duration: duration,
-						time: date,
-						patient: patient,
-						admin: admin,
-					};
-				},
-			);
+			const appointments: Appointment[] = data.appointments as Appointment[];
 			const sorted = appointments.sort((a, b) => {
 				if (sortAsc) {
-					return a.time > b.time ? -1 : 1;
-				} else {
-					return a.time < b.time ? -1 : 1;
+					return a.date > b.date ? -1 : 1;
 				}
+				return a.date < b.date ? -1 : 1;
 			});
 			setRawInfo(sorted);
 		}
-	}, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [data]);
 
 	useEffect(() => {
 		sort();
-	}, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [sortAsc]);
 
 	useEffect(() => {
-		if (search == "") {
+		if (search === "") {
 			setInfo(rawInfo);
 		} else {
 			filterBy(search);
 		}
-	}, [search, rawInfo]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [search, rawInfo]);
 
 	const filterBy = (input: string) => {
 		if (info) {
-			const filtered = info.filter((conversation) => {
-				conversation.patient.firstName
-					.toLowerCase()
-					.includes(input.toLowerCase()) ||
-					conversation.patient.lastName
-						.toLowerCase()
-						.includes(input.toLowerCase());
-			});
-			setInfo(filtered);
+			// const filtered = info.filter((conversation) => {
+			// 	conversation.patient?.firstName
+			// 		.toLowerCase()
+			// 		.includes(input.toLowerCase()) ||
+			// 		conversation.patient.lastName
+			// 			.toLowerCase()
+			// 			.includes(input.toLowerCase());
+			// });
+			// setInfo(filtered);
+			setInfo(info);
 		} else {
 			setInfo(rawInfo);
 		}
@@ -133,10 +117,9 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 		if (rawInfo) {
 			const sorted = rawInfo.sort((a, b) => {
 				if (sortAsc) {
-					return a.time > b.time ? -1 : 1;
-				} else {
-					return a.time < b.time ? -1 : 1;
+					return a.date > b.date ? -1 : 1;
 				}
+				return a.date < b.date ? -1 : 1;
 			});
 			setRawInfo([...sorted]);
 		}
@@ -159,22 +142,17 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 	};
 
 	const update = (appointment: Appointment) => {
-		const dataToInsert = {
-			id: appointment.id,
-			time: appointment.time,
-			duration: appointment.duration,
-		};
-		db.transact(db.tx.appointments[appointment.id].update(dataToInsert as any));
-		user &&
+		db.transact(db.tx.appointments[appointment.id].update(appointment));
+		profile &&
 			db.transact(
 				db.tx.appointments[appointment.id].link({
-					admin: user?.id,
+					admin: adminID,
 				}),
 			);
-		appointment.patient &&
+		appointment.profile &&
 			db.transact(
 				db.tx.appointments[appointment.id].link({
-					patient: appointment.patient.id,
+					profile: appointment.profile.id,
 				}),
 			);
 	};
@@ -183,6 +161,8 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 		db.transact(db.tx.appointments[appointment.id].delete());
 		setSelected(null);
 	};
+
+	const [changeLog, setChangeLog] = useState<ChangeRecord[]>([]);
 
 	return (
 		<AppointmentContext.Provider
@@ -207,6 +187,10 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 				update,
 				newAppointment,
 				setNewAppointment,
+				isLoading,
+				error,
+				changeLog,
+				setChangeLog,
 			}}
 		>
 			{children}

@@ -1,4 +1,4 @@
-export default function ScheduleList() {
+export default function ScheduleWeek() {
 	return (
 		<div>
 			<div>{}</div>

@@ -65,7 +65,7 @@ export default function TableRow<
 
 	return (
 		<div
-			className={`grid group h-14 w-full rounded-md overflow-clip bg-gray-300/75 ${edit ? "grid-cols-[1fr,1fr,1fr,0]" : isSelected ? "grid-cols-[1fr,1fr,20rem,10rem]" : "grid-cols-[1fr,1fr,30rem,0]"}  items-center`}
+			className={`grid group h-14 w-full rounded-md overflow-clip bg-gray-300/75 ${isSelected ? "grid-cols-[1fr,1fr,20rem,10rem]" : "grid-cols-[1fr,1fr,30rem,0]"}  items-center`}
 		>
 			<div
 				className={`flex col-start-1 row-start-1 justify-self-start items-center w-full h-full group-hover:bg-gray-200 ps-6 ${isSelected ? "bg-gray-100" : "bg-gray-50"}`}
@@ -96,6 +96,7 @@ export default function TableRow<
 			</div>
 
 			<button
+				type="button"
 				className="z-10 col-start-1 col-end-4 row-start-1 h-full bg-transparent grow"
 				onMouseDown={handleClick}
 			/>
@@ -107,10 +108,13 @@ export default function TableRow<
 							<LuUndo size={20} />
 						</button>
 						<div>
-							<label className="text-sm text-wrap">Delete?</label>
+							<label htmlFor="delete-button" className="text-sm text-wrap">
+								Delete?
+							</label>
 						</div>
 						<button
 							type="button"
+							id="delete-button"
 							onClick={handleDelete}
 							className="text-red-600"
 						>

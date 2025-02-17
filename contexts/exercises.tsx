@@ -11,7 +11,7 @@ import {
 	useEffect,
 	type ReactNode,
 } from "react";
-import type { ListContextProps } from "./list-context-props";
+import type { ChangeRecord, ListContextProps } from "./list-context-props";
 import { useProfile } from "./profiles";
 
 export enum Difficulty {
@@ -165,7 +165,10 @@ const ExerciseProvider = ({ children }: ExerciseProviderProps) => {
 			db.tx.exercises[exercise.id].update(exercise),
 			db.tx.exercises[exercise.id].link({ admin: adminID }),
 		]);
+		setSelected(exercise);
 	};
+
+	const [changeLog, setChangeLog] = useState<ChangeRecord[]>([]);
 
 	const remove = (exercise: Exercise) => {
 		db.transact(db.tx.exercises[exercise.id].delete());
@@ -174,7 +177,7 @@ const ExerciseProvider = ({ children }: ExerciseProviderProps) => {
 
 	useEffect(() => {
 		sort();
-	}, [sortAsc]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [sortAsc]);
 
 	return (
 		<ExerciseContext.Provider
@@ -200,6 +203,8 @@ const ExerciseProvider = ({ children }: ExerciseProviderProps) => {
 				formatEnumValue,
 				isLoading,
 				error,
+				changeLog,
+				setChangeLog,
 			}}
 		>
 			{children}

@@ -1,10 +1,13 @@
+import NavBar from "./_components/nav";
 import { Providers } from "./providers";
-import { ReactNode } from "react";
 
-export default function SchedulesLayout({ children }: { children: ReactNode }) {
-  return (
-    <section className="flex w-full h-full">
-      <Providers>{children}</Providers>
-    </section>
-  );
+export default function ScheduleLayout({
+	children,
+}: { children: React.ReactNode }) {
+	return (
+		<section className="flex flex-col w-full h-full">
+			<NavBar />
+			<Providers>{children}</Providers>
+		</section>
+	);
 }

@@ -1,9 +1,5 @@
-import ScheduleCalendar from "./calendar/page";
-import ScheduleList from "./list/page";
+import { redirect } from "next/navigation";
 
-export default function Schedules() {
-	return <div className="flex justify-between w-full">{"Pending"}</div>;
+export default function Schedule() {
+	redirect("/admin/schedule/day");
 }
-
-// <ScheduleList />
-// <ScheduleCalendar />

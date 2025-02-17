@@ -37,7 +37,7 @@ const graph = i.graph(
 
 		appointments: i.entity({
 			date: i.date(),
-			durationInMinutes: i.number(),
+			appointmentType: i.any(),
 		}),
 
 		conversations: i.entity({
@@ -163,16 +163,16 @@ const graph = i.graph(
 			},
 		},
 
-		appointmentsPatient: {
+		appointmentsProfile: {
 			forward: {
-				on: "patients",
+				on: "profiles",
 				has: "many",
 				label: "appointments",
 			},
 			reverse: {
 				on: "appointments",
 				has: "one",
-				label: "patient",
+				label: "profile",
 			},
 		},
 

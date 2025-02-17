@@ -1,6 +1,6 @@
 "use client";
 
-import type { Calendar, Event } from "react-big-calendar";
+import { Calendar, type Event } from "react-big-calendar";
 import { dayjsLocalizer } from "react-big-calendar";
 import type { withDragAndDropProps } from "react-big-calendar/lib/addons/dragAndDrop";
 import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
@@ -28,12 +28,12 @@ export default function ScheduleCalendar() {
 		if (info) {
 			const appointments: Event[] = info.map((appointment) => {
 				return {
-					title: `${appointment.patient.lastName}, ${appointment.patient.firstName}`,
-					start: appointment.time,
-					end: dayjs(appointment.time)
-						.add(appointment.duration.valueOf(), "minutes")
+					title: `${appointment.profile?.lastName}, ${appointment.profile?.firstName}`,
+					start: dayjs(appointment.date).toDate(),
+					end: dayjs(appointment.date)
+						.add(appointment.appointmentType.valueOf(), "minutes")
 						.toDate(),
-					resource: appointment.patient.id,
+					resource: appointment.profile?.id,
 				};
 			});
 			setEvents(appointments);
@@ -87,7 +87,7 @@ export default function ScheduleCalendar() {
 				onEventDrop={onEventDrop}
 				onEventResize={onEventResize}
 				resizable
-				style={{ height: "70vh" }}
+				style={{ height: "80vh" }}
 			/>
 		</div>
 	);

@@ -29,7 +29,7 @@ export default function AliasInput({ aliases, setAliases }: AliasInputProps) {
 				type="text"
 				id="alias"
 				value={input}
-				placeholder="Add tags"
+				placeholder="Additional tags"
 				onChange={(e) => setInput(e.target.value)}
 				onKeyDown={handleKeyDown}
 				className="w-48 h-full rounded-input"
