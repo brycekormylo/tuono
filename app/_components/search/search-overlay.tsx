@@ -79,7 +79,7 @@ export default function SearchOverlay<V extends ListContextProps<any>>({
 						return (
 							<button
 								type="button"
-								key={element}
+								key={element.id}
 								onMouseDown={() => {
 									itemAction(element);
 									toggleVisible();

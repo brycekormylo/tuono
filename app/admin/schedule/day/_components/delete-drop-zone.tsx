@@ -3,18 +3,17 @@ import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import { type DropTargetMonitor, useDrop } from "react-dnd";
 
-interface TimeDropZoneProps {
-	date: Dayjs;
-	// children: React.ReactNode;
+interface DeleteDropZoneProps {
+	children: React.ReactNode;
 }
 
-const TimeDropZone = ({ date }: TimeDropZoneProps) => {
+const DeleteDropZone = ({ children }: DeleteDropZoneProps) => {
 	const localizedFormat = require("dayjs/plugin/localizedFormat");
 	dayjs.extend(localizedFormat);
-	const { updateDate } = useAppointments();
+	const { deleteAppointment } = useAppointments();
 
 	const onDrop = (item: any, monitor: DropTargetMonitor) => {
-		updateDate(item.id, date.toISOString());
+		deleteAppointment(item.id);
 	};
 
 	const [{ isOver }, drop] = useDrop(() => ({
@@ -30,9 +29,11 @@ const TimeDropZone = ({ date }: TimeDropZoneProps) => {
 	return (
 		<div
 			ref={drop}
-			className={`${isOver ? "border-gray-400" : "border-white"} border-t-[2px] w-full h-full`}
-		/>
+			className={`${isOver ? "border-gray-400" : "border-gray-100"} border-[2px] w-full h-full stack`}
+		>
+			{children}
+		</div>
 	);
 };
 
-export default TimeDropZone;
+export default DeleteDropZone;

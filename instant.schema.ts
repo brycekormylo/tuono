@@ -36,8 +36,9 @@ const graph = i.graph(
 		}),
 
 		appointments: i.entity({
-			date: i.date(),
+			date: i.date().indexed(),
 			appointmentType: i.any(),
+			notes: i.string().optional(),
 		}),
 
 		conversations: i.entity({

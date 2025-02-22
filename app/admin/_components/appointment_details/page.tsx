@@ -5,8 +5,7 @@ import { id } from "@instantdb/react";
 import PopoverButton, {
 	PopoverButtonContext,
 } from "@/app/_components/popover/popover_button";
-import { LuCalendar, LuCheck, LuMinus, LuPencil, LuX } from "react-icons/lu";
-import EditableField from "../editable_field";
+import { LuCheck, LuMinus, LuPencil, LuSearch, LuX } from "react-icons/lu";
 import ConfirmChanges from "../confirm_changes";
 import type { ChangeRecord } from "@/contexts/list-context-props";
 import {
@@ -14,30 +13,51 @@ import {
 	AppointmentType,
 	useAppointments,
 } from "@/contexts/appointments";
-import dayjs from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
+import { type Patient, usePatient } from "@/contexts/patients";
+import SearchButton from "@/app/_components/search/search-button";
+import EditableField from "../editable_field";
 
 const emptyAppointment: Appointment = {
 	id: id(),
-	date: dayjs().format(),
+	date: "",
 	appointmentType: AppointmentType.FULL,
-	admin: undefined,
 	profile: undefined,
+	notes: "",
 };
 
 type AppointmentFormData = {
-	date: string | number;
+	date: string;
+	time: string;
 	appointmentType: AppointmentType;
+	notes: string;
 };
 
 export default function AppointmentDetails() {
 	const context = useContext(PopoverButtonContext);
-	const { update, selected, edit, setEdit, changeLog, setChangeLog } =
-		useAppointments();
+	const {
+		update,
+		selected,
+		selectedTimeSlot,
+		edit,
+		setEdit,
+		changeLog,
+		setChangeLog,
+	} = useAppointments();
 
-	const appointment = selected ?? emptyAppointment;
+	const { selected: selectedPatient, setSelected: setSelectedPatient } =
+		usePatient();
+	const patientSource = usePatient();
+
+	const [appointment, setAppointment] = useState<Appointment>(
+		selected ?? emptyAppointment,
+	);
 
 	const [formData, setFormData] = useState<AppointmentFormData>({
-		...appointment,
+		date: selectedTimeSlot.format("YYYY-MM-DD"),
+		time: selectedTimeSlot.format("HH:mm"),
+		appointmentType: AppointmentType.FULL,
+		notes: "",
 	});
 
 	const handleReturn = () => {
@@ -45,16 +65,25 @@ export default function AppointmentDetails() {
 		context?.setShow(false);
 	};
 
-	// useEffect(() => {
-	// 	appointment.id === "" && setEdit(true);
-	// }, [patient.email, setEdit]);
+	useEffect(() => {
+		appointment.date === "" && setEdit(true);
+	}, []);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		const { date, appointmentType } = formData;
+		if (!selectedPatient) {
+			return;
+		}
 
-		update({ ...appointment, date: date, appointmentType: appointmentType });
+		update({
+			...appointment,
+			id: appointment.id,
+			date: dayjs(`${formData.date}${formData.time}`).toISOString(),
+			notes: formData.notes,
+			appointmentType: formData.appointmentType,
+			profile: selectedPatient.profile,
+		});
 
 		clearForm();
 		setEdit(false);
@@ -62,10 +91,6 @@ export default function AppointmentDetails() {
 
 	const handleInputChange = (event: React.FormEvent<HTMLInputElement>) => {
 		const { name, value } = event.currentTarget;
-
-		console.log(name);
-		console.log(value);
-
 		setFormData({
 			...formData,
 			[name]: value,
@@ -75,10 +100,13 @@ export default function AppointmentDetails() {
 	const clearForm = () => {
 		setFormData({
 			date: "",
+			time: "",
 			appointmentType: AppointmentType.FULL,
+			notes: "",
 		});
 		setEdit(false);
 		appointment.id === "" && context?.setShow(false);
+		setSelectedPatient(null);
 	};
 
 	const createChangeLog = () => {
@@ -159,6 +187,25 @@ export default function AppointmentDetails() {
 			</div>
 
 			<div className="flex flex-col gap-4 w-full">
+				<div className="flex flex-col gap-1 items-start">
+					<p className="text-sm text-gray-500">Patient</p>
+					<SearchButton
+						source={patientSource}
+						itemAction={(item) => {
+							setSelectedPatient(item as Patient);
+						}}
+					>
+						<div className="flex gap-4 items-center w-full h-10 text-gray-700">
+							<LuSearch size={24} />
+							<p className="text-gray-700">
+								{!selectedPatient
+									? "Search Patients"
+									: `${selectedPatient.profile?.firstName} ${selectedPatient.profile?.lastName}`}
+							</p>
+						</div>
+					</SearchButton>
+				</div>
+
 				<div className="flex flex-col gap-1 items-start group">
 					<label
 						htmlFor="appointment-date"
@@ -166,10 +213,32 @@ export default function AppointmentDetails() {
 					>
 						Date
 					</label>
+
 					<input
-						id="appointment-date"
+						id="date"
+						name="date"
 						type="date"
-						className="px-4 w-72 h-12 rounded-t-sm border-b-2 border-gray-200 outline-none focus:border-gray-500"
+						className="px-4 w-72 h-12 rounded-t-sm border-b-2 border-gray-200 outline-none focus:border-gray-400"
+						value={formData.date}
+						onChange={handleInputChange}
+					/>
+				</div>
+
+				<div className="flex flex-col gap-1 items-start group">
+					<label
+						htmlFor="appointment-time"
+						className="text-sm text-gray-500 group-has-[:focus]:text-gray-700"
+					>
+						Time
+					</label>
+
+					<input
+						id="appointment-time"
+						name="time"
+						type="time"
+						className="px-4 w-72 h-12 rounded-t-sm border-b-2 border-gray-200 outline-none focus:border-gray-400"
+						value={formData.time}
+						onChange={handleInputChange}
 					/>
 				</div>
 
@@ -184,7 +253,7 @@ export default function AppointmentDetails() {
 								name="appointmentType"
 								value={AppointmentType.HALF}
 								id="half-appointment"
-								checked={formData.appointmentType === AppointmentType.HALF}
+								checked={formData.appointmentType == AppointmentType.HALF}
 								className="hidden w-full h-full peer"
 								onChange={handleInputChange}
 							/>
@@ -200,7 +269,7 @@ export default function AppointmentDetails() {
 								name="appointmentType"
 								value={AppointmentType.FULL}
 								id="full-appointment"
-								checked={formData.appointmentType === AppointmentType.FULL}
+								checked={formData.appointmentType == AppointmentType.FULL}
 								className="hidden w-full h-full peer"
 								onChange={handleInputChange}
 							/>
@@ -212,18 +281,13 @@ export default function AppointmentDetails() {
 					</div>
 				</div>
 
-				<div className="flex flex-col gap-1 items-start group">
-					<label
-						htmlFor="appointment-date"
-						className="text-sm text-gray-500 group-has-[:focus]:text-gray-700"
-					>
-						Time
-					</label>
-
-					<input
-						id="appointment-date"
-						type="date"
-						className="px-4 w-72 h-12 rounded-t-sm border-b-2 border-gray-200 outline-none focus:border-gray-500"
+				<div>
+					<EditableField
+						label="Notes"
+						value={formData.notes}
+						handleInputChange={handleInputChange}
+						inputID="notes"
+						edit={edit}
 					/>
 				</div>
 			</div>

@@ -1,9 +1,14 @@
 import { useDrag } from "react-dnd";
 
-const DragItem = ({ children }: { children: React.ReactNode }) => {
+interface AppointmentDragItemProps {
+	id: string;
+	children: React.ReactNode;
+}
+
+const DragItem = ({ id, children }: AppointmentDragItemProps) => {
 	const [{ isDragging }, drag] = useDrag(() => ({
 		type: "appointment",
-		item: { children },
+		item: { id },
 		collect: (monitor) => ({
 			isDragging: monitor.isDragging(),
 		}),
@@ -15,11 +20,6 @@ const DragItem = ({ children }: { children: React.ReactNode }) => {
 			style={{
 				opacity: isDragging ? 0.5 : 1,
 				cursor: "move",
-				border: "1px solid #ccc",
-				padding: "10px",
-				borderRadius: "5px",
-				margin: "5px",
-				backgroundColor: "lightblue",
 			}}
 		>
 			{children}

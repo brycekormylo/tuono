@@ -10,8 +10,9 @@ import {
 } from "react";
 import type { ChangeRecord, ListContextProps } from "./list-context-props";
 import { useInput } from "@/hooks/use-input";
-import type { InstaQLEntity } from "@instantdb/react";
+import { id, type InstaQLEntity } from "@instantdb/react";
 import { useProfile } from "./profiles";
+import dayjs, { type Dayjs } from "dayjs";
 
 export enum AppointmentType {
 	FULL = 60,
@@ -22,12 +23,18 @@ export type Appointment = InstaQLEntity<
 	AppSchema,
 	"appointments",
 	// biome-ignore lint: This syntax is mandatory
-	{ admin: {}; profile: {} }
+	{ profile: {} }
 >;
 
 interface AppointmentContextProps extends ListContextProps<Appointment> {
 	newAppointment: Appointment | null;
 	setNewAppointment: (appointment: Appointment) => void;
+	updateDate: (apptID: string, date: string) => void;
+	selectedTimeSlot: Dayjs;
+	setSelectedTimeSlot: (date: Dayjs) => void;
+	deleteAppointment: (apptID: string) => void;
+	displayDate: Dayjs;
+	setDisplayDate: (date: Dayjs) => void;
 }
 
 const AppointmentContext = createContext<AppointmentContextProps | null>(null);
@@ -43,6 +50,8 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 	const { profile } = useProfile();
 	const adminID = profile?.admin?.id ?? "";
 
+	const [displayDate, setDisplayDate] = useState<Dayjs>(dayjs());
+	const [selectedTimeSlot, setSelectedTimeSlot] = useState<Dayjs>(dayjs());
 	const [rawInfo, setRawInfo] = useState<Appointment[] | null>(null);
 	const [info, setInfo] = useState<Appointment[] | null>(null);
 	const [sortAsc, setSortAsc] = useState<boolean>(false);
@@ -57,6 +66,7 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 		setValue: setSearch,
 	} = useInput("");
 
+	// TODO: Fine tune queries for different dates
 	const query = {
 		appointments: {
 			$: {
@@ -65,7 +75,6 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 				},
 			},
 			profile: {},
-			admin: {},
 		},
 	};
 
@@ -74,37 +83,39 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 	useEffect(() => {
 		if (data) {
 			const appointments: Appointment[] = data.appointments as Appointment[];
-			const sorted = appointments.sort((a, b) => {
+			const filtered = appointments.filter(
+				(appt) =>
+					dayjs(appt.date).toISOString().slice(0, 9) ===
+					displayDate.toISOString().slice(0, 9),
+			);
+
+			const sorted = filtered.sort((a, b) => {
 				if (sortAsc) {
 					return a.date > b.date ? -1 : 1;
 				}
 				return a.date < b.date ? -1 : 1;
 			});
 			setRawInfo(sorted);
+			setInfo(sorted);
 		}
 	}, [data]);
 
-	useEffect(() => {
-		sort();
-	}, [sortAsc]);
-
-	useEffect(() => {
-		if (search === "") {
-			setInfo(rawInfo);
-		} else {
-			filterBy(search);
-		}
-	}, [search, rawInfo]);
+	// useEffect(() => {
+	// 	sort();
+	// }, [sortAsc]);
+	//
+	// useEffect(() => {
+	// 	if (search === "") {
+	// 		setInfo(rawInfo);
+	// 	} else {
+	// 		filterBy(search);
+	// 	}
+	// }, [search, rawInfo]);
 
 	const filterBy = (input: string) => {
 		if (info) {
-			// const filtered = info.filter((conversation) => {
-			// 	conversation.patient?.firstName
-			// 		.toLowerCase()
-			// 		.includes(input.toLowerCase()) ||
-			// 		conversation.patient.lastName
-			// 			.toLowerCase()
-			// 			.includes(input.toLowerCase());
+			// const filtered = info.filter((appointment) => {
+			// 	appointment.date;
 			// });
 			// setInfo(filtered);
 			setInfo(info);
@@ -141,24 +152,34 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 		newAppointment && update(newAppointment);
 	};
 
+	const updateDate = (apptID: string, newDate: string) => {
+		db.transact([db.tx.appointments[apptID].update({ date: newDate })]);
+	};
+
 	const update = (appointment: Appointment) => {
-		db.transact(db.tx.appointments[appointment.id].update(appointment));
-		profile &&
-			db.transact(
-				db.tx.appointments[appointment.id].link({
-					admin: adminID,
-				}),
-			);
-		appointment.profile &&
-			db.transact(
-				db.tx.appointments[appointment.id].link({
-					profile: appointment.profile.id,
-				}),
-			);
+		db.transact([
+			db.tx.appointments[appointment.id].update({
+				date: appointment.date,
+				appointmentType: appointment.appointmentType,
+				notes: appointment.notes,
+			}),
+
+			db.tx.appointments[appointment.id].link({
+				admin: adminID,
+				profile: appointment.profile?.id,
+			}),
+		]);
+
+		setSelected(null);
 	};
 
 	const remove = (appointment: Appointment) => {
 		db.transact(db.tx.appointments[appointment.id].delete());
+		setSelected(null);
+	};
+
+	const deleteAppointment = (apptID: string) => {
+		db.transact(db.tx.appointments[apptID].delete());
 		setSelected(null);
 	};
 
@@ -191,6 +212,12 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 				error,
 				changeLog,
 				setChangeLog,
+				updateDate,
+				selectedTimeSlot,
+				setSelectedTimeSlot,
+				deleteAppointment,
+				displayDate,
+				setDisplayDate,
 			}}
 		>
 			{children}
