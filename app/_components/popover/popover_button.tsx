@@ -44,13 +44,15 @@ export default function PopoverButton({
 		<PopoverButtonContext.Provider value={{ show, setShow }}>
 			<div className="stack">
 				{show && (
-					<div className="fixed top-0 right-0 bottom-0 left-0 z-20 stack">
+					<div className="fixed top-0 right-0 bottom-0 left-0 z-50 stack">
 						<button
 							type="button"
 							onClick={handleDismiss}
-							className="w-full h-full bg-gray-200/50"
+							className="z-50 w-full h-full bg-gray-200/50"
 						/>
-						<div className="p-4 bg-gray-50 rounded-lg stack">{popover}</div>
+						<div className="z-50 p-4 bg-gray-50 rounded-lg stack">
+							{popover}
+						</div>
 					</div>
 				)}
 				<button type="button" onClick={handleOpen} className="stack">

@@ -28,10 +28,11 @@ const TimeDropZone = ({ date }: TimeDropZoneProps) => {
 	// TODO: Allow this to create new appointments when tapped
 	// TODO: Float the appointment over the associated row
 	return (
-		<div
-			ref={drop}
-			className={`${isOver ? "border-gray-400" : "border-white"} border-t-[2px] w-full h-full`}
-		/>
+		<div ref={drop} className="w-full h-full stack">
+			<div
+				className={`${isOver ? "bg-gray-400" : "bg-gray-100"} self-start w-full h-[2px]`}
+			/>
+		</div>
 	);
 };
 

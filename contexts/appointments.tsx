@@ -35,6 +35,10 @@ interface AppointmentContextProps extends ListContextProps<Appointment> {
 	deleteAppointment: (apptID: string) => void;
 	displayDate: Dayjs;
 	setDisplayDate: (date: Dayjs) => void;
+	isDragging: boolean;
+	setIsDragging: (isDragging: boolean) => void;
+	showFullWeek: boolean;
+	setShowFullWeek: (show: boolean) => void;
 }
 
 const AppointmentContext = createContext<AppointmentContextProps | null>(null);
@@ -184,6 +188,8 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 	};
 
 	const [changeLog, setChangeLog] = useState<ChangeRecord[]>([]);
+	const [isDragging, setIsDragging] = useState<boolean>(false);
+	const [showFullWeek, setShowFullWeek] = useState(false);
 
 	return (
 		<AppointmentContext.Provider
@@ -218,6 +224,10 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 				deleteAppointment,
 				displayDate,
 				setDisplayDate,
+				isDragging,
+				setIsDragging,
+				showFullWeek,
+				setShowFullWeek,
 			}}
 		>
 			{children}

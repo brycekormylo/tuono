@@ -50,7 +50,7 @@ export default function AppointmentDetails() {
 	const patientSource = usePatient();
 
 	const [appointment, setAppointment] = useState<Appointment>(
-		selected ?? emptyAppointment,
+		selected ?? { ...emptyAppointment, id: id() },
 	);
 
 	const [formData, setFormData] = useState<AppointmentFormData>({
@@ -105,7 +105,7 @@ export default function AppointmentDetails() {
 			notes: "",
 		});
 		setEdit(false);
-		appointment.id === "" && context?.setShow(false);
+		context?.setShow(false);
 		setSelectedPatient(null);
 	};
 

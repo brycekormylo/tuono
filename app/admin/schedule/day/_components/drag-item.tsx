@@ -1,3 +1,5 @@
+import { useAppointments } from "@/contexts/appointments";
+import { useEffect } from "react";
 import { useDrag } from "react-dnd";
 
 interface AppointmentDragItemProps {
@@ -6,6 +8,7 @@ interface AppointmentDragItemProps {
 }
 
 const DragItem = ({ id, children }: AppointmentDragItemProps) => {
+	const { setIsDragging } = useAppointments();
 	const [{ isDragging }, drag] = useDrag(() => ({
 		type: "appointment",
 		item: { id },
@@ -13,6 +16,10 @@ const DragItem = ({ id, children }: AppointmentDragItemProps) => {
 			isDragging: monitor.isDragging(),
 		}),
 	}));
+
+	useEffect(() => {
+		setIsDragging(isDragging);
+	}, [isDragging]);
 
 	return (
 		<div
