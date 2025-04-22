@@ -42,7 +42,7 @@ export default function DatePicker() {
 					<div className="text-6xl">{displayDate.format("DD")}</div>
 				</div>
 
-				<div className="flex justify-between px-4 pt-4 w-full text-gray-700">
+				<div className="flex justify-between px-8 pt-4 w-full text-gray-700">
 					<button
 						type="button"
 						onClick={subtractWeek}

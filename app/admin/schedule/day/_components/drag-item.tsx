@@ -8,7 +8,7 @@ interface AppointmentDragItemProps {
 }
 
 const DragItem = ({ id, children }: AppointmentDragItemProps) => {
-	const { setIsDragging } = useAppointments();
+	const { setDragItemID } = useAppointments();
 	const [{ isDragging }, drag] = useDrag(() => ({
 		type: "appointment",
 		item: { id },
@@ -18,7 +18,7 @@ const DragItem = ({ id, children }: AppointmentDragItemProps) => {
 	}));
 
 	useEffect(() => {
-		setIsDragging(isDragging);
+		setDragItemID(isDragging ? id : null);
 	}, [isDragging]);
 
 	return (

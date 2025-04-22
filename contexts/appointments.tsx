@@ -30,13 +30,13 @@ interface AppointmentContextProps extends ListContextProps<Appointment> {
 	newAppointment: Appointment | null;
 	setNewAppointment: (appointment: Appointment) => void;
 	updateDate: (apptID: string, date: string) => void;
-	selectedTimeSlot: Dayjs;
-	setSelectedTimeSlot: (date: Dayjs) => void;
+	selectedTimeSlot: Dayjs | null;
+	setSelectedTimeSlot: (date: Dayjs | null) => void;
 	deleteAppointment: (apptID: string) => void;
 	displayDate: Dayjs;
 	setDisplayDate: (date: Dayjs) => void;
-	isDragging: boolean;
-	setIsDragging: (isDragging: boolean) => void;
+	dragItemID: string | null;
+	setDragItemID: (id: string | null) => void;
 	showFullWeek: boolean;
 	setShowFullWeek: (show: boolean) => void;
 }
@@ -55,7 +55,7 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 	const adminID = profile?.admin?.id ?? "";
 
 	const [displayDate, setDisplayDate] = useState<Dayjs>(dayjs());
-	const [selectedTimeSlot, setSelectedTimeSlot] = useState<Dayjs>(dayjs());
+	const [selectedTimeSlot, setSelectedTimeSlot] = useState<Dayjs | null>(null);
 	const [rawInfo, setRawInfo] = useState<Appointment[] | null>(null);
 	const [info, setInfo] = useState<Appointment[] | null>(null);
 	const [sortAsc, setSortAsc] = useState<boolean>(false);
@@ -89,7 +89,7 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 			const appointments: Appointment[] = data.appointments as Appointment[];
 			const filtered = appointments.filter(
 				(appt) =>
-					dayjs(appt.date).toISOString().slice(0, 9) ===
+					dayjs(appt.date.toString()).toISOString().slice(0, 9) ===
 					displayDate.toISOString().slice(0, 9),
 			);
 
@@ -101,6 +101,8 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 			});
 			setRawInfo(sorted);
 			setInfo(sorted);
+		} else {
+			console.log("No data found");
 		}
 	}, [data]);
 
@@ -188,7 +190,7 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 	};
 
 	const [changeLog, setChangeLog] = useState<ChangeRecord[]>([]);
-	const [isDragging, setIsDragging] = useState<boolean>(false);
+	const [dragItemID, setDragItemID] = useState<string | null>(null);
 	const [showFullWeek, setShowFullWeek] = useState(false);
 
 	return (
@@ -224,8 +226,8 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 				deleteAppointment,
 				displayDate,
 				setDisplayDate,
-				isDragging,
-				setIsDragging,
+				dragItemID,
+				setDragItemID,
 				showFullWeek,
 				setShowFullWeek,
 			}}

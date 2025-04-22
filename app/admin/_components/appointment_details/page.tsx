@@ -39,6 +39,7 @@ export default function AppointmentDetails() {
 		update,
 		selected,
 		selectedTimeSlot,
+		setSelectedTimeSlot,
 		edit,
 		setEdit,
 		changeLog,
@@ -54,8 +55,8 @@ export default function AppointmentDetails() {
 	);
 
 	const [formData, setFormData] = useState<AppointmentFormData>({
-		date: selectedTimeSlot.format("YYYY-MM-DD"),
-		time: selectedTimeSlot.format("HH:mm"),
+		date: selectedTimeSlot?.format("YYYY-MM-DD") ?? "",
+		time: selectedTimeSlot?.format("HH:mm") ?? "",
 		appointmentType: AppointmentType.FULL,
 		notes: "",
 	});
@@ -63,6 +64,7 @@ export default function AppointmentDetails() {
 	const handleReturn = () => {
 		setEdit(false);
 		context?.setShow(false);
+		setSelectedTimeSlot(null);
 	};
 
 	useEffect(() => {
@@ -107,6 +109,7 @@ export default function AppointmentDetails() {
 		setEdit(false);
 		context?.setShow(false);
 		setSelectedPatient(null);
+		setSelectedTimeSlot(null);
 	};
 
 	const createChangeLog = () => {
