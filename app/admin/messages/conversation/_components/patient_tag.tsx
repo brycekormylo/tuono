@@ -12,7 +12,7 @@ export default function PatientTag() {
 		selectedPatient && (
 			<div className="justify-self-start self-start">
 				<PopoverButton popover={<ConversationOptions />}>
-					<div className="flex z-0 gap-2 items-center p-4 rounded-xl hover:bg-gray-100">
+					<div className="flex z-0 gap-2 items-center p-4 rounded-xl hover:bg-light-100">
 						<LuEllipsisVertical size={24} />
 
 						<p className="px-2 text-xl">

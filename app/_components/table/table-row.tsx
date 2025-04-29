@@ -65,16 +65,16 @@ export default function TableRow<
 
 	return (
 		<div
-			className={`grid group h-14 w-full rounded-md overflow-clip bg-gray-300/75 ${isSelected ? "grid-cols-[1fr,1fr,20rem,10rem]" : "grid-cols-[1fr,1fr,30rem,0]"}  items-center`}
+			className={`grid group h-14 w-full rounded-md overflow-clip bg-light-300/75 ${isSelected ? "grid-cols-[1fr,1fr,20rem,10rem]" : "grid-cols-[1fr,1fr,30rem,0]"}  items-center`}
 		>
 			<div
-				className={`flex col-start-1 row-start-1 justify-self-start items-center w-full h-full group-hover:bg-gray-200 ps-6 ${isSelected ? "bg-gray-100" : "bg-gray-50"}`}
+				className={`flex col-start-1 row-start-1 justify-self-start items-center w-full h-full group-hover:bg-light-200 ps-6 ${isSelected ? "bg-light-100" : "bg-light-50"}`}
 			>
 				<h2 className="text-lg select-none">{displayProperties.left}</h2>
 			</div>
 
 			<div
-				className={` flex flex-wrap col-start-2 row-start-1 justify-end items-center w-full h-full group-hover:bg-gray-200 ${isSelected ? "bg-gray-100 " : "bg-gray-50"}`}
+				className={` flex flex-wrap col-start-2 row-start-1 justify-end items-center w-full h-full group-hover:bg-light-200 ${isSelected ? "bg-light-100 " : "bg-light-50"}`}
 			>
 				{typeof displayProperties.center === "string" ? (
 					<h2 className="text-base select-none">{displayProperties.center}</h2>
@@ -84,9 +84,9 @@ export default function TableRow<
 			</div>
 
 			<div
-				className={`flex z-10 col-start-3 row-start-1 gap-2 justify-end justify-items-end items-center w-full h-full rounded-r-md ${isSelected ? "bg-gray-100" : "bg-gray-50"} min-w-40`}
+				className={`flex z-10 col-start-3 row-start-1 gap-2 justify-end justify-items-end items-center w-full h-full rounded-r-md ${isSelected ? "bg-light-100" : "bg-light-50"} min-w-40`}
 			>
-				<div className="flex gap-2 justify-end items-center w-full h-full group-hover:bg-gray-200 pe-6">
+				<div className="flex gap-2 justify-end items-center w-full h-full pe-6 group-hover:bg-light-200">
 					{typeof displayProperties.right === "string" ? (
 						<p className="text-base select-none">{displayProperties.right}</p>
 					) : (
@@ -116,7 +116,7 @@ export default function TableRow<
 							type="button"
 							id="delete-button"
 							onClick={handleDelete}
-							className="text-red-600"
+							className="text-error"
 						>
 							<LuTrash2 size={20} />
 						</button>
@@ -124,7 +124,7 @@ export default function TableRow<
 				) : (
 					<>
 						<PopoverButton popover={<DeleteOptions source={source} />}>
-							<div className="text-red-600">
+							<div className="text-error">
 								<LuTrash2 size={20} />
 							</div>
 						</PopoverButton>

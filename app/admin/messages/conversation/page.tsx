@@ -6,7 +6,7 @@ import MessageInput from "./_components/message_input";
 
 export default function ConversationDisplay() {
 	return (
-		<div className="p-8 w-full h-full bg-gray-50 rounded-2xl stack">
+		<div className="p-8 w-full h-full rounded-2xl bg-light-50 stack">
 			<PatientTag />
 			<ConversationBody />
 			<MessageInput />

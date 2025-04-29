@@ -58,61 +58,59 @@ export default function ProfileEditor() {
 		(document.getElementById("phone") as HTMLInputElement).value = "";
 	};
 
+	const fields = [
+		{
+			title: "First Name",
+			id: "firstName",
+			placeholder: profile?.firstName,
+		},
+		{
+			title: "Last Name",
+			id: "lastName",
+			placeholder: profile?.lastName,
+		},
+		{
+			title: "Phone",
+			id: "phone",
+			placeholder: profile?.phone,
+		},
+	];
+
 	return (
 		<div className="flex flex-col gap-4">
 			<form
 				name="auth"
 				className="flex flex-col gap-6 self-start p-4 w-[26rem]"
 			>
-				<h1 className="pb-2 text-2xl text-gray-500">Personal Information</h1>
+				<h1 className="pb-2 text-2xl text-dark-500">Personal Information</h1>
 
-				<div className="flex flex-col justify-start items-start group">
-					<label className="text-sm text-gray-600" htmlFor="firstName">
-						First Name
-					</label>
-					<input
-						className="px-4 h-12 text-xl placeholder-gray-700 text-black border-b-2 border-gray-400 outline-none text-start"
-						onBlur={handleFocusOut}
-						id="firstName"
-						name="firstName"
-						placeholder={profile?.firstName}
-						type="text"
-					/>
-				</div>
+				{fields.map((field) => {
+					return (
+						<div
+							key={field.id}
+							className="flex flex-col justify-start items-start group"
+						>
+							<label className="text-sm text-dark-700" htmlFor={field.id}>
+								{field.title}
+							</label>
 
-				<div className="flex flex-col justify-start items-start group">
-					<label className="text-sm text-gray-600" htmlFor="lastName">
-						Last Name
-					</label>
-					<input
-						className="px-4 h-12 text-xl placeholder-gray-700 text-black border-b-2 border-gray-400 outline-none text-start"
-						onBlur={handleFocusOut}
-						id="lastName"
-						name="lastName"
-						placeholder={profile?.lastName}
-						type="text"
-					/>
-				</div>
-
-				<div className="flex flex-col justify-start items-start group">
-					<label className="text-sm text-gray-600" htmlFor="phone">
-						Phone
-					</label>
-					<input
-						className="px-4 h-12 text-xl placeholder-gray-700 text-black border-b-2 border-gray-400 outline-none text-start"
-						onBlur={handleFocusOut}
-						id="phone"
-						name="phone"
-						placeholder={profile?.phone}
-						type="text"
-					/>
-				</div>
+							<input
+								className="px-4 h-12 text-xl border-b-2 outline-none text-dark-700 placeholder-dark-700 border-light-900 text-start focus:border-dark-100"
+								onBlur={handleFocusOut}
+								id={field.id}
+								name={field.id}
+								placeholder={field.placeholder}
+								type="text"
+							/>
+						</div>
+					);
+				})}
 
 				<div className="flex gap-4 justify-end pt-4">
 					<button
 						type="button"
 						onClick={handleCancel}
-						className="px-8 h-12 rounded-xl border-2 border-gray-600"
+						className="px-8 h-12 rounded-xl border-2 border-dark-100"
 					>
 						<LuX size={24} />
 					</button>
@@ -120,7 +118,7 @@ export default function ProfileEditor() {
 					<button
 						type="button"
 						onClick={handleSubmit}
-						className="px-12 h-12 text-white bg-gray-600 rounded-xl"
+						className="px-12 h-12 rounded-xl text-light-50 bg-dark-300"
 					>
 						<LuCheck size={24} />
 					</button>

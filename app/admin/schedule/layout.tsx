@@ -1,4 +1,3 @@
-import NavBar from "./_components/nav";
 import { Providers } from "./providers";
 
 export default function ScheduleLayout({

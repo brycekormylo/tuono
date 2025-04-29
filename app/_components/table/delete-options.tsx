@@ -26,13 +26,13 @@ export default function DeleteOptions<V extends ListContextProps<any>>({
 		<div className="p-2 w-80 h-40 stack">
 			<div className="flex flex-col gap-1 items-center self-start mt-2">
 				<h2 className="text-xl">Delete?</h2>
-				<h3 className="text-sm text-gray-500">This action cannot be undone</h3>
+				<h3 className="text-sm text-dark-500">This action cannot be undone</h3>
 			</div>
 
 			<div className="flex gap-4 justify-evenly items-center self-end w-full h-12">
 				<button
 					type="button"
-					className="h-12 text-gray-700 bg-white rounded-lg border-2 border-gray-600 grow"
+					className="h-12 bg-white rounded-lg border-2 text-dark-700 border-dark-600 grow"
 					onClick={handleCancel}
 				>
 					Cancel
@@ -40,7 +40,7 @@ export default function DeleteOptions<V extends ListContextProps<any>>({
 
 				<button
 					type="button"
-					className="h-12 font-bold text-red-400 bg-gray-600 rounded-lg grow"
+					className="h-12 font-bold text-red-400 rounded-lg bg-dark-600 grow"
 					onClick={handleDelete}
 				>
 					Delete

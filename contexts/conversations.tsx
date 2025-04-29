@@ -87,7 +87,17 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 	const { isLoading, error, data } = db.useQuery(conversationQuery);
 
 	useEffect(() => {
-		data && setInfo(data.conversations);
+		const sorted = data?.conversations.sort((a, b) => {
+			const aStamp = a.messages?.at(a.messages?.length - 1)?.timestamp;
+			const bStamp = b.messages?.at(b.messages?.length - 1)?.timestamp;
+
+			if (aStamp && bStamp && aStamp < bStamp) {
+				return 1;
+			}
+			return -1;
+		});
+		sorted && setInfo(sorted);
+		selectedPatient && setSelectedFromPatient(selectedPatient);
 	}, [data]);
 
 	const toggleSort = () => {

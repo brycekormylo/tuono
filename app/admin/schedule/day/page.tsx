@@ -3,7 +3,7 @@
 import PopoverButton from "@/app/_components/popover/popover_button";
 import dayjs, { type Dayjs } from "dayjs";
 import weekday from "dayjs/plugin/weekday";
-import { LuEllipsisVertical, LuPlus, LuTrash } from "react-icons/lu";
+import { LuPlus, LuTrash } from "react-icons/lu";
 import AppointmentDetails from "../../_components/appointment_details/page";
 import { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
@@ -14,6 +14,7 @@ import { useAppointments } from "@/contexts/appointments";
 import DeleteDropZone from "./_components/delete-drop-zone";
 import DatePicker from "./_components/date-picker";
 import ScheduleOverview from "./_components/schedule-overview";
+import AppointmentDragItem from "./_components/appointment-drag-item";
 
 export default function ScheduleDay() {
 	const localizedFormat = require("dayjs/plugin/localizedFormat");
@@ -24,21 +25,34 @@ export default function ScheduleDay() {
 
 	const [show, setShow] = useState(false);
 	const [hoveredSlot, setHoveredSlot] = useState<string | null>(null);
+	const [hoveredDay, setHoveredDay] = useState<string | null>(null);
 
 	const updateHoverSlot = (newValue: Dayjs | null) => {
 		if (!newValue) {
 			setHoveredSlot(null);
+			setHoveredDay(null);
 		} else {
 			setHoveredSlot(newValue.format("hh:mm"));
+			setHoveredDay(newValue.format("L"));
 		}
 	};
+
+	function dayIsHovered(day: Dayjs | undefined): boolean {
+		return day?.format("L") === hoveredDay;
+	}
 
 	function timeIsHovered(day: Dayjs): boolean {
 		return day.format("hh:mm") === hoveredSlot;
 	}
 
+	function isCurrentDay(day: Dayjs | null): boolean {
+		const current = dayjs();
+		return day?.format("L") === current.format("L");
+	}
+
 	const {
 		displayDate,
+		setDisplayDate,
 		selectedTimeSlot,
 		dragItemID,
 		setSelectedTimeSlot,
@@ -53,7 +67,7 @@ export default function ScheduleDay() {
 
 	useEffect(() => {
 		const weekdayArr: Dayjs[][] = [];
-		for (let j = 0; j <= 6; j++) {
+		for (let j = 1; j <= 6; j++) {
 			const slotArr = [];
 			const dayOfWeek = displayDate.day(j);
 			for (let i = 7; i <= 19; i += 0.5) {
@@ -72,151 +86,150 @@ export default function ScheduleDay() {
 	}, [displayDate]);
 
 	return (
-		<div className="pt-8 max-w-full h-full w-[84rem] stack">
+		<div className="pt-4 max-w-full h-full w-[92rem] stack">
 			<DndProvider backend={HTML5Backend}>
-				<div className="p-8 w-full h-full bg-gray-50 stack">
+				<div className="w-full h-full stack duration-[25ms]">
 					<div className="flex flex-col gap-6 justify-self-start items-start self-start h-full w-[36rem]">
-						<div className="flex flex-row gap-6">
-							<DatePicker />
-						</div>
+						<DatePicker />
 
 						<div className="flex gap-2 items-center self-start h-10">
-							<div className="">
-								<PopoverButton popover={<AppointmentDetails />}>
-									<div className="z-10 w-10 h-10 bg-gray-200 rounded-full stack">
-										<LuPlus size={24} />
-									</div>
-								</PopoverButton>
-							</div>
-
-							<div className="w-10 h-10 stack group">
-								<div className="w-full h-full bg-gray-200 rounded-full" />
-								<div className="w-8 h-8 bg-gray-200 rounded-full group-has-[:checked]:bg-gray-400" />
-
-								<input
-									type="checkbox"
-									value={showFullWeek ? 1 : 0}
-									onChange={toggleWeek}
-									className="w-full h-full bg-gray-100 rounded-full opacity-0"
-								/>
-							</div>
-							<p className="text-sm text-gray-500">Display full week</p>
+							<PopoverButton popover={<AppointmentDetails />}>
+								<div className="z-10 w-32 h-10 rounded-md bg-light-50 stack">
+									<LuPlus size={24} />
+								</div>
+							</PopoverButton>
 						</div>
+
 						<ScheduleOverview />
 					</div>
 
-					{dragItemID && (
-						<div className="justify-self-start self-end w-96 h-48 bg-gray-100 rounded-md">
-							<DeleteDropZone>
-								<div className="text-gray-700 stack">
-									<LuTrash size={24} />
-								</div>
-							</DeleteDropZone>
-						</div>
-					)}
-
-					<div className="grid grid-cols-7 justify-self-end self-start px-4 pb-2 h-8 w-[52rem]">
-						{weekdays.map((day, index) => {
-							return (
-								<p
-									key={day.at(index)?.toISOString()}
-									className="text-gray-700 stack"
-								>
-									{day.at(0)?.format("ddd D")}
-								</p>
-							);
-						})}
+					<div
+						className={`${dragItemID ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} z-50 justify-self-start self-end w-80 rounded-md bg-light-100 h-[36rem]`}
+					>
+						<DeleteDropZone>
+							<div className="text-dark-700 stack">
+								<LuTrash size={24} />
+							</div>
+						</DeleteDropZone>
 					</div>
 
-					<div className="flex overflow-y-scroll flex-col justify-self-end py-2 mt-12 min-h-full w-[58rem] max-h-[72vh] pe-4">
-						<div className="w-full h-full stack">
-							<div className="flex flex-row justify-start w-full">
-								<div className="flex flex-col gap-1 w-32">
-									{weekdays.at(0)?.map((daySlot) => {
+					<div className="flex flex-col justify-self-end p-4 h-full rounded-xl bg-light-50 w-[70rem]">
+						<div className="flex z-10 justify-between w-auto h-8 pe-2 ms-[6rem]">
+							{weekdays.map((day, index) => {
+								const isToday = isCurrentDay(day.at(0) ?? null);
+								const isSelected =
+									displayDate.toISOString().slice(0, 10) ===
+									day.at(0)?.toISOString().slice(0, 10);
+								const isHovered = dayIsHovered(day.at(0));
+								return (
+									<div
+										key={day.at(index)?.toISOString()}
+										className="w-full h-full stack"
+									>
+										{isToday && (
+											<div className="justify-self-center self-end w-8 h-1 rounded-full bg-accent-200" />
+										)}
+
+										{isSelected && (
+											<div className="justify-self-center self-end w-12 h-1 rounded-full bg-accent-400" />
+										)}
+
+										<p
+											className={`${isToday || isHovered ? "text-dark-700" : "text-dark-100"}`}
+										>
+											{day.at(0)?.format("ddd D")}
+										</p>
+									</div>
+								);
+							})}
+						</div>
+
+						<div className="block overflow-y-scroll w-full max-h-[78vh] pe-2">
+							<div className="flex w-full h-auto">
+								<div className="flex flex-col gap-1 w-28">
+									{weekdays.at(0)?.map((slot) => {
+										const isHovered = timeIsHovered(slot);
 										return (
 											<div
-												key={daySlot.toISOString()}
-												onMouseEnter={() => updateHoverSlot(daySlot)}
-												onMouseLeave={() => updateHoverSlot(null)}
-												className="flex z-0 gap-2 justify-end items-center w-full h-16 pointer-events-none"
+												key={slot.toISOString()}
+												className="flex z-0 gap-2 justify-end items-center w-full h-16"
 											>
-												<p className="text-base text-gray-700">
-													{daySlot.format("LT")}
+												<p
+													className={`${isHovered ? "text-dark-500" : "text-dark-100"} text-base`}
+												>
+													{slot.format("LT")}
 												</p>
+
 												<div
-													className={`${timeIsHovered(daySlot) ? "bg-gray-300" : "bg-gray-100"} w-4 h-1 `}
+													className={`${timeIsHovered(slot) ? "bg-light-700" : "bg-light-100"} w-4 h-1`}
 												/>
 											</div>
 										);
 									})}
 								</div>
 
-								<div className="flex flex-col w-full">
-									<div className="grid grid-cols-7 gap-1 w-full h-auto">
-										{weekdays.map((slots) => {
-											return (
-												<div
-													key={slots.at(0)?.toString() ?? ""}
-													className="w-full bg-gray-100 hover:bg-gray-200 px-[2px] stack"
-												>
-													<div className="m-1 w-full h-full bg-gray-50" />
-													<div className="flex flex-col gap-1 w-full">
-														{slots.map((slot) => {
-															return (
-																<div
-																	key={slot.toISOString()}
-																	onMouseEnter={() => updateHoverSlot(slot)}
-																	onMouseLeave={() => updateHoverSlot(null)}
-																	className="z-0 w-full h-16 bg-gray-100 stack"
-																>
-																	<DropZone date={slot} />
+								<div className="flex gap-1 w-full h-auto">
+									{weekdays.map((day) => {
+										const isToday = isCurrentDay(day.at(0) ?? null);
+										const isDisplayDate =
+											displayDate.toISOString().slice(0, 10) ===
+											day.at(0)?.toISOString().slice(0, 10);
+										return (
+											<div
+												key={day.at(0)?.toString() ?? ""}
+												className="w-full bg-light-300 stack hover:bg-light-700"
+											>
+												<div className="w-full h-full bg-light-50" />
+												<div className="flex flex-col gap-1 w-full group">
+													{day.map((slot) => {
+														return (
+															<div
+																key={slot.toISOString()}
+																onMouseEnter={() => updateHoverSlot(slot)}
+																onMouseLeave={() => updateHoverSlot(null)}
+																className="z-0 w-full h-16 bg-light-100 stack"
+															>
+																<DropZone date={slot} />
 
-																	{!dragItemID && (
-																		<button
-																			type="button"
-																			onClick={() => setSelectedTimeSlot(slot)}
-																			className={`w-full h-full text-transparent bg-gray-100 hover:text-gray-500 py-[2px] stack ${timeIsHovered(slot) ? "bg-gray-300" : "bg-gray-100"}`}
-																		>
-																			<div className="w-full h-full bg-gray-100" />
-																			<LuPlus size={20} />
-																		</button>
-																	)}
+																{!dragItemID && (
+																	<button
+																		type="button"
+																		onClick={() => setSelectedTimeSlot(slot)}
+																		className={`w-full h-full text-transparent hover:text-dark-100 group-hover:bg-light-700 group-hover:px-[2px] stack ${timeIsHovered(slot) ? "bg-light-700 py-[2px]" : "bg-light-100"}`}
+																	>
+																		<div className="w-full h-full bg-light-100" />
+																		<div
+																			className={`w-full h-full ${isDisplayDate && "bg-accent-400/10"}`}
+																		/>
+																		<div
+																			className={`w-full h-full ${isToday && !isDisplayDate && "bg-accent-200/10"}`}
+																		/>
 
-																	{appointments
-																		?.filter(
-																			(appt) =>
-																				appt.date.toString() ===
-																				slot.toISOString(),
-																		)
-																		.map((appt) => {
-																			return (
-																				<div
-																					key={appt.id}
-																					className="z-20 p-2 w-full h-full bg-gray-200 stack"
-																				>
-																					<p>
-																						{`${appt.profile?.lastName}, ${appt.profile?.firstName}`}
-																					</p>
+																		<LuPlus size={20} />
+																	</button>
+																)}
 
-																					<div className="justify-self-end w-2 h-full stack">
-																						<DragItem
-																							key={appt.id}
-																							id={appt.id}
-																						>
-																							<LuEllipsisVertical size={18} />
-																						</DragItem>
-																					</div>
-																				</div>
-																			);
-																		})}
-																</div>
-															);
-														})}
-													</div>
+																{appointments
+																	?.filter(
+																		(appt) =>
+																			appt.date.toString() ===
+																			slot.toISOString(),
+																	)
+																	.map((appt) => {
+																		return (
+																			<AppointmentDragItem
+																				key={appt.id}
+																				appt={appt}
+																			/>
+																		);
+																	})}
+															</div>
+														);
+													})}
 												</div>
-											);
-										})}
-									</div>
+											</div>
+										);
+									})}
 								</div>
 							</div>
 						</div>
@@ -229,9 +242,9 @@ export default function ScheduleDay() {
 					<button
 						type="button"
 						onClick={() => setSelectedTimeSlot(null)}
-						className="z-50 w-full h-full bg-gray-200/50"
+						className="z-50 w-full h-full bg-dark-100/40"
 					/>
-					<div className="z-50 p-4 bg-gray-50 rounded-lg stack">
+					<div className="z-50 p-4 rounded-lg bg-light-50 stack">
 						<AppointmentDetails />
 					</div>
 				</div>

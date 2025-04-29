@@ -1,5 +1,4 @@
 import { useAppointments } from "@/contexts/appointments";
-import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import { type DropTargetMonitor, useDrop } from "react-dnd";
 
@@ -24,12 +23,10 @@ const DeleteDropZone = ({ children }: DeleteDropZoneProps) => {
 		}),
 	}));
 
-	// TODO: Allow this to create new appointments when tapped
-	// TODO: Float the appointment over the associated row
 	return (
 		<div
 			ref={drop}
-			className={`${isOver ? "border-gray-400" : "border-gray-100"} border-[2px] w-full h-full stack`}
+			className={`${isOver ? "border-dark-300" : "border-light-900"} bg-light-50 border-[2px] w-full h-full stack rounded-md`}
 		>
 			{children}
 		</div>

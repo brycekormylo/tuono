@@ -48,9 +48,9 @@ export default function PopoverButton({
 						<button
 							type="button"
 							onClick={handleDismiss}
-							className="z-50 w-full h-full bg-gray-200/50"
+							className="z-50 w-full h-full bg-dark-100/30"
 						/>
-						<div className="z-50 p-4 bg-gray-50 rounded-lg stack">
+						<div className="z-50 p-4 rounded-lg bg-light-50 stack">
 							{popover}
 						</div>
 					</div>

@@ -27,7 +27,7 @@ export default function Utils<V extends ListContextProps<any>>({
 				<SearchBar source={source} />
 
 				<PopoverButton popover={overlay} pressAction={deselect}>
-					<div className="z-20 w-12 h-12 bg-gray-300 rounded-full ring-gray-400 stack hover:ring-[1px]">
+					<div className="z-20 w-12 h-12 rounded-full bg-light-50 ring-light-900 ring-[1px] stack text-dark-300 hover:ring-dark-100 hover:text-dark-700">
 						<LuPlus size={28} />
 					</div>
 				</PopoverButton>

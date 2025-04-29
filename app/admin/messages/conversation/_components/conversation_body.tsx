@@ -20,9 +20,11 @@ export default function ConversationBody() {
 									key={message.timestamp.toString()}
 									className={`py-1 flex gap-2 items-center ${!message.fromAdmin && "flex-row-reverse"} justify-end`}
 								>
-									<p className="text-xs text-gray-400">{formattedDate}</p>
+									<p className="text-xs text-dark-100">{formattedDate}</p>
 
-									<p className="py-2 px-4 bg-gray-200 rounded-xl">
+									<p
+										className={`py-2 px-4 rounded-xl ${!message.fromAdmin ? "bg-light-500" : "bg-primary-300"}`}
+									>
 										{message.content}
 									</p>
 								</div>

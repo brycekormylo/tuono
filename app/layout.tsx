@@ -20,7 +20,7 @@ export default function RootLayout({
 		<html lang="en">
 			<body className={`${font.className} font-medium`}>
 				<Providers>
-					<main className="h-screen bg-gray-100 overflow-clip stack [&_*]:transition-all [&_*]:ease-in [&_*]:transition-duration-75">
+					<main className="h-screen bg-light-300 overflow-clip stack [&_*]:transition-all [&_*]:ease-in [&_*]:transition-duration-75">
 						<NavBar />
 						<div className="py-16 px-48 w-full h-full stack">{children}</div>
 					</main>

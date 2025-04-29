@@ -13,7 +13,7 @@ export default function AppointmentCard({ appt }: { appt: Appointment }) {
 	const card = () => {
 		return (
 			<div
-				className={`${appt.appointmentType == AppointmentType.FULL ? "mt-2 h-[7.5rem]" : "h-12"} p-4 w-64 bg-white rounded-md stack`}
+				className={`${appt.appointmentType == AppointmentType.FULL ? "mt-2 h-[7.5rem]" : "h-12"} p-4 w-64 bg-light-100 rounded-md stack`}
 			>
 				<p className="justify-self-start self-start font-semibold">
 					{appt.profile?.firstName} {appt.profile?.lastName}
@@ -22,8 +22,8 @@ export default function AppointmentCard({ appt }: { appt: Appointment }) {
 				<div className="flex flex-col gap-1 justify-self-start self-end">
 					{appt.notes && (
 						<>
-							<h2 className="text-sm text-gray-500">Notes:</h2>
-							<p className="text-sm text-gray-700">{`${appt.notes}`}</p>
+							<h2 className="text-sm text-dark-500">Notes:</h2>
+							<p className="text-sm text-dark-700">{`${appt.notes}`}</p>
 						</>
 					)}
 				</div>

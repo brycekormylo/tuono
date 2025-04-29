@@ -9,14 +9,14 @@ export default function ConversationOptions() {
 	return (
 		<div className="flex flex-col gap-2">
 			<PopoverButton popover={<PatientDetails />}>
-				<div className="flex gap-4 items-center p-4 w-72 bg-white rounded-md">
+				<div className="flex gap-4 items-center p-4 w-72 rounded-md bg-light-300">
 					<LuInfo size={18} />
 					<p className="">Patient Details</p>
 				</div>
 			</PopoverButton>
 
 			<PopoverButton popover={<DeleteOptions />}>
-				<div className="flex gap-4 items-center p-4 w-72 text-red-500 bg-white rounded-md">
+				<div className="flex gap-4 items-center p-4 w-72 rounded-md text-error bg-light-300">
 					<LuTrash size={18} />
 					<label htmlFor="delete" className="">
 						Delete conversation

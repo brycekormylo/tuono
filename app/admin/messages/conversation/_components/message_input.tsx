@@ -41,7 +41,7 @@ export default function MessageInput() {
 					<div className="grow" />
 					<label
 						htmlFor="message"
-						className={`px-4 text-sm text-red-500 ${error ? "block" : "hidden"}`}
+						className={`px-4 text-sm text-error ${error ? "block" : "hidden"}`}
 					>
 						{error}
 					</label>
@@ -54,7 +54,7 @@ export default function MessageInput() {
 						cols={10}
 						value={newMessage}
 						onFocus={handleFocus}
-						className={`self-end pt-4 w-[36rem] h-48 rounded-xl resize-none text-start rounded-input ring-red-300 ${error ? "ring-2" : "ring-0"}`}
+						className={`self-end pt-4 w-[36rem] h-48 rounded-xl resize-none text-start rounded-input ring-error ${error ? "ring-2" : "ring-0"}`}
 						onChange={changeNewMessage}
 					/>
 				</div>
@@ -62,7 +62,7 @@ export default function MessageInput() {
 				<button
 					type="button"
 					onClick={handleSubmit}
-					className="justify-self-end self-end m-2 w-16 h-12 rounded-xl hover:bg-gray-100 stack"
+					className="justify-self-end self-end m-2 w-16 h-12 rounded-xl stack bg-primary-100 hover:bg-primary-300"
 				>
 					<LuSend />
 				</button>

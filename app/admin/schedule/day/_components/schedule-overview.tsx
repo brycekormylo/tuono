@@ -7,16 +7,16 @@ export default function ScheduleOverview() {
 
 	return (
 		<div className="flex z-10 flex-col gap-2 h-auto">
-			<p className="text-sm text-gray-500">Upcoming</p>
-			<div className="flex overflow-y-scroll flex-col gap-2 max-h-[28rem] pe-4">
+			<p className="text-sm text-dark-500">Upcoming</p>
+			<div className="flex overflow-y-scroll flex-col gap-2 max-h-[34rem] pe-4">
 				{appointments?.map((appt: Appointment) => {
 					const dateString = dayjs(appt.date).format("L LT");
 
 					return (
 						<DragItem key={appt.id} id={appt.id}>
-							<div className="flex flex-col gap-1 py-2 px-4 w-80 text-gray-500 bg-white rounded-md">
+							<div className="flex flex-col gap-1 py-2 px-4 w-80 rounded-md bg-light-50 text-dark-500">
 								<div className="flex gap-2 justify-between items-center w-full">
-									<p className="font-semibold text-gray-800">
+									<p className="font-semibold text-dark-800">
 										{appt.profile?.firstName} {appt.profile?.lastName}
 									</p>
 

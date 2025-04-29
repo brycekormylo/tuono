@@ -28,7 +28,7 @@ const TimeDropZone = ({ date }: TimeDropZoneProps) => {
 	return (
 		<div ref={drop} className="w-full h-full stack">
 			<div
-				className={`${isOver ? "bg-gray-400" : dragItemID ? "bg-gray-200" : "bg-gray-100"} self-start w-full h-[2px]`}
+				className={`${isOver ? "bg-dark-100" : dragItemID ? "bg-light-700" : "bg-light-100"} self-start w-full h-[2px]`}
 			/>
 		</div>
 	);

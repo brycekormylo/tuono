@@ -14,22 +14,22 @@ export default function Dashboard() {
 				<div className="grow min-h-20" />
 
 				<div className="flex flex-col gap-4 items-end w-full">
-					<div className="flex flex-row-reverse gap-12 items-center bg-gray-100 rounded-full ps-12">
-						<div className="flex justify-center items-center w-24 h-24 bg-gray-400 rounded-full">
+					<div className="flex flex-row-reverse gap-12 items-center rounded-full bg-light-100 ps-12">
+						<div className="flex justify-center items-center w-24 h-24 rounded-full bg-light-400">
 							<LuPersonStanding size={48} />
 						</div>
 						<p className="text-xl">Clients</p>
 					</div>
 
-					<div className="flex flex-row-reverse gap-12 items-center bg-gray-100 rounded-full ps-12">
-						<div className="flex justify-center items-center w-24 h-24 bg-gray-400 rounded-full">
+					<div className="flex flex-row-reverse gap-12 items-center rounded-full bg-light-100 ps-12">
+						<div className="flex justify-center items-center w-24 h-24 rounded-full bg-light-400">
 							<LuList size={48} />
 						</div>
 						<p className="text-xl">Actions</p>
 					</div>
 
-					<div className="flex flex-row-reverse gap-12 items-center bg-gray-100 rounded-full ps-12">
-						<div className="flex justify-center items-center w-24 h-24 bg-gray-400 rounded-full">
+					<div className="flex flex-row-reverse gap-12 items-center rounded-full bg-light-100 ps-12">
+						<div className="flex justify-center items-center w-24 h-24 rounded-full bg-light-400">
 							<LuPlus size={48} />
 						</div>
 						<p className="text-xl">New Routine</p>

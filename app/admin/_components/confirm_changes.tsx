@@ -36,7 +36,7 @@ export default function ConfirmChanges({
 		<div className="overflow-y-scroll flex-col p-2 max-h-[48rem] w-[36rem]">
 			<div className="flex flex-col gap-1 items-center self-start mt-2">
 				<h2 className="text-xl">{isNew ? "Create New?" : "Save Changes?"}</h2>
-				<h3 className="text-sm text-gray-500">You can edit this again later</h3>
+				<h3 className="text-sm text-dark-500">You can edit this again later</h3>
 			</div>
 
 			<div className="flex flex-col gap-4 items-center self-start p-2 my-2">
@@ -47,7 +47,7 @@ export default function ConfirmChanges({
 							className="flex flex-col gap-1 items-start min-w-[24rem]"
 						>
 							<p className="text-sm">{camelCaseToWords(change?.key ?? "")}</p>
-							<div className="flex gap-4 justify-between items-center p-4 w-full text-center bg-gray-100 rounded-md">
+							<div className="flex gap-4 justify-between items-center p-4 w-full text-center rounded-md bg-light-100">
 								{!isNew && (
 									<>
 										<p className="w-[12rem] stack">{change?.prevElement}</p>
@@ -66,7 +66,7 @@ export default function ConfirmChanges({
 			<div className="flex gap-4 justify-evenly items-center self-end mt-8 w-full h-12">
 				<button
 					type="button"
-					className="h-12 text-gray-700 bg-white rounded-lg border-2 border-gray-600 grow"
+					className="h-12 bg-white rounded-lg border-2 text-dark-700 border-dark-100 grow"
 					onClick={handleCancel}
 				>
 					Cancel
@@ -74,7 +74,7 @@ export default function ConfirmChanges({
 
 				<button
 					type="button"
-					className="h-12 font-bold text-white bg-gray-600 rounded-lg grow"
+					className="h-12 font-bold text-white rounded-lg bg-dark-300 grow"
 					onClick={action}
 				>
 					Save

@@ -10,7 +10,7 @@ import {
 } from "react";
 import type { ChangeRecord, ListContextProps } from "./list-context-props";
 import { useInput } from "@/hooks/use-input";
-import { id, type InstaQLEntity } from "@instantdb/react";
+import type { InstaQLEntity } from "@instantdb/react";
 import { useProfile } from "./profiles";
 import dayjs, { type Dayjs } from "dayjs";
 
@@ -89,7 +89,7 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 			const appointments: Appointment[] = data.appointments as Appointment[];
 			const filtered = appointments.filter(
 				(appt) =>
-					dayjs(appt.date.toString()).toISOString().slice(0, 9) ===
+					appt.date.toString().slice(0, 9) >=
 					displayDate.toISOString().slice(0, 9),
 			);
 
@@ -99,6 +99,7 @@ const AppointmentProvider = ({ children }: AppointmentProviderProps) => {
 				}
 				return a.date < b.date ? -1 : 1;
 			});
+
 			setRawInfo(sorted);
 			setInfo(sorted);
 		} else {
