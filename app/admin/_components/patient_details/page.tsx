@@ -133,7 +133,7 @@ export default function PatientDetails() {
 
 	return (
 		<form className="flex flex-col py-4 px-6 rounded-md w-[28rem]">
-			<div className="flex flex-row gap-2 items-center mb-6 h-12 text-gray-600">
+			<div className="flex flex-row gap-2 items-center mb-6 h-12 text-dark-300">
 				<h1 className="text-2xl">
 					{patient.email === "" ? "Create Patient" : "Patient Information"}
 				</h1>

@@ -28,6 +28,10 @@ export default function DatePicker() {
 		setDisplayDate(displayDate.subtract(1, "week"));
 	};
 
+	const reset = () => {
+		setDisplayDate(dayjs());
+	};
+
 	const handleInputChange = (event: React.FormEvent<HTMLInputElement>) => {
 		const value = event.currentTarget.value;
 		value !== "" && setDisplayDate(dayjs(value));
@@ -38,11 +42,11 @@ export default function DatePicker() {
 			<div className="px-4 w-full stack">
 				<button
 					type="button"
-					onClick={() => setDisplayDate(dayjs())}
+					onClick={reset}
 					className="justify-self-start self-start w-10 h-10 rounded-md stack text-primary-700 disabled:text-dark-100/50"
 					disabled={
-						displayDate.toISOString().slice(0, 9) ===
-						dayjs().toISOString().slice(0, 9)
+						displayDate.toISOString().slice(0, 10) ===
+						dayjs().toISOString().slice(0, 10)
 					}
 				>
 					<LuRefreshCw size={24} />

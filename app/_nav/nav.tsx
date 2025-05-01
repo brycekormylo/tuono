@@ -86,12 +86,13 @@ export default function NavBar() {
 							key={item.name}
 							type="button"
 							onMouseDown={() => router.push(`/${item.slug}`)}
-							className={`group/button stack ${isSelected ? "text-dark-800" : "text-dark-400 "} `}
+							className={`hover:text-dark-700 stack h-12 ${isSelected ? "text-dark-700" : "text-dark-100"}`}
 						>
 							{isSelected && (
-								<div className="self-end mx-4 w-28 h-1 bg-gray-500 rounded-full" />
+								<div className="self-end mx-4 w-24 h-1 rounded-full bg-primary-500" />
 							)}
-							<div className="flex gap-2 justify-center items-center w-36 h-12 rounded-xl overflow-clip group-hover/button:text-dark-800">
+
+							<div className="flex gap-2 justify-center items-center w-36 h-12 rounded-xl overflow-clip">
 								<item.icon size={20} />
 								<p className="text-base">{item.name}</p>
 							</div>

@@ -28,7 +28,7 @@ export default function MessageInput() {
 
 	useEffect(() => {
 		setError(null);
-	});
+	}, []);
 
 	const handleFocus = () => {
 		setShowOptions(false);
@@ -39,12 +39,11 @@ export default function MessageInput() {
 			<div className="justify-self-end self-end stack">
 				<div className="flex items-center">
 					<div className="grow" />
-					<label
-						htmlFor="message"
-						className={`px-4 text-sm text-error ${error ? "block" : "hidden"}`}
-					>
-						{error}
-					</label>
+					{error && (
+						<label htmlFor="message" className="px-4 text-sm text-error">
+							{error}
+						</label>
+					)}
 
 					<textarea
 						name="message"
@@ -54,7 +53,7 @@ export default function MessageInput() {
 						cols={10}
 						value={newMessage}
 						onFocus={handleFocus}
-						className={`self-end pt-4 w-[36rem] h-48 rounded-xl resize-none text-start rounded-input ring-error ${error ? "ring-2" : "ring-0"}`}
+						className={`self-end pt-4 w-[36rem] h-48 rounded-xl resize-none text-start rounded-input border-[2px] ${error ? "border-error" : "border-light-900"}`}
 						onChange={changeNewMessage}
 					/>
 				</div>
@@ -62,9 +61,9 @@ export default function MessageInput() {
 				<button
 					type="button"
 					onClick={handleSubmit}
-					className="justify-self-end self-end m-2 w-16 h-12 rounded-xl stack bg-primary-100 hover:bg-primary-300"
+					className="justify-self-end self-end m-4 w-16 h-12 rounded-xl stack bg-primary-100 hover:bg-primary-300"
 				>
-					<LuSend />
+					<LuSend size={20} />
 				</button>
 			</div>
 		)

@@ -1,6 +1,8 @@
 "use client";
 
-import { PopoverButtonContext } from "@/app/_components/popover/popover_button";
+import PopoverButton, {
+	PopoverButtonContext,
+} from "@/app/_components/popover/popover_button";
 import { useProfile } from "@/contexts/profiles";
 import { useContext } from "react";
 import { LuCheck, LuX } from "react-icons/lu";
@@ -82,7 +84,28 @@ export default function ProfileEditor() {
 				name="auth"
 				className="flex flex-col gap-6 self-start p-4 w-[26rem]"
 			>
-				<h1 className="pb-2 text-2xl text-dark-500">Personal Information</h1>
+				<div className="flex flex-row gap-2 items-center h-12 text-dark-300">
+					<h1 className="text-2xl">Personal Information</h1>
+					<div className="grow" />
+
+					<>
+						<button
+							type="button"
+							onClick={handleCancel}
+							className="w-10 h-10 stack"
+						>
+							<LuX size={20} />
+						</button>
+
+						<button
+							type="button"
+							onClick={handleSubmit}
+							className="w-10 h-10 stack"
+						>
+							<LuCheck size={20} />
+						</button>
+					</>
+				</div>
 
 				{fields.map((field) => {
 					return (
@@ -105,24 +128,6 @@ export default function ProfileEditor() {
 						</div>
 					);
 				})}
-
-				<div className="flex gap-4 justify-end pt-4">
-					<button
-						type="button"
-						onClick={handleCancel}
-						className="px-8 h-12 rounded-xl border-2 border-dark-100"
-					>
-						<LuX size={24} />
-					</button>
-
-					<button
-						type="button"
-						onClick={handleSubmit}
-						className="px-12 h-12 rounded-xl text-light-50 bg-dark-300"
-					>
-						<LuCheck size={24} />
-					</button>
-				</div>
 			</form>
 		</div>
 	);

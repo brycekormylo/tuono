@@ -58,37 +58,36 @@ export default function TableRow<
 		toDelete && remove(toDelete);
 	};
 
-	const handleEdit = () => {
-		setEdit(true);
-		setSelected(element);
-	};
+	const underlay = "bg-secondary-300";
+	const selectedbg = "bg-secondary-100";
+	const unselectedbg = "group-hover:bg-secondary-50 bg-light-50";
 
 	return (
 		<div
-			className={`grid group h-14 w-full rounded-md overflow-clip bg-light-300/75 ${isSelected ? "grid-cols-[1fr,1fr,20rem,10rem]" : "grid-cols-[1fr,1fr,30rem,0]"}  items-center`}
+			className={`grid group h-14 w-full rounded-md overflow-clip ${underlay} ${isSelected ? "grid-cols-[1fr,1fr,20rem,10rem]" : "grid-cols-[1fr,1fr,30rem,0]"}  items-center`}
 		>
 			<div
-				className={`flex col-start-1 row-start-1 justify-self-start items-center w-full h-full group-hover:bg-light-200 ps-6 ${isSelected ? "bg-light-100" : "bg-light-50"}`}
+				className={`flex col-start-1 row-start-1 justify-self-start items-center w-full h-full ps-6 ${isSelected ? selectedbg : unselectedbg}`}
 			>
-				<h2 className="text-lg select-none">{displayProperties.left}</h2>
+				<h2 className="text-lg">{displayProperties.left}</h2>
 			</div>
 
 			<div
-				className={` flex flex-wrap col-start-2 row-start-1 justify-end items-center w-full h-full group-hover:bg-light-200 ${isSelected ? "bg-light-100 " : "bg-light-50"}`}
+				className={`flex z-20 flex-wrap col-start-2 row-start-1 justify-end items-center w-full h-full ${isSelected ? selectedbg : unselectedbg}`}
 			>
 				{typeof displayProperties.center === "string" ? (
-					<h2 className="text-base select-none">{displayProperties.center}</h2>
+					<h2 className="text-base">{displayProperties.center}</h2>
 				) : (
 					<>{displayProperties.center}</>
 				)}
 			</div>
 
 			<div
-				className={`flex z-10 col-start-3 row-start-1 gap-2 justify-end justify-items-end items-center w-full h-full rounded-r-md ${isSelected ? "bg-light-100" : "bg-light-50"} min-w-40`}
+				className={`flex shadow-lg shadow-secondary-900 z-10 col-start-3 row-start-1 gap-2 justify-end justify-items-end items-center w-full h-full rounded-r-md ${isSelected ? selectedbg : unselectedbg} min-w-40`}
 			>
-				<div className="flex gap-2 justify-end items-center w-full h-full pe-6 group-hover:bg-light-200">
+				<div className="flex gap-2 justify-end items-center w-full h-full pe-6">
 					{typeof displayProperties.right === "string" ? (
-						<p className="text-base select-none">{displayProperties.right}</p>
+						<p className="text-base">{displayProperties.right}</p>
 					) : (
 						<>{displayProperties.right}</>
 					)}
@@ -97,7 +96,7 @@ export default function TableRow<
 
 			<button
 				type="button"
-				className="z-10 col-start-1 col-end-4 row-start-1 h-full bg-transparent grow"
+				className="z-30 col-start-1 col-end-4 row-start-1 h-full bg-transparent grow"
 				onMouseDown={handleClick}
 			/>
 

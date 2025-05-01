@@ -12,7 +12,6 @@ export default function History() {
 		selected,
 		setSelectedFromPatient,
 		setSelectedFromConversation,
-		setShowOptions,
 	} = useConversations();
 	const source = usePatient();
 
@@ -26,7 +25,6 @@ export default function History() {
 			<SearchButton
 				source={source}
 				itemAction={(item) => {
-					setShowOptions(false);
 					setSelectedFromPatient(item as Patient);
 				}}
 			>

@@ -45,7 +45,7 @@ export default function ScheduleDay() {
 		return day.format("hh:mm") === hoveredSlot;
 	}
 
-	function isCurrentDay(day: Dayjs | null): boolean {
+	function isCurrentDay(day: Dayjs | undefined): boolean {
 		const current = dayjs();
 		return day?.format("L") === current.format("L");
 	}
@@ -116,7 +116,7 @@ export default function ScheduleDay() {
 					<div className="flex flex-col justify-self-end p-4 h-full rounded-xl bg-light-50 w-[70rem]">
 						<div className="flex z-10 justify-between w-auto h-8 pe-2 ms-[6rem]">
 							{weekdays.map((day, index) => {
-								const isToday = isCurrentDay(day.at(0) ?? null);
+								const isToday = isCurrentDay(day.at(0));
 								const isSelected =
 									displayDate.toISOString().slice(0, 10) ===
 									day.at(0)?.toISOString().slice(0, 10);
@@ -127,11 +127,11 @@ export default function ScheduleDay() {
 										className="w-full h-full stack"
 									>
 										{isToday && (
-											<div className="justify-self-center self-end w-8 h-1 rounded-full bg-accent-200" />
+											<div className="justify-self-center self-end w-8 h-1 rounded-full bg-secondary-500" />
 										)}
 
 										{isSelected && (
-											<div className="justify-self-center self-end w-12 h-1 rounded-full bg-accent-400" />
+											<div className="justify-self-center self-end w-12 h-1 rounded-full bg-accent-500" />
 										)}
 
 										<p
@@ -170,7 +170,7 @@ export default function ScheduleDay() {
 
 								<div className="flex gap-1 w-full h-auto">
 									{weekdays.map((day) => {
-										const isToday = isCurrentDay(day.at(0) ?? null);
+										const isToday = isCurrentDay(day.at(0));
 										const isDisplayDate =
 											displayDate.toISOString().slice(0, 10) ===
 											day.at(0)?.toISOString().slice(0, 10);
@@ -199,10 +199,10 @@ export default function ScheduleDay() {
 																	>
 																		<div className="w-full h-full bg-light-100" />
 																		<div
-																			className={`w-full h-full ${isDisplayDate && "bg-accent-400/10"}`}
+																			className={`w-full h-full ${isDisplayDate && "bg-accent-500/10"}`}
 																		/>
 																		<div
-																			className={`w-full h-full ${isToday && !isDisplayDate && "bg-accent-200/10"}`}
+																			className={`w-full h-full ${isToday && !isDisplayDate && "bg-secondary-500/10"}`}
 																		/>
 
 																		<LuPlus size={20} />
@@ -242,7 +242,7 @@ export default function ScheduleDay() {
 					<button
 						type="button"
 						onClick={() => setSelectedTimeSlot(null)}
-						className="z-50 w-full h-full bg-dark-100/40"
+						className="z-50 w-full h-full backdrop-blur-sm bg-dark-100/40"
 					/>
 					<div className="z-50 p-4 rounded-lg bg-light-50 stack">
 						<AppointmentDetails />

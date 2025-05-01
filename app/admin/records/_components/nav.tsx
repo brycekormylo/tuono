@@ -27,8 +27,8 @@ export default function NavBar() {
 	const router = useRouter();
 
 	return (
-		<div className="fixed left-0 top-12 z-0 ms-60">
-			<div className="flex gap-8 justify-start p-2 w-screen bg-none group overflow-clip">
+		<div className="fixed left-0 top-14 z-0 ms-60">
+			<div className="flex gap-8 justify-start items-center p-2 w-screen bg-none group overflow-clip">
 				{TableItems.map((item) => {
 					const isSelected = pathname.includes(`/${item.slug}`);
 					return (
@@ -36,12 +36,12 @@ export default function NavBar() {
 							key={item.name}
 							type="button"
 							onMouseDown={() => router.push(`/${item.slug}`)}
-							className={`group/button stack ${isSelected ? "text-dark-700" : "text-dark-100"} `}
+							className={`group/button h-14 stack ${isSelected ? "text-dark-700" : "text-dark-100"} `}
 						>
 							{isSelected && (
-								<div className="self-end mx-4 w-28 h-1 rounded-full bg-dark-100" />
+								<div className="self-end mx-4 w-28 h-1 rounded-full bg-primary-500" />
 							)}
-							<div className="flex gap-2 justify-center items-center h-16 rounded-xl min-w-36 overflow-clip group-hover/button:text-dark-700">
+							<div className="flex gap-2 justify-center items-center rounded-xl min-w-36 overflow-clip group-hover/button:text-dark-700">
 								<p className="text-3xl">{item.name}</p>
 							</div>
 						</button>

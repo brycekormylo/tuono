@@ -97,7 +97,6 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 			return -1;
 		});
 		sorted && setInfo(sorted);
-		selectedPatient && setSelectedFromPatient(selectedPatient);
 	}, [data]);
 
 	const toggleSort = () => {
@@ -113,18 +112,18 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 	};
 
 	const setSelectedFromConversation = (conversation: Conversation) => {
-		setShowOptions(false);
 		setSelected(conversation);
 		conversation.patient && setSelectedPatient(conversation.patient);
 	};
 
 	const setSelectedFromPatient = (patient: Patient) => {
+		setShowOptions(false);
 		const prevConversation = info
 			?.filter((conversation) => conversation.patient?.id === patient.id)
 			.at(0);
 
 		if (prevConversation) {
-			setSelected(prevConversation);
+			setSelectedFromConversation(prevConversation);
 		} else {
 			const newDraft: Conversation = {
 				id: id(),
@@ -134,7 +133,7 @@ const ConversationProvider = ({ children }: ConversationProviderProps) => {
 				patient: patient,
 			};
 			update(newDraft);
-			setSelectedPatient(patient);
+			setSelectedFromConversation(newDraft);
 		}
 	};
 
